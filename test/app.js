@@ -7,33 +7,70 @@ fetch('login.json')
     loginData = data;
   });
 
-function checkPin() {
-            const pinInput = document.getElementById('pin-input').value;
-            const errorMessage = document.getElementById('error-message');
+function moveFocus(current, nextIndex) {
+    if (current.value.length === 1 && nextIndex < 5) {
+        const nextInput = document.getElementById('pin' + (nextIndex + 1));
+        if (nextInput) nextInput.focus();
+    }
+    
+    // Егер соңғы ұяшық толса, автоматты түрде checkPin() шақыру
+    if (nextIndex === 4 && current.value.length === 1) {
+        checkPin();
+    }
+}
 
-            // Check if the PIN exists in the database
-            if (loginData[pinInput]) {
-                var user = loginData[pinInput];
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('homemenu').style.display = 'flex';
-
-                // Update user information dynamically
-                document.querySelector('.username').innerText = user.name;
-                document.querySelector('#welcomename').innerHTML += user.name;
-                currentIndex = 0; 
-                updateChartDisplay();
-
-                // Example: Update chart data dynamically
-                // Пәндер тізімі
-
-
-// Бастапқыда бірінші графикті көрсету
-// updateChartDisplay();
-            } else {
-                errorMessage.style.display = 'block';
-            }
+// 2. Backspace (өшіру) батырмасын бақылау
+document.querySelectorAll('.pin-box').forEach((input, index) => {
+    input.addEventListener('keydown', function(e) {
+        if (e.key === "Backspace" && this.value === "" && index > 0) {
+            const prevInput = document.getElementById('pin' + index);
+            if (prevInput) prevInput.focus();
         }
+        if (e.key === "Enter") {
+            checkPin();
+        }
+    });
+});
+
+// 3. Негізгі Тексеру Функциясы
+function checkPin() {
+    // 4 ұяшықты бір ПИН қылып жинаймыз
+    const p1 = document.getElementById('pin1').value;
+    const p2 = document.getElementById('pin2').value;
+    const p3 = document.getElementById('pin3').value;
+    const p4 = document.getElementById('pin4').value;
+    const pinInput = p1 + p2 + p3 + p4;
+
+    const errorMessage = document.getElementById('error-message');
+
+    // Сіздің loginData базаңызбен тексеру
+    if (loginData && loginData[pinInput]) {
+        const user = loginData[pinInput];
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        
+        // Экранды жабу
+        document.getElementById('login-screen').style.display = 'none';
+        
+        // Негізгі интерфейсті ашу (ID-ді тексеріңіз: homemenu немесе app)
+        const homeMenu = document.getElementById('homemenu') || document.getElementById('app');
+        if (homeMenu) homeMenu.style.display = 'flex';
+
+        // Пайдаланушы атын жаңарту
+        document.querySelectorAll('.username').forEach(el => el.innerText = user.name);
+        const welcome = document.querySelector('#welcomename');
+        if (welcome) welcome.innerHTML = "Welcome, " + user.name;
+
+        if (typeof updateChartDisplay === "function") updateChartDisplay();
+    } else {
+        // Қате болса тазарту
+        if (errorMessage) errorMessage.style.display = 'block';
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById('pin' + i).value = "";
+        }
+        document.getElementById('pin1').focus();
+    }
+}
+
 
 // Hide main content initially
 
