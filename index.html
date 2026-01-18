@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Desktop - 7</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.6">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="test/style.css">
+    <link rel="stylesheet" href="11.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="test/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="login-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f4f4f4;">
+        <h2>Қош келдіңіз! ПИН код енгізіңіз:</h2>
+        <input type="password" id="pin-input" maxlength="4" style="font-size: 1.5rem; padding: 10px; text-align: center; width: 100px; margin-bottom: 20px;">
+        <button onclick="checkPin()" style="padding: 10px 20px; font-size: 1rem;">Кіру</button>
+        <p id="error-message" style="color: red; display: none;">Қате ПИН код. Қайтадан көріңіз.</p>
+    </div>
+
+    <div class="containers" id="homemenu" style="display: none;">
+        <aside class="sidebar">
+            <div class="user-info">
+                <img src="avatar.jpg" alt="" class="avatar">
+                <p class="username">Abdilla Sayan</p>
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li onclick="openPage('home')" id="nav-home" class="active">Home</li>
+                <li onclick="openPage('profile')" id="nav-profile">Profile</li>
+                <li onclick="openPage('test')" id="nav-test">Test</li>
+                <li onclick="openPage('ranking')" id="nav-ranking">Academic Ranking</li>
+                <li onclick="openPage('materials')" id="nav-materials">Study Materials</li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section id="home" class="content-page active">
+                <h1>Қош келдіңіз!</h1>
+                <div class="schedule-grid">
+                    <div class="day-card">
+                        <h3>Дүйсенбі</h3>
+                        <ul><li>Таңғы сап</li><li>Тұлғалық даму</li><li>Қазақстан тарихы</li><li>Математика</li><li>Информатика</li><li>Матем. сауаттылық</li></ul>
+                    </div>
+                    <div class="day-card">
+                        <h3>Сейсенбі</h3>
+                        <ul><li>Кітап оқу</li><li>Матем. сауаттылық</li><li>Тапсырма орындау</li><li>Дене шынықтыру</li><li>Ағылшын</li><li>Орыс тілі</li></ul>
+                    </div>
+                    <div class="day-card">
+                        <h3>Сәрсенбі</h3>
+                        <ul><li>Тәрбие сағат</li><li>АӘД</li><li>Орыс тілі</li><li>Қазақстан тарихы</li><li>Информатика</li><li>Математика</li></ul>
+                    </div>
+                    <div class="day-card">
+                        <h3>Бейсенбі</h3>
+                        <ul><li>Кітап оқу</li><li>Дене шынықтыру</li><li>Матем.сауаттылық</li><li>Қазақстан тарихы</li><li>Ағылшын</li><li>Тапсырма орындау</li></ul>
+                    </div>
+                    <div class="day-card">
+                        <h3>Жұма</h3>
+                        <ul><li>Кітап оқу</li><li>Қазақ тілі</li><li>Психология</li><li>Тапсырма орындау</li><li>Информатика</li><li>Тапсырма орындау</li></ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="profile" class="content-page">
+                <h1 class="text-center">Profile</h1>
+                <h2 id="welcomename">Welcome, </h2>
+                <div class="motivation-box">
+                    <p>"Кодтағы қате (bug) — бұл жай ғана тәжірибе. ҰБТ-дағы қате де солай. Әр қате сені дұрыс шешімге жақындатады."</p>
+                    <p>Әр дұрыс жауап — сіздің күшіңізді арттырады, әр қате — "жаудың" (ҰБТ-ның) сізге жасаған соққысы. Егер оқушы қатесімен жұмыс істесе, ол "жауды жеңген" болып есептеледі.</p>
+                </div>
+                <div class="green-blue-line"></div>
+                <div class="chart-section">
+    <div class="chart-switcher">
+        <button onclick="prevChart()">&#10094;</button>
+        <h3 id="chartTitle">UNT scores</h3>
+        <button onclick="nextChart()">&#10095;</button>
+    </div>
+    
+    <div class="chart-container" style="height: 300px;">
+        <canvas id="scoreChart"></canvas>
+    </div>
+</div>
+                
+                
+            </section>
+            <section id="test" class="content-page">
+            <h1>Қазақстан тарихы</h1>
+            <ul class="topics-list">
+                <li onclick="testgo(1);">Ерте орта Қазақстан VI-IX</li>
+                <li onclick="testgo(2);">Ерте орта ғасыр мәдениеті VI-IX</li>
+                <li onclick="testgo(3);">IX-XI ғасырлардағы Қазақстан</li>
+                <li onclick="testgo(4);">Ұлы жібек жолы</li>
+                <li onclick="testgo(5);">Біртұтас қазақ хандығының құрылуы</li>
+            </ul>
+            </section>
+            <section id="ranking" class="content-page">
+    <h1>🏆 Сынып рейтингі</h1>
+    <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid #eee;">
+                    <th style="padding: 10px;">Орын</th>
+                    <th style="padding: 10px;">Аты-жөні</th>
+                    <th style="padding: 10px;">Ұпай</th>
+                    <th style="padding: 10px;">Түрі</th>
+                </tr>
+            </thead>
+            <tbody id="rankingBody">
+                </tbody>
+        </table>
+    </div>
+</section>
+            
+         
+            
+          
+            
+            <section id="materials" class="content-page">
+    <header>
+        <h1>🌐 Пайдалы ресурстар</h1>
+        <p>ҰБТ-ға дайындалуға арналған тегін онлайн платформалар</p>
+    </header>
+
+    <div class="materials-grid">
+        <div class="material-card">
+            <div class="card-icon" style="color: #ff0000;">🎥</div>
+            <div class="card-info">
+                <h4>YouTube Сабақтар</h4>
+                <p>Нұсқа талдау және тақырыптық түсіндірмелер</p>
+                <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Көруге өту →</a>
+            </div>
+        </div>
+
+        <div class="material-card">
+            <div class="card-icon">📝</div>
+            <div class="card-info">
+                <h4>U-Study / Apptest</h4>
+                <p>Тегін байқау сынақтарын тапсыру</p>
+                <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тест тапсыру →</a>
+            </div>
+        </div>
+
+        <div class="material-card">
+            <div class="card-icon" style="color: #0088cc;">✈️</div>
+            <div class="card-info">
+                <h4>Telegram Группалар</h4>
+                <p>Сұрақ-жауап және жаңа базалар</p>
+                <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Қосылу →</a>
+            </div>
+        </div>
+    </div>
+</section>
+            </div>
+            
+
+            
+        </main>
+    </div>
+
+           
+        </main>
+    </div>
+
+    <script>
+        // Беттерді ауыстыру логикасы
+        function openPage(pageId) {
+            // Барлық беттерді жабу
+            document.querySelectorAll('.content-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Барлық мәзірлерден 'active' алып тастау
+            document.querySelectorAll('.menu li').forEach(li => {
+                li.classList.remove('active');
+            });
+
+            // Керекті бетті ашу
+            document.getElementById(pageId).classList.add('active');
+            document.getElementById('nav-' + pageId).classList.add('active');
+            if (pageId === 'ranking') {
+        updateRanking();
+    }
+            if(pageId === 'profile') {
+                updateChartDisplay();
+            }
+        }
+
+        // Графикті баптау
+        
+    </script>
+
+
+
+<style>
+
+
+.app-wrapper {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    background-color: #c4c4bc;
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+
+.user-name {
+    font-weight: 500;
+    margin-bottom: 40px;
+    color: #333;
+}
+
+.nav-menu {
+    list-style: none;
+}
+
+.nav-menu li {
+    padding: 12px 0;
+    cursor: pointer;
+    color: #666;
+    transition: 0.2s;
+}
+
+.nav-menu li:hover {
+    color: #000;
+}
+
+.nav-menu li.active {
+    font-weight: bold;
+    color: #000;
+}
+
+/* НЕГІЗГІ МАЗМҰН СТИЛЬДЕРІ */
+
+.content-page {
+    display: none; /* Әдепкіде барлық бет жабық */
+}
+
+.content-page.active {
+    display: block; /* Тек активті бет көрінеді */
+}
+
+h1 { font-size: 32px; margin-bottom: 30px; }
+.text-center { text-align: center; }
+
+/* SCHEDULE (HOME) */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 30px;
+}
+
+.day-card h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #222;
+}
+
+.day-card ul {
+    list-style: none;
+    padding: 0; /* Ішкі шегіністі алып тастау */
+    margin: 0;  /* Сыртқы шегіністі алып тастау */
+}
+
+.day-card li {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+/* PROFILE */
+.motivation-box {
+    margin: 30px 0;
+    line-height: 1.6;
+    color: #444;
+}
+
+.green-blue-line {
+    height: 4px;
+    background: linear-gradient(90deg, #4CAF50 50%, #2196F3 50%);
+    margin: 30px 0;
+}
+
+.chart-container {
+    height: 300px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* RANKING (PHOTO PLACEHOLDER) */
+.photo-placeholder {
+    width: 100%;
+    height: 400px;
+    border: 3px solid #ff7675; /* Суреттегі қызыл жиек */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: #fffaf0;
+}
+
+.photo-placeholder span {
+    font-size: 40px;
+    color: #ff7675;
+    font-weight: bold;
+    letter-spacing: 5px;
+}
+</style>
+
+        </main>
+    <div class="container" id="app" style="display: none;">
+    <div class="progress" id="progress"></div>
+    <div class="question" id="question">Жүктелуде...</div>
+    <div class="options" id="options"></div>
+  </div>
+  <div class="footer-brand">
+    BY <span class="name">SAYAN</span> & <span class="name">RAMAZAN</span>
+</div>
+</body>
+</html>
