@@ -7,6 +7,7 @@ fetch('login.json')
     loginData = data;
   });
 
+// 1. Автоматты түрде келесі ұяшыққа секіру функциясы
 function moveFocus(current, nextIndex) {
     if (current.value.length === 1 && nextIndex < 5) {
         const nextInput = document.getElementById('pin' + (nextIndex + 1));
@@ -70,7 +71,6 @@ function checkPin() {
         document.getElementById('pin1').focus();
     }
 }
-
 
 // Hide main content initially
 
