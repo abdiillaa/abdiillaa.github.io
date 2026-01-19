@@ -266,6 +266,9 @@ function testgo(x) {
     case 5:
       testName = 'test/data/khanat-v2.json';
       break;
+    case 6:
+      testName = 'test/data/all.json';
+      break;
     default:
       testName = 'test/data/all.json';
   }
@@ -297,7 +300,10 @@ function start() {
 function render() {
   const q = test[current];
   
-  // Прогрессті көрсету
+  // 1. Дұрыс жауапты әрқашан бірінші элементтен аламыз
+  const correctAnswer = q.options[0]; 
+
+  // Прогрессті көрсету (бұл сіздің кодыңыздан қалды)
   document.getElementById("progress").innerHTML = `
     <p onclick="location.reload()">Артқа</p>
     <div class="bar-container">
@@ -308,42 +314,43 @@ function render() {
 
   document.getElementById("question").innerText = q.question;
 
-  // Жауаптарды араластыру (JSON-дағы options-ты қолданамыз)
-  let answers = shuffle([...q.options]);
+  // 2. Жауаптарды араластыру (пайдаланушы 0-ші орында тұрғанын білмеуі үшін)
+  let shuffledOptions = shuffle([...q.options]);
 
   const box = document.getElementById("options");
   box.innerHTML = "";
 
-  answers.forEach(ans => {
+  shuffledOptions.forEach(ans => {
     const btn = document.createElement("button");
     btn.className = "option-btn";
     btn.innerText = ans;
-    btn.onclick = () => select(ans, q.answer, btn);
+    // select функциясына дұрыс жауапты параметр ретінде береміз
+    btn.onclick = () => select(ans, correctAnswer, btn);
     box.appendChild(btn);
   });
 }
 
 function select(selected, correct, btn) {
   const buttons = document.querySelectorAll(".option-btn");
-  buttons.forEach(b => b.style.pointerEvents = "none"); // Қайта басуды блоктау
+  buttons.forEach(b => b.style.pointerEvents = "none");
 
   if (selected === correct) {
     score++;
     btn.classList.add("correct");
   } else {
     btn.classList.add("wrong");
+    // Қателер тізіміне қосу (сіздің функционалыңыз сақталды)
     mistakes.push({
       question: test[current].question,
-      correct,
-      selected
+      correct: correct,
+      selected: selected
     });
-    // Дұрыс жауапты көрсету
+    
     buttons.forEach(b => {
       if (b.innerText === correct) b.classList.add("correct");
     });
   }
 
-  // Келесі сұраққа өту
   setTimeout(() => {
     current++;
     current < test.length ? render() : finish();
@@ -397,7 +404,7 @@ function finish() {
     html += `<div class="perfect-score">Керемет! Сіз ешқандай қате жібермедіңіз! 🚀</div>`;
   }
 
-  app.innerHTML = `<div class="container">${html}</div>`;
+  app.innerHTML = `${html}`;
 }
 
 // Фишер-Йейтс араластыру алгоритмі
