@@ -250,169 +250,154 @@ function searchMaterials() {
 
 var testName;
 function testgo(x) {
-  switch (x) {
-    case 1:
-      testName = 'test/data/turik.json';
-      break;
-    case 2:
-      testName = 'test/data/turikmadinet.json';
-      break;
-    case 3:
-      testName = 'test/data/qarakhan.json';
-      break;
-    case 4:
-      testName = 'test/data/ulyJibek.json';
-      break;
-    case 5:
-      testName = 'test/data/khanat-v2.json';
-      break;
-    case 6:
-      testName = 'test/data/all.json';
-      break;
-    default:
-      testName = 'test/data/all.json';
-  }
-document.getElementById("homemenu").style.display = "none";
-document.getElementById("app").style.display = "block";
-let allQuestions = [];
-let test = [];
-let current = 0;
-let score = 0;
-let mistakes = [];
+  let allQuestions = [];
+  let testName = '';
 
-// Файлды жүктеу
-fetch(testName)
-  .then(r => r.json())
-  .then(data => {
-    allQuestions = data;
-    start();
-  });
+  // 1. Файлды анықтау немесе барлығын біріктіру
+  const files = {
+    1: 'test/data/turik.json',
+    2: 'test/data/turikmadinet.json',
+    3: 'test/data/qarakhan.json',
+    4: 'test/data/ulyJibek.json',
+    5: 'test/data/khanat-v2.json'
+  };
 
-function start() {
-  // Фишер-Йейтс алгоритмімен араластырып, 20 сұрақ алу
-  test = shuffle([...allQuestions]).slice(0, 20);
-  current = 0;
-  score = 0;
-  mistakes = [];
-  render();
-}
+  document.getElementById("homemenu").style.display = "none";
+  document.getElementById("app").style.display = "block";
 
-function render() {
-  const q = test[current];
-  
-  // 1. Дұрыс жауапты әрқашан бірінші элементтен аламыз
-  const correctAnswer = q.options[0]; 
-
-  // Прогрессті көрсету (бұл сіздің кодыңыздан қалды)
-  document.getElementById("progress").innerHTML = `
-    <p onclick="location.reload()">Артқа</p>
-    <div class="bar-container">
-      <div class="bar" style="width: ${(current / test.length) * 100}%"></div>
-    </div>
-    <p>Сұрақ ${current + 1} / ${test.length}</p>
-  `;
-
-  document.getElementById("question").innerText = q.question;
-
-  // 2. Жауаптарды араластыру (пайдаланушы 0-ші орында тұрғанын білмеуі үшін)
-  let shuffledOptions = shuffle([...q.options]);
-
-  const box = document.getElementById("options");
-  box.innerHTML = "";
-
-  shuffledOptions.forEach(ans => {
-    const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.innerText = ans;
-    // select функциясына дұрыс жауапты параметр ретінде береміз
-    btn.onclick = () => select(ans, correctAnswer, btn);
-    box.appendChild(btn);
-  });
-}
-
-function select(selected, correct, btn) {
-  const buttons = document.querySelectorAll(".option-btn");
-  buttons.forEach(b => b.style.pointerEvents = "none");
-
-  if (selected === correct) {
-    score++;
-    btn.classList.add("correct");
+  if (x >= 1 && x <= 5) {
+    // Жалғыз файлды жүктеу
+    fetch(files[x])
+      .then(r => r.json())
+      .then(data => {
+        allQuestions = data;
+        start();
+      });
   } else {
-    btn.classList.add("wrong");
-    // Қателер тізіміне қосу (сіздің функционалыңыз сақталды)
-    mistakes.push({
-      question: test[current].question,
-      correct: correct,
-      selected: selected
-    });
+    // БАРЛЫҚ файлдарды біріктіріп жүктеу (x = 0 немесе басқа болса)
+    const promises = Object.values(files).map(f => fetch(f).then(r => r.json()));
     
-    buttons.forEach(b => {
-      if (b.innerText === correct) b.classList.add("correct");
+    Promise.all(promises).then(results => {
+      allQuestions = [].concat(...results); // Барлық массивті біріктіру
+      start();
     });
   }
 
-  setTimeout(() => {
-    current++;
-    current < test.length ? render() : finish();
-  }, 1200);
-}
+  let test = [];
+  let current = 0;
+  let score = 0;
+  let mistakes = [];
 
-function finish() {
-  const app = document.getElementById("app");
-  const percent = Math.round((score / test.length) * 100);
+  function start() {
+    // 20 сұрақ алу
+    test = shuffle([...allQuestions]).slice(0, 20);
+    current = 0;
+    score = 0;
+    mistakes = [];
+    render();
+  }
 
-  // Нәтиже тақтасы
-  let html = `
-    <div class="result">
-      <div class="score-circle">${percent}%</div>
-      <h2>Тест аяқталды</h2>
-      <p>Жиналған ұпай: <b>${score}</b> / ${test.length}</p>
-      <button class="retry-btn" onclick="location.reload()">Қайта бастау</button>
-    </div>
-  `;
+  function render() {
+    const q = test[current];
+    const correctAnswer = q.options[0]; 
 
-  // Қателермен жұмыс бөлімі
-  if (mistakes.length > 0) {
-    html += `<div class="mistakes-container">
-      <h3 class="mistakes-title">Қателермен жұмыс:</h3>`;
-    
-    mistakes.forEach((m, index) => {
-      html += `
-        <div class="mistake-card">
-          <div class="m-number">${index + 1}</div>
-          <div class="m-content">
-            <div class="m-question">${m.question}</div>
-            <div class="m-details">
-              <div class="m-line wrong-line">
-                <span class="m-icon">✕</span>
-                <span class="m-label">Сіздің жауабыңыз:</span> 
-                <span class="m-val">${m.selected}</span>
-              </div>
-              <div class="m-line correct-line">
-                <span class="m-icon">✓</span>
-                <span class="m-label">Дұрыс жауап:</span> 
-                <span class="m-val">${m.correct}</span>
+    document.getElementById("progress").innerHTML = `
+      <p onclick="location.reload()">Артқа</p>
+      <div class="bar-container">
+        <div class="bar" style="width: ${(current / test.length) * 100}%"></div>
+      </div>
+      <p>Сұрақ ${current + 1} / ${test.length}</p>
+    `;
+
+    document.getElementById("question").innerText = q.question;
+    let shuffledOptions = shuffle([...q.options]);
+
+    const box = document.getElementById("options");
+    box.innerHTML = "";
+
+    shuffledOptions.forEach(ans => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerText = ans;
+      btn.onclick = () => select(ans, correctAnswer, btn);
+      box.appendChild(btn);
+    });
+  }
+
+  function select(selected, correct, btn) {
+    const buttons = document.querySelectorAll(".option-btn");
+    buttons.forEach(b => b.style.pointerEvents = "none");
+
+    if (selected === correct) {
+      score++;
+      btn.classList.add("correct");
+    } else {
+      btn.classList.add("wrong");
+      mistakes.push({
+        question: test[current].question,
+        correct: correct,
+        selected: selected
+      });
+      
+      buttons.forEach(b => {
+        if (b.innerText === correct) b.classList.add("correct");
+      });
+    }
+
+    setTimeout(() => {
+      current++;
+      current < test.length ? render() : finish();
+    }, 1200);
+  }
+
+  function finish() {
+    const app = document.getElementById("app");
+    const percent = Math.round((score / test.length) * 100);
+
+    let html = `
+      <div class="result">
+        <div class="score-circle">${percent}%</div>
+        <h2>Тест аяқталды</h2>
+        <p>Жиналған ұпай: <b>${score}</b> / ${test.length}</p>
+        <button class="retry-btn" onclick="location.reload()">Қайта бастау</button>
+      </div>
+    `;
+
+    if (mistakes.length > 0) {
+      html += `<div class="mistakes-container"><h3 class="mistakes-title">Қателермен жұмыс:</h3>`;
+      mistakes.forEach((m, index) => {
+        html += `
+          <div class="mistake-card">
+            <div class="m-number">${index + 1}</div>
+            <div class="m-content">
+              <div class="m-question">${m.question}</div>
+              <div class="m-details">
+                <div class="m-line wrong-line">
+                  <span class="m-icon">✕</span>
+                  <span class="m-label">Сіздің жауабыңыз:</span> 
+                  <span class="m-val">${m.selected}</span>
+                </div>
+                <div class="m-line correct-line">
+                  <span class="m-icon">✓</span>
+                  <span class="m-label">Дұрыс жауап:</span> 
+                  <span class="m-val">${m.correct}</span>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      `;
-    });
-    
-    html += `</div>`;
-  } else {
-    html += `<div class="perfect-score">Керемет! Сіз ешқандай қате жібермедіңіз! 🚀</div>`;
+          </div>`;
+      });
+      html += `</div>`;
+    } else {
+      html += `<div class="perfect-score">Керемет! Сіз ешқандай қате жібермедіңіз! 🚀</div>`;
+    }
+    app.innerHTML = html;
   }
 
-  app.innerHTML = `${html}`;
-}
-
-// Фишер-Йейтс араластыру алгоритмі
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
-  return array;
-}
 }
