@@ -108,7 +108,7 @@ function updateChartDisplay() {
     myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ["1-тест", "2-тест", "3-тест", "4-тест", "5-тест"],
+            labels: user[subject.key],
             datasets: [{
                 label: subject.title,
                 data: user[subject.key],
@@ -165,7 +165,7 @@ function prevChart() {
 
 
 function updateRanking() {
-  
+  var user = JSON.parse(localStorage.getItem('currentUser'));
     const tbody = document.getElementById('rankingBody');
     if (!tbody) return;
 
@@ -200,8 +200,23 @@ function updateRanking() {
         else if (index === 1) medal = "🥈";
         else if (index === 2) medal = "🥉";
         else medal = index + 1;
-
-        const row = `
+        let row;
+      if(student.name == user.name){
+        row = `
+            <tr style="color: #ffffff;background: linear-gradient(to right, #6666ff, #ff3399);">
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${medal}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${student.name}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                    <span class="score-badge" style="background: #3498db; color: white; padding: 4px 8px; border-radius: 5px; font-weight: bold;">
+                        ${student.score}
+                    </span>
+                </td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #ffffff;">ҰБТ</td>
+            </tr>
+        `;
+      }
+      else {
+        row = `
             <tr>
                 <td style="padding: 10px; border-bottom: 1px solid #ddd;">${medal}</td>
                 <td style="padding: 10px; border-bottom: 1px solid #ddd;">${student.name}</td>
@@ -212,7 +227,7 @@ function updateRanking() {
                 </td>
                 <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #777;">ҰБТ</td>
             </tr>
-        `;
+        `;};
         tbody.innerHTML += row;
     });
 }
