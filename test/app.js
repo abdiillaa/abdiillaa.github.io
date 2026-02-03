@@ -259,7 +259,8 @@ function testgo(x) {
     2: 'test/data/turikmadinet.json',
     3: 'test/data/qarakhan.json',
     4: 'test/data/ulyJibek.json',
-    5: 'test/data/khanat-v2.json'
+    5: 'test/data/khanat-v2.json',
+    6: 'test/data/zhongar.json',
   };
 
   document.getElementById("homemenu").style.display = "none";
