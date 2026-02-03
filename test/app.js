@@ -266,7 +266,7 @@ function testgo(x) {
   document.getElementById("homemenu").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  if (x >= 1 && x <= 5) {
+  if (x >= 1 && x <= 6) {
     // Жалғыз файлды жүктеу
     fetch(files[x])
       .then(r => r.json())
