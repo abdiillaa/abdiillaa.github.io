@@ -291,7 +291,7 @@ function testgo(x) {
 
   function start() {
     // 20 сұрақ алу
-    test = shuffle([...allQuestions]).slice(0, 20);
+    test = shuffle([...allQuestions]).slice(0, 60);
     current = 0;
     score = 0;
     mistakes = [];
