@@ -261,12 +261,13 @@ function testgo(x) {
     4: 'test/data/ulyJibek.json',
     5: 'test/data/khanat-v2.json',
     6: 'test/data/zhongar.json',
+    7: 'test/data/1991.json',
   };
 
   document.getElementById("homemenu").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  if (x >= 1 && x <= 6) {
+  if (x >= 1 && x <= 7) {
     // Жалғыз файлды жүктеу
     fetch(files[x])
       .then(r => r.json())
