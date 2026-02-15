@@ -262,6 +262,7 @@ function testgo(x) {
     5: 'test/data/khanat-v2.json',
     6: 'test/data/zhongar.json',
     7: 'test/data/1991.json',
+    8: 'test/data/SD.json',
     150: 'test/data/1.1.json',
     151: 'test/data/1.2.json',
     152: 'test/data/1.3.json',
