@@ -262,12 +262,30 @@ function testgo(x) {
     5: 'test/data/khanat-v2.json',
     6: 'test/data/zhongar.json',
     7: 'test/data/1991.json',
+    150: 'test/data/1.1.json',
+    151: 'test/data/1.2.json',
+    152: 'test/data/1.3.json',
+    153: 'test/data/1.4.json',
+    154: 'test/data/2.1.json',
+    155: 'test/data/2.2.json',
+    156: 'test/data/2.5.json',
+    157: 'test/data/3.1.json',
+    158: 'test/data/4.1.json',
+    159: 'test/data/4.3.json',
+
+
+
+
+
+
+
+
   };
 
   document.getElementById("homemenu").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  if (x >= 1 && x <= 7) {
+  if (x >= 1) {
     // Жалғыз файлды жүктеу
     fetch(files[x])
       .then(r => r.json())
