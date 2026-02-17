@@ -265,9 +265,10 @@ function testgo(x) {
     10: 'test/data/nogai.json',
     11: 'test/data/altynorda.json',
     12: 'test/data/mongolshapkyn.json',
+    13: 'test/data/ezhelgi.json',
     
     
-
+    
     150: 'test/data/1.1.json',
     151: 'test/data/1.2.json',
     152: 'test/data/1.3.json',
