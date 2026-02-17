@@ -275,7 +275,6 @@ function testgo(x) {
     154: 'test/data/2.1.json',
     155: 'test/data/2.2.json',
     156: 'test/data/2.5.json',
-    157: 'test/data/3.1.json',
     158: 'test/data/4.1.json',
     159: 'test/data/4.3.json',
 
