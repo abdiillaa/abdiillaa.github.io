@@ -258,11 +258,16 @@ function testgo(x) {
     1: 'test/data/turik.json',
     2: 'test/data/turikmadinet.json',
     3: 'test/data/qarakhan.json',
-    4: 'test/data/ulyJibek.json',
     5: 'test/data/khanat-v2.json',
     6: 'test/data/zhongar.json',
-    7: 'test/data/1991.json',
-    8: 'test/data/SD.json',
+    8: 'test/data/syrymdatuly.json',
+    9: 'test/data/xvmadinet.json',
+    10: 'test/data/nogai.json',
+    11: 'test/data/altynorda.json',
+    12: 'test/data/mongolshapkyn.json',
+    
+    
+
     150: 'test/data/1.1.json',
     151: 'test/data/1.2.json',
     152: 'test/data/1.3.json',
