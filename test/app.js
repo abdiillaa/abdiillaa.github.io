@@ -252,6 +252,7 @@ var testName;
 function testgo(x) {
   let allQuestions = [];
   let testName = '';
+  const QUESTIONS_PER_TEST = 60;
 
   // 1. Файлды анықтау немесе барлығын біріктіру
   const files = {
@@ -317,8 +318,9 @@ function testgo(x) {
   let mistakes = [];
 
   function start() {
-    // 20 сұрақ алу
-    test = shuffle([...allQuestions]).slice(0, 60);
+    // Қанша сұрақ болса да, рандом 60 сұрақ алу
+    const questionCount = Math.min(QUESTIONS_PER_TEST, allQuestions.length);
+    test = shuffle([...allQuestions]).slice(0, questionCount);
     current = 0;
     score = 0;
     mistakes = [];
