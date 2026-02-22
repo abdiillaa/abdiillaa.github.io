@@ -247,12 +247,182 @@ function searchMaterials() {
     });
 }
 
+function goBackFromTest() {
+  const app = document.getElementById("app");
+  const homeMenu = document.getElementById("homemenu");
+  const footerBrand = document.querySelector(".footer-brand");
+
+  if (app) app.style.display = "none";
+  if (footerBrand) footerBrand.style.display = "block";
+
+  if (homeMenu) {
+    homeMenu.style.display = "flex";
+    if (typeof openPage === "function") {
+      openPage("test");
+    } else {
+      document.querySelectorAll(".content-page").forEach(page => {
+        page.classList.remove("active");
+      });
+      const testPage = document.getElementById("test");
+      if (testPage) testPage.classList.add("active");
+    }
+    return;
+  }
+
+  window.location.reload();
+}
+
 
 var testName;
 function testgo(x) {
+  const selectedTestId = Number(x);
   let allQuestions = [];
   let testName = '';
   const QUESTIONS_PER_TEST = 60;
+  const NUMBER_SYSTEM_TEST_ID = 156;
+  const NUMBER_BASES = [2, 8, 10, 16];
+  const NUMBER_OPS = ["+", "-", "*"];
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function pick(arr) {
+    return arr[rand(0, arr.length - 1)];
+  }
+
+  function toBaseStr(num, base) {
+    return num.toString(base).toUpperCase();
+  }
+
+  function formatWithBase(value, base) {
+    return `${value}<sub>${base}</sub>`;
+  }
+
+  function isValidInBase(text, base) {
+    const patterns = {
+      2: /^[01]+$/,
+      8: /^[0-7]+$/,
+      10: /^[0-9]+$/,
+      16: /^[0-9A-F]+$/
+    };
+    return patterns[base].test(text);
+  }
+
+  function addOption(set, decimalValue, base) {
+    if (set.size >= 4) return;
+    if (!Number.isInteger(decimalValue) || decimalValue < 0) return;
+    set.add(toBaseStr(decimalValue, base));
+  }
+
+  function makeCalcOptions(correctDecimal, base) {
+    const set = new Set([toBaseStr(correctDecimal, base)]);
+    let guard = 0;
+
+    while (set.size < 4 && guard < 240) {
+      guard++;
+      const shift = rand(1, 40);
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      addOption(set, correctDecimal + sign * shift, base);
+    }
+
+    while (set.size < 4) {
+      addOption(set, rand(0, Math.max(120, correctDecimal + 120)), base);
+    }
+
+    return shuffle([...set]);
+  }
+
+  function makeConvertOptions(decimalValue, toBase, rawText, fromBase) {
+    const set = new Set([toBaseStr(decimalValue, toBase)]);
+
+    if (/^[0-9]+$/.test(rawText)) {
+      addOption(set, Number(rawText), toBase);
+    }
+
+    for (const wrongBase of NUMBER_BASES) {
+      if (wrongBase === fromBase) continue;
+      if (set.size >= 4) break;
+      if (isValidInBase(rawText, wrongBase)) {
+        addOption(set, parseInt(rawText, wrongBase), toBase);
+      }
+    }
+
+    let guard = 0;
+    while (set.size < 4 && guard < 240) {
+      guard++;
+      addOption(set, decimalValue + rand(-180, 180), toBase);
+    }
+
+    while (set.size < 4) {
+      addOption(set, rand(0, 5000), toBase);
+    }
+
+    return shuffle([...set]);
+  }
+
+  function generateCalcQuestion(forcedOp = null) {
+    const base = pick(NUMBER_BASES);
+    const op = forcedOp || pick(NUMBER_OPS);
+
+    let a = 0;
+    let b = 0;
+    let result = 0;
+
+    if (op === "+") {
+      a = rand(5, 150);
+      b = rand(2, 120);
+      result = a + b;
+    } else if (op === "-") {
+      a = rand(40, 260);
+      b = rand(1, a - 1);
+      result = a - b;
+    } else {
+      a = rand(2, 25);
+      b = rand(2, 16);
+      result = a * b;
+    }
+
+    return {
+      question: `${toBaseStr(a, base)}<sub>${base}</sub> ${op} ${toBaseStr(b, base)}<sub>${base}</sub> = ?`,
+      options: makeCalcOptions(result, base),
+      correct: toBaseStr(result, base),
+      answerBase: base,
+      useHtml: true
+    };
+  }
+
+  function generateConvertQuestion() {
+    const fromBase = pick(NUMBER_BASES);
+    const toBase = pick(NUMBER_BASES.filter((b) => b !== fromBase));
+    const decimalValue = rand(1, 4095);
+
+    const raw = toBaseStr(decimalValue, fromBase);
+    const correct = toBaseStr(decimalValue, toBase);
+
+    return {
+      question: `${raw}<sub>${fromBase}</sub> -> ?<sub>${toBase}</sub>`,
+      options: makeConvertOptions(decimalValue, toBase, raw, fromBase),
+      correct,
+      answerBase: toBase,
+      useHtml: true
+    };
+  }
+
+  function buildNumberSystemQuestions(total = QUESTIONS_PER_TEST) {
+    const calcCount = Math.floor(total / 2);
+    const convertCount = total - calcCount;
+
+    const forcedOps = [];
+    for (let i = 0; i < calcCount; i++) {
+      forcedOps.push(NUMBER_OPS[i % NUMBER_OPS.length]);
+    }
+
+    const calcQuestions = shuffle(forcedOps).map((op) => generateCalcQuestion(op));
+    const convertQuestions = Array.from({ length: convertCount }, () => generateConvertQuestion());
+
+    return shuffle([...calcQuestions, ...convertQuestions]);
+  }
 
   // 1. Файлды анықтау немесе барлығын біріктіру
   const files = {
@@ -290,13 +460,22 @@ function testgo(x) {
 
 
   };
+  let test = [];
+  let current = 0;
+  let score = 0;
+  let mistakes = [];
+  const footerBrand = document.querySelector(".footer-brand");
 
   document.getElementById("homemenu").style.display = "none";
   document.getElementById("app").style.display = "block";
+  if (footerBrand) footerBrand.style.display = "none";
 
-  if (x >= 1) {
+  if (selectedTestId === NUMBER_SYSTEM_TEST_ID) {
+    allQuestions = buildNumberSystemQuestions(QUESTIONS_PER_TEST);
+    start();
+  } else if (selectedTestId >= 1) {
     // Жалғыз файлды жүктеу
-    fetch(files[x])
+    fetch(files[selectedTestId])
       .then(r => r.json())
       .then(data => {
         allQuestions = data;
@@ -304,18 +483,13 @@ function testgo(x) {
       });
   } else {
     // БАРЛЫҚ файлдарды біріктіріп жүктеу (x = 0 немесе басқа болса)
-    const promises = Object.values(files).map(f => fetch(f).then(r => r.json()));
+    const promises = Object.values(files).map(filePath => fetch(filePath).then(r => r.json()));
     
     Promise.all(promises).then(results => {
       allQuestions = [].concat(...results); // Барлық массивті біріктіру
       start();
     });
   }
-
-  let test = [];
-  let current = 0;
-  let score = 0;
-  let mistakes = [];
 
   function start() {
     // Қанша сұрақ болса да, рандом 60 сұрақ алу
@@ -329,26 +503,40 @@ function testgo(x) {
 
   function render() {
     const q = test[current];
-    const correctAnswer = q.options[0]; 
+    const correctAnswer = q.correct || q.options[0];
+    const progressPercent = ((current + 1) / test.length) * 100;
 
     document.getElementById("progress").innerHTML = `
-      <p onclick="location.reload()">Артқа</p>
-      <div class="bar-container">
-        <div class="bar" style="width: ${(current / test.length) * 100}%"></div>
+      <button type="button" class="back-btn" onclick="goBackFromTest()">← Артқа</button>
+      <div class="progress-track">
+        <span class="progress-fill" style="width: ${progressPercent}%"></span>
       </div>
-      <p>Сұрақ ${current + 1} / ${test.length}</p>
+      <div class="progress-count">Сұрақ ${current + 1} / ${test.length}</div>
     `;
 
-    document.getElementById("question").innerText = q.question;
+    const questionBox = document.getElementById("question");
+    questionBox.innerHTML = "";
+    const questionText = document.createElement("span");
+    questionText.className = "question-text";
+    if (q.useHtml) questionText.innerHTML = q.question;
+    else questionText.innerText = q.question;
+    questionBox.appendChild(questionText);
+
     let shuffledOptions = shuffle([...q.options]);
 
     const box = document.getElementById("options");
     box.innerHTML = "";
 
-    shuffledOptions.forEach(ans => {
+    shuffledOptions.forEach((ans, index) => {
       const btn = document.createElement("button");
       btn.className = "option-btn";
-      btn.innerText = ans;
+      btn.dataset.value = ans;
+      btn.dataset.letter = String.fromCharCode(65 + index);
+      const optionText = document.createElement("span");
+      optionText.className = "option-text";
+      if (q.answerBase) optionText.innerHTML = formatWithBase(ans, q.answerBase);
+      else optionText.innerText = ans;
+      btn.appendChild(optionText);
       btn.onclick = () => select(ans, correctAnswer, btn);
       box.appendChild(btn);
     });
@@ -366,11 +554,13 @@ function testgo(x) {
       mistakes.push({
         question: test[current].question,
         correct: correct,
-        selected: selected
+        selected: selected,
+        answerBase: test[current].answerBase || null,
+        useHtml: !!test[current].useHtml
       });
       
       buttons.forEach(b => {
-        if (b.innerText === correct) b.classList.add("correct");
+        if (b.dataset.value === correct) b.classList.add("correct");
       });
     }
 
@@ -396,6 +586,8 @@ function testgo(x) {
     if (mistakes.length > 0) {
       html += `<div class="mistakes-container"><h3 class="mistakes-title">Қателермен жұмыс:</h3>`;
       mistakes.forEach((m, index) => {
+        const selectedText = m.answerBase ? formatWithBase(m.selected, m.answerBase) : m.selected;
+        const correctText = m.answerBase ? formatWithBase(m.correct, m.answerBase) : m.correct;
         html += `
           <div class="mistake-card">
             <div class="m-number">${index + 1}</div>
@@ -405,12 +597,12 @@ function testgo(x) {
                 <div class="m-line wrong-line">
                   <span class="m-icon">✕</span>
                   <span class="m-label">Сіздің жауабыңыз:</span> 
-                  <span class="m-val">${m.selected}</span>
+                  <span class="m-val">${selectedText}</span>
                 </div>
                 <div class="m-line correct-line">
                   <span class="m-icon">✓</span>
                   <span class="m-label">Дұрыс жауап:</span> 
-                  <span class="m-val">${m.correct}</span>
+                  <span class="m-val">${correctText}</span>
                 </div>
               </div>
             </div>

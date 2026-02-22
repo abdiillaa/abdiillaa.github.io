@@ -1,208 +1,476 @@
-/* ҰБТ-like minimal exam interface: neutral palette, radio-style options, clear focus */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+
 :root{
-  --bg: #f3f4f6;
-  --paper: #ffffff;
-  --text: #0b1220;
-  --muted: #6b7280;
-  --accent: #0b5cff; /* exam blue */
-  --radius: 6px;
+  --ink:#0b1220;
+  --muted:#5b6476;
+  --brand:#0b6b68;
+  --brand-strong:#054b4a;
+  --brand-soft:#e6f4f3;
+  --surface:#ffffff;
+  --surface-alt:#f6faf9;
+  --line:#e3e8ef;
+  --ok:#166534;
+  --ok-soft:#dcfce7;
+  --ok-line:#bbf7d0;
+  --bad:#991b1b;
+  --bad-soft:#fee2e2;
+  --bad-line:#fecaca;
+  --shadow:0 18px 40px rgba(11,18,32,.08);
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
+
 body{
   margin:0;
-  background:var(--bg);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+  color:var(--ink);
+  font-family:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(1200px 650px at 18% 0%, #d7f1ee 0%, rgba(215,241,238,0) 68%),
+    linear-gradient(180deg, #edf6f4 0%, #f8fbfa 55%, #ffffff 100%);
+}
+
+#app.container{
+  width:min(940px, calc(100% - 28px));
+  min-height:620px;
+  margin:22px auto;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:linear-gradient(180deg, #f8fcfb 0%, #edf5f4 100%);
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  overflow:hidden;
+  position:relative;
+}
+
+#app.container::before{
+  content:"";
+  position:absolute;
+  width:380px;
+  height:380px;
+  right:-140px;
+  top:-170px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(11,107,104,.13) 0%, rgba(11,107,104,0) 70%);
+  pointer-events:none;
+}
+
+#app .progress{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  grid-template-areas:"back bar count";
+  align-items:center;
+  gap:14px;
+  padding:2px 2px 16px;
+  
+  position:relative;
+  z-index:1;
+}
+
+#app .back-btn{
+  grid-area:back;
+  border:1px solid rgba(11,107,104,.25);
+  background:#fff;
+  color:var(--brand-strong);
+  border-radius:999px;
+  padding:9px 14px;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+#app .back-btn:hover{
+  border-color:var(--brand);
+  background:#f1fbf9;
+}
+
+#app .progress-track{
+  grid-area:bar;
+  height:11px;
+  border-radius:999px;
+  background:#e7edf3;
+  overflow:hidden;
+}
+
+#app .progress-fill{
+  display:block;
+  height:100%;
+  width:0;
+  border-radius:999px;
+  background:linear-gradient(90deg, var(--brand), #1a9c8d);
+  transition:width .35s ease;
+}
+
+#app .progress-count{
+  grid-area:count;
+  justify-self:end;
+  padding:8px 13px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--brand-strong);
+  background:var(--brand-soft);
+  white-space:nowrap;
+}
+
+#app .question{
+  display:block;
+  margin:0;
+  padding:30px 26px 24px;
+  border:1px solid #bfd3d1;
+  border-radius:20px;
+  background:#ffffff;
+  box-shadow:0 16px 34px rgba(11,18,32,.09);
+  position:relative;
+  overflow:visible;
+  max-height:none;
+  line-height:1.5;
+  isolation:isolate;
+}
+
+#app .question::before{
+  content:"Сұрақ";
+  position:absolute;
+  top:-12px;
+  left:22px;
+  padding:5px 12px;
+  border-radius:999px;
+  border:1px solid #cce3e1;
+  background:#ffffff;
+  color:var(--brand-strong);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.3px;
+  z-index:1;
+}
+
+#app .question::after{
+  content:"";
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:0;
+  height:4px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(11,107,104,.78), rgba(11,107,104,.16));
+}
+
+#app .question .question-text{
+  display:block;
+  font-family:"Space Grotesk", system-ui, sans-serif;
+  font-weight:700;
+  font-size:clamp(23px, 2.8vw, 31px);
+  color:var(--ink);
+  letter-spacing:.1px;
+  text-wrap:balance;
+}
+
+#app .question .question-text sub,
+#app .options .option-text sub,
+#app .mistakes-container .m-question sub,
+#app .mistakes-container .m-val sub{
+  font-size:.72em;
+  line-height:0;
+  vertical-align:-0.35em;
+}
+
+#app .options{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+#app .option-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  padding:16px 18px;
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(15, 23, 42, .05);
+  transition:all .18s ease;
+  color:var(--ink);
+}
+
+#app .option-btn::before{
+  content:attr(data-letter);
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  border:1px solid #dce5ed;
+  background:#f1f5f9;
+  color:#1f2937;
+  font-weight:800;
+  font-size:16px;
+  flex:0 0 42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#app .option-btn .option-text{
+  display:inline;
+  font-size:18px;
+  font-weight:600;
+  line-height:1.45;
+}
+
+#app .option-btn:hover{
+  border-color:var(--brand);
+  background:#f1fbf9;
+  transform:translateY(-1px);
+}
+
+#app .option-btn:focus-visible{
+  outline:3px solid rgba(11,107,104,.18);
+  outline-offset:2px;
+}
+
+#app .option-btn.correct{
+  background:var(--ok-soft);
+  border-color:var(--ok-line);
+  color:var(--ok);
+}
+
+#app .option-btn.correct::before{
+  background:var(--brand);
+  color:#fff;
+  border-color:transparent;
+}
+
+#app .option-btn.wrong{
+  background:var(--bad-soft);
+  border-color:var(--bad-line);
+  color:var(--bad);
+}
+
+#app .option-btn.wrong::before{
+  background:#ef4444;
+  color:#fff;
+  border-color:transparent;
+}
+
+#app .result{
+  text-align:center;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:26px 20px;
+  box-shadow:var(--shadow);
+}
+
+#app .score-circle{
+  width:112px;
+  height:112px;
+  margin:0 auto 14px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-family:"Space Grotesk", system-ui, sans-serif;
+  font-size:30px;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(135deg, var(--brand), #1a9c8d);
+}
+
+#app .result h2{
+  margin:8px 0 6px;
+  font-size:30px;
+  line-height:1.2;
+  font-family:"Space Grotesk", system-ui, sans-serif;
+}
+
+#app .result p{
+  margin:0;
+  color:var(--muted);
+  font-size:16px;
+}
+
+#app .retry-btn{
+  margin-top:14px;
+  border:none;
+  border-radius:12px;
+  padding:11px 18px;
+  background:var(--brand);
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+#app .retry-btn:hover{
+  background:var(--brand-strong);
+}
+
+#app .mistakes-container{
+  margin-top:16px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--surface-alt);
   padding:16px;
 }
 
-.containerv {
-  width: 100%;
-  width: 760px;
-  /* Биіктікті нақты бекітеміз. 
-     Егер сұрақтар өте ұзын болса, 600px-ті сәл көбейтуге болады */
-  height: auto; 
-  min-height: 500px;
-  
-  margin: 20px auto;
-  background: var(--paper);
-  border: 1px solid #e6e9ee;
-  border-radius: 8px;
-  
-  /* Контент ішінде бірқалыпты орналасуы үшін */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Контейнер сыртына ештеңе шықпауы керек */
-  position: relative;
+#app .mistakes-title{
+  margin:0 0 14px;
+  font-size:18px;
+  font-family:"Space Grotesk", system-ui, sans-serif;
 }
 
-.container {
-  width: 100%;
-  width: 760px;
-  /* Биіктікті нақты бекітеміз. 
-     Егер сұрақтар өте ұзын болса, 600px-ті сәл көбейтуге болады */
-  height: auto; 
-  min-height: 500px;
-  
-  margin: 20px auto;
-  background: var(--paper);
-  border: 1px solid #e6e9ee;
-  border-radius: 8px;
-  padding: 24px;
-  
-  /* Контент ішінде бірқалыпты орналасуы үшін */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Контейнер сыртына ештеңе шықпауы керек */
-  position: relative;
-}
-/* top bar with progress and small timer area */
-.progress{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  font-size:14px;
-  color:var(--muted);
-  padding-bottom:12px;
-  border-bottom:1px solid #eef1f5;
-}
-
-/* visual small progress line */
-.progress .bar{
-  flex:1;
-  height:8px;
-  background:#f1f3f5;
-  border-radius:999px;
-  margin-left:12px;
-  overflow:hidden;
-}
-.progress .bar > span{
-  display:block;
-  height:100%;
-  width:0%;
-  background:var(--accent);
-  transition: width .3s ease;
-}
-
-.question {
-  /* Сұраққа нақты биіктік береміз */
-  height: auto;
-  max-height: 100px;
-  overflow-y: auto; /* Егер мәтін тым ұзын болса, ішінде айналдыруға болады */
-  margin: 10px 0 20px 0;
-  display: flex;
-  align-items: center;
-  font-size: 19px;
-  line-height: 1.5;
-}
-/* Options: appear like radio choices used in exams */
-.options {
-  /* Жауаптар блогының биіктігін де тұрақты ұстауға болады */
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.options button{
-  appearance:none;
-  -webkit-appearance:none;
+#app .mistake-card{
   display:flex;
   gap:12px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+}
+
+#app .mistake-card + .mistake-card{
+  margin-top:10px;
+}
+
+#app .m-number{
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  border-radius:10px;
+  background:#e8f0ff;
+  color:#1e3a8a;
+  font-weight:700;
+  display:flex;
   align-items:center;
-  width:100%;
-  padding:14px 12px;
-  border-radius:6px;
-  border:1px solid #d7dbe0;
-  background:var(--paper);
-  text-align:left;
-  cursor:pointer;
-  font-size:15px;
-  color:var(--text);
-  transition: background .12s ease, border-color .12s ease, box-shadow .12s ease;
+  justify-content:center;
 }
 
-/* circular radio indicator on the left */
-.options button::before{
-  content:"";
-  flex:0 0 20px;
-  height:20px;
-  border-radius:50%;
-  border:2px solid #c8ccd1;
-  background:transparent;
+#app .m-content{flex:1}
+
+#app .m-question{
+  font-weight:700;
+  line-height:1.4;
+  margin-bottom:8px;
 }
 
-/* when selected (via JS adding .correct/.wrong) show filled circle */
-.options button.correct::before{
-  border-color: #16a34a;
-  background: #16a34a;
-}
-.options button.wrong::before{
-  border-color: #dc2626;
-  background: #dc2626;
+#app .m-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  line-height:1.4;
 }
 
-/* hover & focus */
-.options button:hover{ background:#fbfdff; box-shadow: 0 6px 18px rgba(11,17,32,0.04) }
-.options button:focus-visible{ outline:3px solid rgba(11,92,255,0.14); outline-offset:3px }
+#app .m-line + .m-line{
+  margin-top:6px;
+}
 
-/* subtle coloring for correct/wrong full button */
-.options button.correct, .options button.wrong{ background: transparent; border-color: rgba(0,0,0,0.06); }
-
-/* result screen styled like official report */
-.result{
+#app .m-icon{
+  width:20px;
   text-align:center;
-  padding-top:8px;
+  font-weight:700;
 }
-.result h2{ font-size:20px; margin:6px 0 }
-.result p{ color:var(--muted); margin:6px 0 }
-.result .stats{ display:flex; gap:18px; justify-content:center; margin-top:8px }
-.result button{ margin-top:10px; padding:10px 16px; border-radius:6px; border:1px solid #ccd8ff; background:var(--accent); color:#fff; cursor:pointer }
 
-.mistake{ text-align:left; background:#fff7f7; border:1px solid rgba(220,38,38,0.06); padding:10px; border-radius:6px }
-.mistake b{ display:block; margin-bottom:6px }
+#app .wrong-line{color:var(--bad)}
+#app .correct-line{color:var(--ok)}
 
-/* mobile adjustments: keep compact but readable */
-@media (max-width:480px){
-  body{ padding:12px }
-  .container{ padding:14px }
-  .question{ font-size:17px }
-  .options button{ padding:12px 10px; font-size:14px }
-  .options button::before{ flex-basis:18px; height:18px }
-  .progress{ font-size:13px }
-  @media (max-width:480px) {
-  .container {
-    height: 520px;
-    margin: 10px auto;
+#app .m-label{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:600;
+}
+
+#app .m-val{
+  color:var(--ink);
+  font-weight:700;
+}
+
+#app .perfect-score{
+  margin-top:16px;
+  background:#ecfdf3;
+  border:1px solid #bbf7d0;
+  color:#166534;
+  border-radius:14px;
+  text-align:center;
+  padding:14px 16px;
+  font-weight:700;
+}
+
+@media (max-width:900px){
+  #app.container{
+    width:calc(100% - 18px);
+    margin:12px auto;
+    padding:15px;
+    min-height:calc(100vh - 24px);
+    border-radius:18px;
   }
-  .question {
-    height: 120px; /* Мобильді телефонда мәтін көбірек орын алады */
+
+  #app .progress{
+    grid-template-columns:auto 1fr auto;
+    grid-template-areas:
+      "back . count"
+      "bar bar bar";
+    column-gap:10px;
+    row-gap:10px;
+  }
+
+  #app .back-btn,
+  #app .progress-count{
+    width:auto;
+  }
+
+  #app .question{
+    padding:24px 16px 18px;
+  }
+
+  #app .question .question-text{
+    font-size:21px;
+  }
+
+  #app .question::before{
+    left:14px;
+    top:-11px;
+    font-size:11px;
+    padding:4px 10px;
+  }
+
+  #app .question::after{
+    left:14px;
+    right:14px;
+  }
+
+  #app .option-btn{
+    padding:14px 12px;
+    border-radius:14px;
+    gap:10px;
+  }
+
+  #app .option-btn::before{
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    flex-basis:36px;
+    font-size:14px;
+  }
+
+  #app .option-btn .option-text{
+    font-size:16px;
+  }
+
+  #app .result h2{
+    font-size:26px;
   }
 }
-}
 
-/* Mobile calm overrides: reduce contrast, shadows and hover effects */
-@media (max-width:480px){
-  .container{ box-shadow: none; border-color: #eef3f6; }
-  .options button{
-    background: transparent; /* remove bright backgrounds */
-    border-color: #eef1f5;
-    box-shadow: none;
-    transform: none;
-  }
-  .options button:hover{ background: rgba(11,92,255,0.03); box-shadow: none; }
-  .options button:focus-visible{ outline:2px solid rgba(11,92,255,0.10); outline-offset:2px }
-  .options button::before{ border-color: #d1d5db; }
-  .options button.correct, .options button.wrong{ background: transparent; border-color: rgba(0,0,0,0.06); }
-  .progress .bar > span{ background: rgba(11,92,255,0.28); }
-}
-
-/* reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .progress .bar > span, .options button{ transition: none }
+  #app .progress-fill,
+  #app .option-btn{
+    transition:none;
+  }
 }
