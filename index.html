@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>ҰБТ дайындық</title>
     <meta name="viewport" content="width=device-width, initial-scale=0.6">
-    <link rel="stylesheet" href="style.css?v=20260222-1">
+    <link rel="stylesheet" href="style.css?v=20260224-5">
     <link rel="stylesheet" href="test/style.css?v=20260222-7">
     <link rel="stylesheet" href="11.css">
     <link rel="manifest" href="manifest.json">
-    <script defer src="test/app.js?v=20260224-12"></script>
+    <script defer src="test/app.js?v=20260224-13"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -199,8 +199,8 @@
             <section id="test" class="content-page">
             <h1>Тапсыру</h1>
             <ul class="topics-list">
-                <li onclick="testgo(-1);">Тарих бойынша тапсыру (ID 1-149)</li>
-                <li onclick="testgo(-2);">Инфо бойынша тапсыру (ID 150-299)</li>
+                <li onclick="testgo(-1);">Тарих бойынша тапсыру</li>
+                <li onclick="testgo(-2);">Инфо бойынша тапсыру</li>
                 <li onclick="testgo(0);">Барлығын бірге 🔥</li>
             </ul>
             <h1>Қазақстан тарихы</h1>
@@ -282,166 +282,381 @@
             
             <section id="materials" class="content-page">
     <header class="materials-head">
-        <h1>Study Materials Hub</h1>
-        <p>Пәнді таңдаңыз, содан кейін кезең карталарынан дайындық материалын ашыңыз.</p>
+        <h1>Study Materials</h1>
+        <p>GitHub Pages (server жоқ): материалды кодпен JSON файлдарға толтырасыз.</p>
     </header>
 
     <div class="materials-toolbar">
-        <button type="button" class="subject-chip active" data-subject-filter="all" onclick="setMaterialsSubject('all', this)">Барлығы</button>
+        <button type="button" class="subject-chip" data-subject-filter="all" onclick="setMaterialsSubject('all', this)">Барлығы</button>
         <button type="button" class="subject-chip" data-subject-filter="history" onclick="setMaterialsSubject('history', this)">Қазақстан тарихы</button>
-        <button type="button" class="subject-chip" data-subject-filter="informatics" onclick="setMaterialsSubject('informatics', this)">Информатика</button>
+        <button type="button" class="subject-chip active" data-subject-filter="informatics" onclick="setMaterialsSubject('informatics', this)">Информатика</button>
         <button type="button" class="subject-chip" data-subject-filter="math" onclick="setMaterialsSubject('math', this)">Математика</button>
     </div>
 
-    <div class="materials-grid-v2">
-        <article class="subject-block" data-subject="history">
-            <div class="subject-head">
-                <h3>Қазақстан тарихы</h3>
-                <span class="subject-pill">Ежелгі • Орта • Қазіргі</span>
-            </div>
-            <div class="era-grid">
-                <div class="material-card era-card" data-title="Қазақстан тарихы ежелгі сақ ғұн үйсін қаңлы">
-                    <div class="card-icon era-icon ancient">🏺</div>
-                    <div class="card-info">
-                        <h4>Ежелгі Қазақстан</h4>
-                        <p>Сақтар, ғұндар, үйсін, қаңлы, дереккөздер, базалық даталар.</p>
-                        <div class="resource-links">
-                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Видео</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Mini тест</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="material-card era-card" data-title="Қазақстан тарихы орта түркі қыпшақ қазақ хандығы">
-                    <div class="card-icon era-icon medieval">🏰</div>
-                    <div class="card-info">
-                        <h4>Орта ғасыр</h4>
-                        <p>Түркі дәуірі, Қыпшақтар, Алтын Орда, Қазақ хандығы карталары.</p>
-                        <div class="resource-links">
-                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Талдау</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тақырыптық тест</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="material-card era-card" data-title="Қазақстан тарихы қазіргі заман тәуелсіздік реформалар">
-                    <div class="card-icon era-icon modern">🏙️</div>
-                    <div class="card-info">
-                        <h4>Қазіргі заман</h4>
-                        <p>ХХ ғасыр, тәуелсіз Қазақстан, реформалар, хронология кестесі.</p>
-                        <div class="resource-links">
-                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Қайталау</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Нұсқа</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </article>
+    <section class="materials-flow">
+        <div class="materials-flow-row">
+            <label for="materials-topic-select">Тақырып таңдаңыз</label>
+            <select id="materials-topic-select" onchange="onMaterialsTopicChange()"></select>
+            <button type="button" id="materials-open-topic-btn" class="download-btn" onclick="openSelectedMaterialsTopic()">Тақырыпты ашу</button>
+        </div>
+        <div class="materials-topic-preview" id="materials-topic-preview"></div>
+        <small id="materials-status">Алдымен пәнді, содан кейін тақырыпты таңдаңыз.</small>
+    </section>
 
-        <article class="subject-block" data-subject="informatics">
-            <div class="subject-head">
-                <h3>Информатика</h3>
-                <span class="subject-pill">База • Желі • Веб</span>
-            </div>
-            <div class="era-grid">
-                <div class="material-card era-card" data-title="информатика база компьютер конфигурация жады программалық жасақтама">
-                    <div class="card-icon era-icon info">💻</div>
-                    <div class="card-info">
-                        <h4>Негізгі блок</h4>
-                        <p>Компьютер конфигурациясы, жады, бағдарламалық жасақтама.</p>
-                        <div class="resource-links">
-                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Қысқа конспект</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Практика</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="material-card era-card" data-title="информатика орта желі ip адрес протокол">
-                    <div class="card-icon era-icon info">🌐</div>
-                    <div class="card-info">
-                        <h4>Желі және IP</h4>
-                        <p>Желі түрлері, IP мекенжай, протоколдар, жиі қате сұрақтар.</p>
-                        <div class="resource-links">
-                            <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Формула беті</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тақырыптық тест</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="material-card era-card" data-title="информатика қазіргі html css javascript">
-                    <div class="card-icon era-icon info">🧩</div>
-                    <div class="card-info">
-                        <h4>Веб негіздері</h4>
-                        <p>HTML тегтері, құрылым, базалық CSS, тест форматындағы сұрақтар.</p>
-                        <div class="resource-links">
-                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Cheat sheet</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Mini тест</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </article>
-
-        <article class="subject-block" data-subject="math">
-            <div class="subject-head">
-                <h3>Математика</h3>
-                <span class="subject-pill">Алгебра • Геометрия • Қайталау</span>
-            </div>
-            <div class="era-grid">
-                <div class="material-card era-card" data-title="математика алгебра функция теңдеу теңсіздік">
-                    <div class="card-icon era-icon math">📐</div>
-                    <div class="card-info">
-                        <h4>Алгебра</h4>
-                        <p>Теңдеу, теңсіздік, функция, прогрессия және қысқа әдістер.</p>
-                        <div class="resource-links">
-                            <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Формула жинағы</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Жаттығу</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="material-card era-card" data-title="математика геометрия планиметрия стереометрия">
-                    <div class="card-icon era-icon math">📏</div>
-                    <div class="card-info">
-                        <h4>Геометрия</h4>
-                        <p>Планиметрия, стереометрия, сызба талдау және теорема картасы.</p>
-                        <div class="resource-links">
-                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Теорема картасы</a>
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тест</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="material-card era-card" data-title="математика қайталау ұбт нұсқа">
-                    <div class="card-icon era-icon math">✅</div>
-                    <div class="card-info">
-                        <h4>Нұсқа қайталау</h4>
-                        <p>ҰБТ форматына ұқсас толық нұсқалар және уақытпен шешу жоспары.</p>
-                        <div class="resource-links">
-                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Толық нұсқа</a>
-                            <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Q&A чат</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </article>
-    </div>
+    <section class="materials-viewer" id="materials-viewer" hidden>
+        <div class="materials-viewer-head">
+            <h3 id="materials-viewer-title">Тақырып</h3>
+            <button type="button" class="download-btn" onclick="closeMaterialsViewer()">Жабу</button>
+        </div>
+        <div class="materials-viewer-tools">
+            <input id="materials-viewer-search" type="search" placeholder="Сұрақтан іздеу..." oninput="filterOpenedTopic(this.value)" />
+        </div>
+        <div class="materials-viewer-list" id="materials-viewer-list"></div>
+        <div class="materials-viewer-pagination">
+            <button type="button" id="materials-page-prev" class="download-btn" onclick="changeTopicPage(-1)">← Алдыңғы</button>
+            <span id="materials-viewer-page-info">1 / 1</span>
+            <button type="button" id="materials-page-next" class="download-btn" onclick="changeTopicPage(1)">Келесі →</button>
+        </div>
+    </section>
 </section>
             </div>
-            
-
-            
-        </main>
-    </div>
-
-           
         </main>
     </div>
 
     <script>
         // Беттерді ауыстыру логикасы
-        function setMaterialsSubject(subject, chipEl) {
-            document.querySelectorAll('.subject-chip').forEach(chip => chip.classList.remove('active'));
-            if (chipEl) chipEl.classList.add('active');
+        const MATERIALS_CATALOG_URL = 'materials-data/catalog.json';
+        const MATERIALS_PAGE_SIZE = 25;
+        const materialsState = {
+            catalog: null,
+            catalogLoaded: false,
+            catalogError: '',
+            activeSubject: 'all',
+            topicCache: new Map(),
+            openTopicMeta: null,
+            openTopicItems: [],
+            filteredItems: [],
+            page: 1
+        };
 
-            document.querySelectorAll('.subject-block').forEach(block => {
-                const shouldShow = subject === 'all' || block.getAttribute('data-subject') === subject;
-                block.style.display = shouldShow ? 'block' : 'none';
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function normalizeText(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function setMaterialsStatus(message, isError = false) {
+            const status = document.getElementById('materials-status');
+            if (!status) return;
+            status.textContent = message;
+            status.style.color = isError ? '#b42318' : '#4b5f73';
+        }
+
+        async function ensureMaterialsCatalog() {
+            if (materialsState.catalogLoaded) return;
+
+            try {
+                const response = await fetch(MATERIALS_CATALOG_URL, { cache: 'no-store' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const payload = await response.json();
+                const subjects = Array.isArray(payload && payload.subjects) ? payload.subjects : [];
+                materialsState.catalog = { subjects };
+                materialsState.catalogLoaded = true;
+                materialsState.catalogError = '';
+                setMaterialsStatus('Каталог жүктелді.');
+            } catch (error) {
+                materialsState.catalogLoaded = true;
+                materialsState.catalog = { subjects: [] };
+                materialsState.catalogError = 'Каталогты жүктеу сәтсіз болды.';
+                setMaterialsStatus('Каталогты жүктеу сәтсіз болды. JSON жолдарын тексеріңіз.', true);
+            }
+        }
+
+        function getAllSubjects() {
+            return (materialsState.catalog && Array.isArray(materialsState.catalog.subjects))
+                ? materialsState.catalog.subjects
+                : [];
+        }
+
+        function getTopicEntriesBySubject(subjectId) {
+            const subjects = getAllSubjects();
+
+            if (subjectId !== 'all') {
+                const subject = subjects.find((item) => item.id === subjectId);
+                if (!subject) return [];
+                const topics = Array.isArray(subject.topics) ? subject.topics : [];
+                return topics.map((topic) => ({
+                    subjectId: subject.id,
+                    subjectTitle: subject.title || subject.id,
+                    topic
+                }));
+            }
+
+            const entries = [];
+            subjects.forEach((subject) => {
+                const topics = Array.isArray(subject.topics) ? subject.topics : [];
+                topics.forEach((topic) => {
+                    entries.push({
+                        subjectId: subject.id,
+                        subjectTitle: subject.title || subject.id,
+                        topic
+                    });
+                });
             });
+            return entries;
+        }
+
+        function renderTopicSelector() {
+            const select = document.getElementById('materials-topic-select');
+            const preview = document.getElementById('materials-topic-preview');
+            const openBtn = document.getElementById('materials-open-topic-btn');
+            if (!select || !preview || !openBtn) return;
+
+            if (materialsState.catalogError) {
+                select.innerHTML = '<option value="">Каталог жүктелмеді</option>';
+                openBtn.disabled = true;
+                preview.innerHTML = `<p class="materials-empty">Файл: <code>${escapeHtml(MATERIALS_CATALOG_URL)}</code></p>`;
+                return;
+            }
+
+            const entries = getTopicEntriesBySubject(materialsState.activeSubject);
+            if (!entries.length) {
+                select.innerHTML = '<option value="">Тақырып жоқ</option>';
+                openBtn.disabled = true;
+                preview.innerHTML = '<p class="materials-empty">Бұл пәнде тақырып табылмады.</p>';
+                return;
+            }
+
+            select.innerHTML = entries.map((entry, index) => {
+                const topic = entry.topic || {};
+                const count = Number.isFinite(Number(topic.count)) ? Number(topic.count) : 0;
+                const left = materialsState.activeSubject === 'all' ? `[${entry.subjectTitle}] ` : '';
+                const label = `${left}${topic.code || '-'} ${topic.title || 'Тақырып'} (${count})`;
+                return `<option value="${escapeHtml(entry.subjectId)}::${escapeHtml(topic.id)}" ${index === 0 ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+            }).join('');
+
+            openBtn.disabled = false;
+            onMaterialsTopicChange();
+        }
+
+        function getSelectedTopicPair() {
+            const select = document.getElementById('materials-topic-select');
+            if (!select || !select.value) return null;
+            const parts = String(select.value).split('::');
+            if (parts.length !== 2) return null;
+            const [subjectId, topicId] = parts;
+            if (!subjectId || !topicId) return null;
+            return { subjectId, topicId };
+        }
+
+        function onMaterialsTopicChange() {
+            const preview = document.getElementById('materials-topic-preview');
+            if (!preview) return;
+            const pair = getSelectedTopicPair();
+            if (!pair) {
+                preview.innerHTML = '<p class="materials-empty">Тақырып таңдаңыз.</p>';
+                return;
+            }
+
+            const meta = findTopicMeta(pair.subjectId, pair.topicId);
+            if (!meta) {
+                preview.innerHTML = '<p class="materials-empty">Тақырып мета-мәліметі табылмады.</p>';
+                return;
+            }
+
+            const count = Number.isFinite(Number(meta.count)) ? Number(meta.count) : 0;
+            preview.innerHTML = `
+                <div class="materials-topic-head">
+                    <div class="materials-topic-code">${escapeHtml(meta.topicCode || '-')}</div>
+                    <h4>${escapeHtml(meta.topicTitle)}</h4>
+                    <span class="materials-topic-count">${count} сұрақ</span>
+                </div>
+                <p class="materials-topic-summary">${escapeHtml(meta.summary || 'Сұрақтар осы тақырыпты ашқанда ғана жүктеледі.')}</p>
+            `;
+        }
+
+        function openSelectedMaterialsTopic() {
+            const pair = getSelectedTopicPair();
+            if (!pair) {
+                setMaterialsStatus('Тақырып таңдалмады.', true);
+                return;
+            }
+            openMaterialsTopic(pair.subjectId, pair.topicId);
+        }
+
+        function findTopicMeta(subjectId, topicId) {
+            const subjects = materialsState.catalog && Array.isArray(materialsState.catalog.subjects)
+                ? materialsState.catalog.subjects
+                : [];
+            const subject = subjects.find((item) => item.id === subjectId);
+            if (!subject) return null;
+            const topics = Array.isArray(subject.topics) ? subject.topics : [];
+            const topic = topics.find((item) => item.id === topicId);
+            if (!topic) return null;
+            return {
+                subjectId: subject.id,
+                subjectTitle: subject.title || subject.id,
+                topicId: topic.id,
+                topicCode: topic.code || '',
+                topicTitle: topic.title || 'Тақырып',
+                summary: topic.summary || '',
+                count: Number.isFinite(Number(topic.count)) ? Number(topic.count) : 0,
+                file: topic.file
+            };
+        }
+
+        function normalizeTopicItems(payload) {
+            const rawItems = Array.isArray(payload)
+                ? payload
+                : (payload && Array.isArray(payload.items) ? payload.items : []);
+
+            return rawItems
+                .map((item) => ({
+                    question: String(item && (item.question || item.q) ? (item.question || item.q) : '').trim(),
+                    answer: String(item && (item.answer || item.a) ? (item.answer || item.a) : '').trim()
+                }))
+                .filter((item) => item.question && item.answer);
+        }
+
+        function updateViewerPagination(totalItems) {
+            const totalPages = totalItems > 0 ? Math.ceil(totalItems / MATERIALS_PAGE_SIZE) : 1;
+            if (materialsState.page > totalPages) materialsState.page = totalPages;
+            if (materialsState.page < 1) materialsState.page = 1;
+
+            const info = document.getElementById('materials-viewer-page-info');
+            const prevBtn = document.getElementById('materials-page-prev');
+            const nextBtn = document.getElementById('materials-page-next');
+            if (info) info.textContent = `${materialsState.page} / ${totalPages}`;
+            if (prevBtn) prevBtn.disabled = materialsState.page <= 1;
+            if (nextBtn) nextBtn.disabled = materialsState.page >= totalPages;
+        }
+
+        function renderOpenedTopicPage() {
+            const list = document.getElementById('materials-viewer-list');
+            if (!list) return;
+
+            const items = materialsState.filteredItems;
+            if (!materialsState.openTopicMeta) {
+                list.innerHTML = '';
+                updateViewerPagination(0);
+                return;
+            }
+
+            if (!items.length) {
+                list.innerHTML = '<p class="materials-empty">Сұрақ табылмады.</p>';
+                updateViewerPagination(0);
+                return;
+            }
+
+            updateViewerPagination(items.length);
+            const start = (materialsState.page - 1) * MATERIALS_PAGE_SIZE;
+            const pageItems = items.slice(start, start + MATERIALS_PAGE_SIZE);
+
+            let html = '';
+            pageItems.forEach((item, index) => {
+                html += `
+                    <details class="materials-qa-item">
+                        <summary>${start + index + 1}. ${escapeHtml(item.question)}</summary>
+                        <div class="materials-qa-answer">${escapeHtml(item.answer)}</div>
+                    </details>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function applyTopicFilter(query) {
+            const normalized = normalizeText(query);
+            const source = materialsState.openTopicItems;
+            materialsState.filteredItems = normalized
+                ? source.filter((item) => normalizeText(item.question).includes(normalized) || normalizeText(item.answer).includes(normalized))
+                : [...source];
+            materialsState.page = 1;
+            renderOpenedTopicPage();
+        }
+
+        function filterOpenedTopic(value) {
+            applyTopicFilter(value);
+        }
+
+        async function openMaterialsTopic(subjectId, topicId) {
+            await ensureMaterialsCatalog();
+            const topicMeta = findTopicMeta(subjectId, topicId);
+            if (!topicMeta || !topicMeta.file) {
+                setMaterialsStatus('Тақырып файлы табылмады.', true);
+                return;
+            }
+
+            const cacheKey = `${topicMeta.subjectId}::${topicMeta.topicId}`;
+            let items = materialsState.topicCache.get(cacheKey);
+
+            if (!items) {
+                try {
+                    const response = await fetch(topicMeta.file, { cache: 'no-store' });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const payload = await response.json();
+                    items = normalizeTopicItems(payload);
+                    materialsState.topicCache.set(cacheKey, items);
+                } catch (error) {
+                    setMaterialsStatus(`Тақырып жүктелмеді: ${topicMeta.file}`, true);
+                    return;
+                }
+            }
+
+            materialsState.openTopicMeta = topicMeta;
+            materialsState.openTopicItems = items;
+            const viewer = document.getElementById('materials-viewer');
+            const title = document.getElementById('materials-viewer-title');
+            const search = document.getElementById('materials-viewer-search');
+
+            if (title) {
+                title.textContent = `${topicMeta.subjectTitle} - ${topicMeta.topicCode} ${topicMeta.topicTitle}`.trim();
+            }
+            if (search) search.value = '';
+            applyTopicFilter('');
+
+            if (viewer) {
+                viewer.hidden = false;
+                viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            setMaterialsStatus(`Тақырып ашылды: ${topicMeta.topicCode} ${topicMeta.topicTitle}`);
+        }
+
+        function closeMaterialsViewer() {
+            const viewer = document.getElementById('materials-viewer');
+            if (viewer) viewer.hidden = true;
+            materialsState.openTopicMeta = null;
+            materialsState.openTopicItems = [];
+            materialsState.filteredItems = [];
+            materialsState.page = 1;
+            renderOpenedTopicPage();
+        }
+
+        function changeTopicPage(step) {
+            materialsState.page += step;
+            renderOpenedTopicPage();
+        }
+
+        function setMaterialsSubject(subject, chipEl) {
+            document.querySelectorAll('.subject-chip').forEach((chip) => chip.classList.remove('active'));
+            if (chipEl) chipEl.classList.add('active');
+            materialsState.activeSubject = subject;
+            renderTopicSelector();
+            closeMaterialsViewer();
+            setMaterialsStatus('Пән таңдалды. Енді тақырыпты ашыңыз.');
+        }
+
+        async function initMaterialsSection() {
+            await ensureMaterialsCatalog();
+            const activeChip = document.querySelector('.subject-chip.active') || document.querySelector('.subject-chip[data-subject-filter="all"]');
+            const activeSubject = activeChip ? (activeChip.getAttribute('data-subject-filter') || 'all') : 'all';
+            setMaterialsSubject(activeSubject, activeChip);
         }
 
         function openPage(pageId) {
@@ -464,10 +679,7 @@
                 updateChartDisplay();
             }
             if (pageId === 'materials') {
-                const activeChip = document.querySelector('.subject-chip.active') || document.querySelector('.subject-chip[data-subject-filter="all"]');
-                if (activeChip) {
-                    setMaterialsSubject(activeChip.getAttribute('data-subject-filter') || 'all', activeChip);
-                }
+                initMaterialsSection();
             }
         }
 
@@ -597,8 +809,6 @@ h1 { font-size: 32px; margin-bottom: 30px; }
     letter-spacing: 5px;
 }
 </style>
-
-        </main>
     <div class="container" id="app" style="display: none;">
     <div class="progress" id="progress"></div>
     <div class="question" id="question">Жүктелуде...</div>

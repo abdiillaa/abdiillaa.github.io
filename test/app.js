@@ -10,6 +10,16 @@ fetch('login.json')
 const TEST_QUESTION_COUNT_KEY = 'test_questions_per_test';
 const DEFAULT_TEST_QUESTION_COUNT = 60;
 const MIN_TEST_QUESTION_COUNT = 1;
+const AVATAR_COLOR_PALETTE = [
+    ['#2563eb', '#1e40af'],
+    ['#059669', '#047857'],
+    ['#ea580c', '#c2410c'],
+    ['#7c3aed', '#5b21b6'],
+    ['#dc2626', '#991b1b'],
+    ['#0f766e', '#115e59'],
+    ['#ca8a04', '#92400e'],
+    ['#0284c7', '#075985']
+];
 
 function normalizeQuestionCount(value) {
     const numeric = Number.parseInt(value, 10);
@@ -62,6 +72,73 @@ function initQuestionCountSettings() {
     if (saveButton) saveButton.addEventListener('click', commit);
 }
 
+function hashString(value) {
+    const text = String(value || '');
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash);
+}
+
+function getUserInitials(name) {
+    const parts = String(name || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (!parts.length) return 'U';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
+function buildGeneratedAvatar(name) {
+    const [startColor, endColor] = AVATAR_COLOR_PALETTE[hashString(name) % AVATAR_COLOR_PALETTE.length];
+    const initials = getUserInitials(name);
+    const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="${initials}">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${startColor}" />
+      <stop offset="100%" stop-color="${endColor}" />
+    </linearGradient>
+  </defs>
+  <rect width="96" height="96" fill="url(#g)" />
+  <text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="34" font-weight="700">${initials}</text>
+</svg>`.trim();
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function getUserAvatarSource(user) {
+    const avatar = user && typeof user.avatar === 'string' ? user.avatar.trim() : '';
+    if (avatar) return avatar;
+    return buildGeneratedAvatar(user && user.name ? user.name : '');
+}
+
+function applyUserProfile(user) {
+    if (!user) return;
+
+    const userName = user.name || 'Пайдаланушы';
+    document.querySelectorAll('.username').forEach((el) => {
+        el.innerText = userName;
+    });
+
+    const welcome = document.querySelector('#welcomename');
+    if (welcome) welcome.innerHTML = "Welcome, " + userName;
+
+    const avatarSrc = getUserAvatarSource(user);
+    document.querySelectorAll('.avatar').forEach((img) => {
+        img.src = avatarSrc;
+        img.alt = `${userName} avatar`;
+        img.onerror = () => {
+            img.onerror = null;
+            img.src = buildGeneratedAvatar(userName);
+        };
+    });
+}
+
 // 1. Автоматты түрде келесі ұяшыққа секіру функциясы
 function moveFocus(current, nextIndex) {
     if (current.value.length === 1 && nextIndex < 5) {
@@ -111,10 +188,8 @@ function checkPin() {
         const homeMenu = document.getElementById('homemenu') || document.getElementById('app');
         if (homeMenu) homeMenu.style.display = 'flex';
 
-        // Пайдаланушы атын жаңарту
-        document.querySelectorAll('.username').forEach(el => el.innerText = user.name);
-        const welcome = document.querySelector('#welcomename');
-        if (welcome) welcome.innerHTML = "Welcome, " + user.name;
+        // Пайдаланушы профилін жаңарту (аты + аватар)
+        applyUserProfile(user);
 
         if (typeof updateChartDisplay === "function") updateChartDisplay();
     } else {
@@ -204,6 +279,8 @@ function updateChartDisplay() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser) applyUserProfile(currentUser);
     updateChartDisplay();
     initQuestionCountSettings();
 });

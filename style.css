@@ -35,6 +35,9 @@ body {
     height: 50px;
     background-color: #e0e0e0;
     border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #dbe7f3;
+    display: block;
     margin-bottom: 10px;
 }
 
@@ -379,6 +382,56 @@ h1 {
     margin-top: 16px;
 }
 
+.materials-flow {
+    margin-top: 16px;
+    border: 1px solid #dfe7ef;
+    border-radius: 16px;
+    background: #ffffff;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(7, 28, 66, 0.06);
+}
+
+.materials-flow-row {
+    display: grid;
+    grid-template-columns: 170px 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.materials-flow-row label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #4b5f73;
+}
+
+#materials-topic-select {
+    border: 1px solid #cfd9e5;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    background: #fdfefe;
+    color: #1e2a37;
+}
+
+#materials-open-topic-btn {
+    white-space: nowrap;
+}
+
+.materials-topic-preview {
+    margin-top: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px;
+    background: #fbfdff;
+}
+
+#materials-status {
+    display: block;
+    margin-top: 8px;
+    color: #4b5f73;
+    font-size: 12px;
+}
+
 .subject-block {
     background: #fff;
     border: 1px solid #dfe7ef;
@@ -409,6 +462,159 @@ h1 {
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
+}
+
+.materials-empty {
+    margin: 0;
+    color: #667689;
+    font-size: 14px;
+}
+
+.materials-topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.materials-topic-card {
+    border: 1px solid #dfe7ef;
+    border-radius: 14px;
+    background: #fcfdff;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.materials-topic-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.materials-topic-head h4 {
+    margin: 0;
+    font-size: 15px;
+    color: #243447;
+}
+
+.materials-topic-summary {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #667689;
+}
+
+.materials-topic-code {
+    background: #e8f2ff;
+    color: #14539a;
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.materials-topic-count {
+    margin-left: auto;
+    background: #f2f5f9;
+    color: #4b5f73;
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.materials-qa-list {
+    display: grid;
+    gap: 8px;
+}
+
+.materials-qa-item {
+    border: 1px solid #d6e0eb;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.materials-qa-item summary {
+    cursor: pointer;
+    list-style: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: #25364a;
+    padding: 9px 10px;
+}
+
+.materials-qa-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.materials-qa-item[open] summary {
+    background: #f5faff;
+}
+
+.materials-qa-answer {
+    padding: 0 10px 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #4b5f73;
+    white-space: pre-wrap;
+}
+
+.materials-viewer {
+    margin-top: 18px;
+    border: 1px solid #dfe7ef;
+    border-radius: 16px;
+    background: #fff;
+    padding: 14px;
+    box-shadow: 0 8px 24px rgba(7, 28, 66, 0.06);
+}
+
+.materials-viewer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.materials-viewer-head h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1e2a37;
+}
+
+.materials-viewer-tools {
+    margin-bottom: 10px;
+}
+
+#materials-viewer-search {
+    width: 100%;
+    border: 1px solid #cfd9e5;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    background: #fdfefe;
+    color: #1e2a37;
+}
+
+.materials-viewer-list {
+    display: grid;
+    gap: 8px;
+}
+
+.materials-viewer-pagination {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#materials-viewer-page-info {
+    font-size: 12px;
+    color: #4b5f73;
 }
 
 .era-grid {
@@ -496,6 +702,10 @@ h1 {
     .subject-head {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .materials-flow-row {
+        grid-template-columns: 1fr;
     }
 }
 
