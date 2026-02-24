@@ -7,6 +7,61 @@ fetch('login.json')
     loginData = data;
   });
 
+const TEST_QUESTION_COUNT_KEY = 'test_questions_per_test';
+const DEFAULT_TEST_QUESTION_COUNT = 60;
+const MIN_TEST_QUESTION_COUNT = 1;
+
+function normalizeQuestionCount(value) {
+    const numeric = Number.parseInt(value, 10);
+    if (!Number.isInteger(numeric)) return DEFAULT_TEST_QUESTION_COUNT;
+    if (numeric < MIN_TEST_QUESTION_COUNT) return MIN_TEST_QUESTION_COUNT;
+    return numeric;
+}
+
+function getSavedQuestionCount() {
+    const rawValue = localStorage.getItem(TEST_QUESTION_COUNT_KEY);
+    return normalizeQuestionCount(rawValue);
+}
+
+function setSavedQuestionCount(value) {
+    const normalized = normalizeQuestionCount(value);
+    localStorage.setItem(TEST_QUESTION_COUNT_KEY, String(normalized));
+    return normalized;
+}
+
+function initQuestionCountSettings() {
+    const input = document.getElementById('question-count-input');
+    const saveButton = document.getElementById('question-count-save');
+    const hint = document.getElementById('question-count-hint');
+    if (!input) return;
+
+    const savedCount = getSavedQuestionCount();
+    input.value = String(savedCount);
+    if (hint) hint.textContent = `Ағымдағысы: ${savedCount} сұрақ (әдепкі ${DEFAULT_TEST_QUESTION_COUNT})`;
+
+    const commit = () => {
+        const nextValue = setSavedQuestionCount(input.value);
+        input.value = String(nextValue);
+        if (hint) {
+            hint.textContent = `Сақталды: ${nextValue} сұрақ`;
+            hint.classList.add('saved');
+            setTimeout(() => {
+                hint.textContent = `Ағымдағысы: ${nextValue} сұрақ (әдепкі ${DEFAULT_TEST_QUESTION_COUNT})`;
+                hint.classList.remove('saved');
+            }, 1400);
+        }
+    };
+
+    input.addEventListener('change', commit);
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            commit();
+        }
+    });
+    if (saveButton) saveButton.addEventListener('click', commit);
+}
+
 // 1. Автоматты түрде келесі ұяшыққа секіру функциясы
 function moveFocus(current, nextIndex) {
     if (current.value.length === 1 && nextIndex < 5) {
@@ -148,7 +203,10 @@ function updateChartDisplay() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', updateChartDisplay);
+document.addEventListener('DOMContentLoaded', () => {
+    updateChartDisplay();
+    initQuestionCountSettings();
+});
 
 // Ауыстыру функциялары
 function nextChart() {
@@ -278,7 +336,10 @@ function testgo(x) {
   const selectedTestId = Number(x);
   let allQuestions = [];
   let testName = '';
-  const QUESTIONS_PER_TEST = 60;
+  const QUESTIONS_PER_TEST = getSavedQuestionCount();
+  const HISTORY_ALL_TEST_ID = -1;
+  const INFORMATICS_ALL_TEST_ID = -2;
+  const ALL_SUBJECTS_TEST_ID = 0;
   const NUMBER_SYSTEM_TEST_ID = 156;
   const NUMBER_BASES = [2, 8, 10, 16];
   const NUMBER_OPS = ["+", "-", "*"];
@@ -460,6 +521,55 @@ function testgo(x) {
 
 
   };
+  const allMappedTestIds = Object.keys(files)
+    .map((id) => Number(id))
+    .filter((id) => Number.isInteger(id))
+    .sort((a, b) => a - b);
+  const historyTestIds = allMappedTestIds.filter((id) => id >= 1 && id <= 149);
+  const informaticsTestIds = allMappedTestIds.filter((id) => id >= 150 && id <= 299);
+
+  function loadGroupedTests(testIds) {
+    const validIds = testIds.filter((testId) => files[testId]);
+    if (!validIds.length) {
+      alert('Бұл диапазонда тест табылмады.');
+      return;
+    }
+
+    const promises = validIds.map((testId) => fetch(files[testId]).then((r) => r.json()));
+    Promise.all(promises).then((results) => {
+      allQuestions = [].concat(...results);
+      start();
+    });
+  }
+
+  function normalizeQuestionText(value) {
+    return String(value || '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  function deduplicateQuestions(pool) {
+    const seen = new Set();
+    const unique = [];
+
+    for (const item of pool) {
+      if (!item || typeof item !== 'object') continue;
+
+      const questionKey = normalizeQuestionText(item.question);
+      const fallbackKey = `${normalizeQuestionText(item.correct)}|${Array.isArray(item.options) ? item.options.map(normalizeQuestionText).join('|') : ''}`;
+      const key = questionKey || fallbackKey;
+      if (!key) continue;
+      if (seen.has(key)) continue;
+
+      seen.add(key);
+      unique.push(item);
+    }
+
+    return unique;
+  }
+
   let test = [];
   let current = 0;
   let score = 0;
@@ -473,7 +583,7 @@ function testgo(x) {
   if (selectedTestId === NUMBER_SYSTEM_TEST_ID) {
     allQuestions = buildNumberSystemQuestions(QUESTIONS_PER_TEST);
     start();
-  } else if (selectedTestId >= 1) {
+  } else if (selectedTestId >= 1 && files[selectedTestId]) {
     // Жалғыз файлды жүктеу
     fetch(files[selectedTestId])
       .then(r => r.json())
@@ -481,20 +591,26 @@ function testgo(x) {
         allQuestions = data;
         start();
       });
+  } else if (selectedTestId === HISTORY_ALL_TEST_ID) {
+    // Қазақстан тарихы бойынша барлық тақырыпты біріктіру
+    loadGroupedTests(historyTestIds);
+  } else if (selectedTestId === INFORMATICS_ALL_TEST_ID) {
+    // Информатика бойынша барлық тақырыпты біріктіру
+    loadGroupedTests(informaticsTestIds);
+  } else if (selectedTestId === ALL_SUBJECTS_TEST_ID) {
+    // Тарих + информатика тақырыптарын бірге біріктіру
+    loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
   } else {
-    // БАРЛЫҚ файлдарды біріктіріп жүктеу (x = 0 немесе басқа болса)
-    const promises = Object.values(files).map(filePath => fetch(filePath).then(r => r.json()));
-    
-    Promise.all(promises).then(results => {
-      allQuestions = [].concat(...results); // Барлық массивті біріктіру
-      start();
-    });
+    // Белгісіз ID берілсе, барлық тақырыпты жүктеу
+    loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
   }
 
   function start() {
     // Қанша сұрақ болса да, рандом 60 сұрақ алу
-    const questionCount = Math.min(QUESTIONS_PER_TEST, allQuestions.length);
-    test = shuffle([...allQuestions]).slice(0, questionCount);
+    const randomizedPool = shuffle([...allQuestions]);
+    const uniquePool = deduplicateQuestions(randomizedPool);
+    const questionCount = Math.min(QUESTIONS_PER_TEST, uniquePool.length);
+    test = uniquePool.slice(0, questionCount);
     current = 0;
     score = 0;
     mistakes = [];

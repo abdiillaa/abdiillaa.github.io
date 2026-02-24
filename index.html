@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>ҰБТ дайындық</title>
     <meta name="viewport" content="width=device-width, initial-scale=0.6">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="test/style.css?v=20260222-5">
+    <link rel="stylesheet" href="style.css?v=20260222-1">
+    <link rel="stylesheet" href="test/style.css?v=20260222-7">
     <link rel="stylesheet" href="11.css">
     <link rel="manifest" href="manifest.json">
-    <script defer src="test/app.js?v=20260222-5"></script>
+    <script defer src="test/app.js?v=20260224-12"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -140,6 +140,7 @@
                     <li onclick="openPage('home')" id="nav-home" class="active">Home</li>
                 <li onclick="openPage('profile')" id="nav-profile">Profile</li>
                 <li onclick="openPage('test')" id="nav-test">Test</li>
+                <li onclick="openPage('settings')" id="nav-settings">Settings</li>
                 <li onclick="openPage('ranking')" id="nav-ranking">Academic Ranking</li>
                 <li onclick="openPage('materials')" id="nav-materials">Study Materials</li>
                 </ul>
@@ -196,6 +197,12 @@
                 
             </section>
             <section id="test" class="content-page">
+            <h1>Тапсыру</h1>
+            <ul class="topics-list">
+                <li onclick="testgo(-1);">Тарих бойынша тапсыру (ID 1-149)</li>
+                <li onclick="testgo(-2);">Инфо бойынша тапсыру (ID 150-299)</li>
+                <li onclick="testgo(0);">Барлығын бірге 🔥</li>
+            </ul>
             <h1>Қазақстан тарихы</h1>
             <ul class="topics-list">
                 <li onclick="testgo(1);">Ерте орта Қазақстан VI-IX</li>
@@ -209,11 +216,6 @@
                 <li onclick="testgo(11);">Алтын орда</li>
                 <li onclick="testgo(12);">Шыңғыс хан</li>
                 <li onclick="testgo(13);">Ежелгі Қазақстан</li>
-
-                
-                
-                <hr>
-                <li onclick="testgo(0);">Барлығын бірге 🔥</li>
             </ul>
             <h1>Информатика</h1>
             <ul class="topics-list">
@@ -231,6 +233,30 @@
 
 
             </ul>
+            </section>
+            <section id="settings" class="content-page settings-page">
+            <h1>Settings</h1>
+            <div class="settings-panel">
+                <div class="settings-hero">
+                    <h2>Тест ұзындығы</h2>
+                    <p>Бір тестте қанша сұрақ шығатынын орнатыңыз. Бұл параметр барлық тестке қолданылады.</p>
+                </div>
+                <div class="test-settings">
+                    <div class="test-settings-title">Сұрақ саны</div>
+                    <label for="question-count-input">Бір тесттегі сұрақ саны:</label>
+                    <div class="test-settings-row">
+                        <input id="question-count-input" type="number" min="1" step="1" />
+                        <button id="question-count-save" type="button">Сақтау</button>
+                    </div>
+                    <div class="quick-counts">
+                        <button class="quick-count-btn" type="button" onclick="document.getElementById('question-count-input').value='20';document.getElementById('question-count-save').click();">20</button>
+                        <button class="quick-count-btn" type="button" onclick="document.getElementById('question-count-input').value='40';document.getElementById('question-count-save').click();">40</button>
+                        <button class="quick-count-btn" type="button" onclick="document.getElementById('question-count-input').value='60';document.getElementById('question-count-save').click();">60</button>
+                        <button class="quick-count-btn" type="button" onclick="document.getElementById('question-count-input').value='80';document.getElementById('question-count-save').click();">80</button>
+                    </div>
+                    <small id="question-count-hint">Ағымдағысы: 60 сұрақ (әдепкі 60)</small>
+                </div>
+            </div>
             </section>
             <section id="ranking" class="content-page">
     <h1>🏆 Сынып рейтингі</h1>
@@ -255,38 +281,144 @@
           
             
             <section id="materials" class="content-page">
-    <header>
-        <h1>🌐 Пайдалы ресурстар</h1>
-        <p>ҰБТ-ға дайындалуға арналған тегін онлайн платформалар</p>
+    <header class="materials-head">
+        <h1>Study Materials Hub</h1>
+        <p>Пәнді таңдаңыз, содан кейін кезең карталарынан дайындық материалын ашыңыз.</p>
     </header>
 
-    <div class="materials-grid">
-        <div class="material-card">
-            <div class="card-icon" style="color: #ff0000;">🎥</div>
-            <div class="card-info">
-                <h4>YouTube Сабақтар</h4>
-                <p>Нұсқа талдау және тақырыптық түсіндірмелер</p>
-                <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Көруге өту →</a>
-            </div>
-        </div>
+    <div class="materials-toolbar">
+        <button type="button" class="subject-chip active" data-subject-filter="all" onclick="setMaterialsSubject('all', this)">Барлығы</button>
+        <button type="button" class="subject-chip" data-subject-filter="history" onclick="setMaterialsSubject('history', this)">Қазақстан тарихы</button>
+        <button type="button" class="subject-chip" data-subject-filter="informatics" onclick="setMaterialsSubject('informatics', this)">Информатика</button>
+        <button type="button" class="subject-chip" data-subject-filter="math" onclick="setMaterialsSubject('math', this)">Математика</button>
+    </div>
 
-        <div class="material-card">
-            <div class="card-icon">📝</div>
-            <div class="card-info">
-                <h4>U-Study / Apptest</h4>
-                <p>Тегін байқау сынақтарын тапсыру</p>
-                <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тест тапсыру →</a>
+    <div class="materials-grid-v2">
+        <article class="subject-block" data-subject="history">
+            <div class="subject-head">
+                <h3>Қазақстан тарихы</h3>
+                <span class="subject-pill">Ежелгі • Орта • Қазіргі</span>
             </div>
-        </div>
+            <div class="era-grid">
+                <div class="material-card era-card" data-title="Қазақстан тарихы ежелгі сақ ғұн үйсін қаңлы">
+                    <div class="card-icon era-icon ancient">🏺</div>
+                    <div class="card-info">
+                        <h4>Ежелгі Қазақстан</h4>
+                        <p>Сақтар, ғұндар, үйсін, қаңлы, дереккөздер, базалық даталар.</p>
+                        <div class="resource-links">
+                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Видео</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Mini тест</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="material-card era-card" data-title="Қазақстан тарихы орта түркі қыпшақ қазақ хандығы">
+                    <div class="card-icon era-icon medieval">🏰</div>
+                    <div class="card-info">
+                        <h4>Орта ғасыр</h4>
+                        <p>Түркі дәуірі, Қыпшақтар, Алтын Орда, Қазақ хандығы карталары.</p>
+                        <div class="resource-links">
+                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Талдау</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тақырыптық тест</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="material-card era-card" data-title="Қазақстан тарихы қазіргі заман тәуелсіздік реформалар">
+                    <div class="card-icon era-icon modern">🏙️</div>
+                    <div class="card-info">
+                        <h4>Қазіргі заман</h4>
+                        <p>ХХ ғасыр, тәуелсіз Қазақстан, реформалар, хронология кестесі.</p>
+                        <div class="resource-links">
+                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Қайталау</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Нұсқа</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
 
-        <div class="material-card">
-            <div class="card-icon" style="color: #0088cc;">✈️</div>
-            <div class="card-info">
-                <h4>Telegram Группалар</h4>
-                <p>Сұрақ-жауап және жаңа базалар</p>
-                <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Қосылу →</a>
+        <article class="subject-block" data-subject="informatics">
+            <div class="subject-head">
+                <h3>Информатика</h3>
+                <span class="subject-pill">База • Желі • Веб</span>
             </div>
-        </div>
+            <div class="era-grid">
+                <div class="material-card era-card" data-title="информатика база компьютер конфигурация жады программалық жасақтама">
+                    <div class="card-icon era-icon info">💻</div>
+                    <div class="card-info">
+                        <h4>Негізгі блок</h4>
+                        <p>Компьютер конфигурациясы, жады, бағдарламалық жасақтама.</p>
+                        <div class="resource-links">
+                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Қысқа конспект</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Практика</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="material-card era-card" data-title="информатика орта желі ip адрес протокол">
+                    <div class="card-icon era-icon info">🌐</div>
+                    <div class="card-info">
+                        <h4>Желі және IP</h4>
+                        <p>Желі түрлері, IP мекенжай, протоколдар, жиі қате сұрақтар.</p>
+                        <div class="resource-links">
+                            <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Формула беті</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тақырыптық тест</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="material-card era-card" data-title="информатика қазіргі html css javascript">
+                    <div class="card-icon era-icon info">🧩</div>
+                    <div class="card-info">
+                        <h4>Веб негіздері</h4>
+                        <p>HTML тегтері, құрылым, базалық CSS, тест форматындағы сұрақтар.</p>
+                        <div class="resource-links">
+                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Cheat sheet</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Mini тест</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="subject-block" data-subject="math">
+            <div class="subject-head">
+                <h3>Математика</h3>
+                <span class="subject-pill">Алгебра • Геометрия • Қайталау</span>
+            </div>
+            <div class="era-grid">
+                <div class="material-card era-card" data-title="математика алгебра функция теңдеу теңсіздік">
+                    <div class="card-icon era-icon math">📐</div>
+                    <div class="card-info">
+                        <h4>Алгебра</h4>
+                        <p>Теңдеу, теңсіздік, функция, прогрессия және қысқа әдістер.</p>
+                        <div class="resource-links">
+                            <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Формула жинағы</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Жаттығу</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="material-card era-card" data-title="математика геометрия планиметрия стереометрия">
+                    <div class="card-icon era-icon math">📏</div>
+                    <div class="card-info">
+                        <h4>Геометрия</h4>
+                        <p>Планиметрия, стереометрия, сызба талдау және теорема картасы.</p>
+                        <div class="resource-links">
+                            <a href="https://youtube.com/playlist?list=PLI7N2qOEOVZq9HW8raOsD-omaElaCGiKN&si=RBmF8FU16mPooh1Y" target="_blank" class="download-btn">Теорема картасы</a>
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Тест</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="material-card era-card" data-title="математика қайталау ұбт нұсқа">
+                    <div class="card-icon era-icon math">✅</div>
+                    <div class="card-info">
+                        <h4>Нұсқа қайталау</h4>
+                        <p>ҰБТ форматына ұқсас толық нұсқалар және уақытпен шешу жоспары.</p>
+                        <div class="resource-links">
+                            <a href="https://prob-ent.testcenter.kz/" target="_blank" class="download-btn">Толық нұсқа</a>
+                            <a href="https://t.me/amazingteaminfoo" target="_blank" class="download-btn">Q&A чат</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
     </div>
 </section>
             </div>
@@ -302,6 +434,16 @@
 
     <script>
         // Беттерді ауыстыру логикасы
+        function setMaterialsSubject(subject, chipEl) {
+            document.querySelectorAll('.subject-chip').forEach(chip => chip.classList.remove('active'));
+            if (chipEl) chipEl.classList.add('active');
+
+            document.querySelectorAll('.subject-block').forEach(block => {
+                const shouldShow = subject === 'all' || block.getAttribute('data-subject') === subject;
+                block.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+
         function openPage(pageId) {
             // Барлық беттерді жабу
             document.querySelectorAll('.content-page').forEach(page => {
@@ -320,6 +462,12 @@
     }
             if(pageId === 'profile') {
                 updateChartDisplay();
+            }
+            if (pageId === 'materials') {
+                const activeChip = document.querySelector('.subject-chip.active') || document.querySelector('.subject-chip[data-subject-filter="all"]');
+                if (activeChip) {
+                    setMaterialsSubject(activeChip.getAttribute('data-subject-filter') || 'all', activeChip);
+                }
             }
         }
 
@@ -457,7 +605,7 @@ h1 { font-size: 32px; margin-bottom: 30px; }
     <div class="options" id="options"></div>
   </div>
   <div class="footer-brand">
-    BY <span class="name">SAYAN</span> & <span class="name">RAMAZAN</span>
+    BY <span class="name">SAYAN</span> & <span class="name">RAMAZAN</span> & <span class="name">ZHANBOLAT</span>
 </div>
 </body>
 </html>

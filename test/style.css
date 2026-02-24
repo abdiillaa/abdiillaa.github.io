@@ -20,8 +20,15 @@
 
 *{box-sizing:border-box}
 
+html,
+body{
+  height:auto;
+  min-height:100vh;
+}
+
 body{
   margin:0;
+  min-height:100vh;
   color:var(--ink);
   font-family:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   background:
@@ -30,12 +37,13 @@ body{
 }
 
 #app.container{
-  width:min(940px, calc(100% - 28px));
-  min-height:620px;
-  margin:22px auto;
+  width:min(940px, 100%);
+  height:auto;
+  min-height:100vh;
+  margin:0 auto;
   padding:22px;
   border:1px solid var(--line);
-  border-radius:22px;
+  border-radius:0;
   background:linear-gradient(180deg, #f8fcfb 0%, #edf5f4 100%);
   box-shadow:var(--shadow);
   display:flex;
@@ -404,11 +412,11 @@ body{
 
 @media (max-width:900px){
   #app.container{
-    width:calc(100% - 18px);
-    margin:12px auto;
+    width:100%;
+    margin:0;
     padding:15px;
-    min-height:calc(100vh - 24px);
-    border-radius:18px;
+    min-height:100vh;
+    border-radius:0;
   }
 
   #app .progress{
