@@ -575,6 +575,8 @@ function testgo(x) {
     11: 'test/data/altynorda.json',
     12: 'test/data/mongolshapkyn.json',
     13: 'test/data/ezhelgi.json',
+    14: 'test/data/khanatedel.json',
+
     
     
     
