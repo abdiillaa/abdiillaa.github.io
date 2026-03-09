@@ -10,6 +10,16 @@ fetch('login.json')
 const TEST_QUESTION_COUNT_KEY = 'test_questions_per_test';
 const DEFAULT_TEST_QUESTION_COUNT = 60;
 const MIN_TEST_QUESTION_COUNT = 1;
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const KZ_MONTHS_FULL = [
+    'қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым',
+    'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан'
+];
+const KZ_MONTHS_SHORT = [
+    'қаң', 'ақп', 'нау', 'сәу', 'мам', 'мау',
+    'шіл', 'там', 'қыр', 'қаз', 'қар', 'жел'
+];
+const KZ_WEEKDAYS_SHORT = ['Жс', 'Дс', 'Сс', 'Ср', 'Бс', 'Жм', 'Сн'];
 const AVATAR_COLOR_PALETTE = [
     ['#2563eb', '#1e40af'],
     ['#059669', '#047857'],
@@ -26,6 +36,10 @@ function normalizeQuestionCount(value) {
     if (!Number.isInteger(numeric)) return DEFAULT_TEST_QUESTION_COUNT;
     if (numeric < MIN_TEST_QUESTION_COUNT) return MIN_TEST_QUESTION_COUNT;
     return numeric;
+}
+
+function clampNumber(value, min, max) {
+    return Math.min(Math.max(value, min), max);
 }
 
 function getSavedQuestionCount() {
@@ -70,6 +84,190 @@ function initQuestionCountSettings() {
         }
     });
     if (saveButton) saveButton.addEventListener('click', commit);
+}
+
+function toLocalCalendarDate(year, month, day) {
+    return new Date(year, month - 1, day, 12, 0, 0, 0);
+}
+
+function parseCalendarDate(value) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || '').trim());
+    if (!match) return null;
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const date = toLocalCalendarDate(year, month, day);
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null;
+    }
+
+    return date;
+}
+
+function getTodayCalendarDate() {
+    const now = new Date();
+    return toLocalCalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+}
+
+function addCalendarDays(date, days) {
+    const next = new Date(date.getTime());
+    next.setDate(next.getDate() + days);
+    return toLocalCalendarDate(next.getFullYear(), next.getMonth() + 1, next.getDate());
+}
+
+function diffCalendarDays(laterDate, earlierDate) {
+    return Math.round((laterDate.getTime() - earlierDate.getTime()) / DAY_IN_MS);
+}
+
+function isSameCalendarDate(leftDate, rightDate) {
+    return diffCalendarDays(leftDate, rightDate) === 0;
+}
+
+function formatFullCalendarDate(date) {
+    return `${date.getDate()} ${KZ_MONTHS_FULL[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function setCalendarText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+}
+
+function renderInternalTestDays(container, prevDate, nextDate, today) {
+    if (!container) return;
+
+    const totalDays = diffCalendarDays(nextDate, prevDate);
+    const items = [];
+
+    for (let offset = 0; offset <= totalDays; offset++) {
+        const currentDate = addCalendarDays(prevDate, offset);
+        const isStart = offset === 0;
+        const isEnd = offset === totalDays;
+        const isToday = isSameCalendarDate(currentDate, today);
+        const classNames = ['test-calendar-day'];
+
+        if (currentDate < today) classNames.push('is-past');
+        if (isStart) classNames.push('is-start');
+        if (isEnd) classNames.push('is-next');
+        if (isToday) classNames.push('is-today');
+
+        let caption = 'Күтілуде';
+        if (isStart && isEnd) caption = 'Тест күні';
+        else if (isToday && isEnd) caption = 'Тест күні';
+        else if (isStart) caption = 'Өткен тест';
+        else if (isEnd) caption = 'Келесі тест';
+        else if (isToday) caption = 'Бүгін';
+        else if (currentDate < today) caption = 'Өтті';
+
+        items.push(`
+            <div class="${classNames.join(' ')}">
+                <span class="test-calendar-day-weekday">${KZ_WEEKDAYS_SHORT[currentDate.getDay()]}</span>
+                <strong class="test-calendar-day-number">${currentDate.getDate()}</strong>
+                <span class="test-calendar-day-month">${KZ_MONTHS_SHORT[currentDate.getMonth()]}</span>
+                <span class="test-calendar-day-caption">${caption}</span>
+            </div>
+        `);
+    }
+
+    container.innerHTML = items.join('');
+
+    const focusDay = container.querySelector('.test-calendar-day.is-today')
+        || container.querySelector('.test-calendar-day.is-next');
+    if (focusDay) {
+        focusDay.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+}
+
+function initInternalTestCalendar() {
+    const root = document.querySelector('.test-calendar-card');
+    if (!root) return;
+
+    const title = String(root.dataset.testTitle || 'Ішкі тест').trim() || 'Ішкі тест';
+    const prevDate = parseCalendarDate(root.dataset.prevTestDate);
+    const nextDate = parseCalendarDate(root.dataset.nextTestDate);
+    const badge = document.getElementById('test-calendar-badge');
+    const strip = document.getElementById('test-calendar-strip');
+    const progressFill = document.getElementById('test-calendar-progress-fill');
+
+    setCalendarText('test-calendar-title', title);
+
+    if (!prevDate || !nextDate || nextDate < prevDate) {
+        setCalendarText('test-calendar-days', 'Қате');
+        setCalendarText('test-calendar-note', 'Календар даталарын тексеріңіз.');
+        setCalendarText('test-calendar-prev', '-');
+        setCalendarText('test-calendar-next', '-');
+        setCalendarText('test-calendar-range', '-');
+        setCalendarText('test-calendar-progress-text', '0% өтті');
+        setCalendarText('test-calendar-progress-days', '0 / 0 күн');
+        if (progressFill) progressFill.style.width = '0%';
+        if (badge) {
+            badge.className = 'test-calendar-badge is-finished';
+            badge.textContent = 'Қате дата';
+        }
+        if (strip) {
+            strip.innerHTML = '<p class="test-calendar-empty">`data-prev-test-date` және `data-next-test-date` мәндерін дұрыс қойыңыз.</p>';
+        }
+        return;
+    }
+
+    const today = getTodayCalendarDate();
+    const totalDaysBetween = diffCalendarDays(nextDate, prevDate);
+    const calendarDaysTotal = totalDaysBetween + 1;
+    const daysUntilNextTest = diffCalendarDays(nextDate, today);
+    const rawProgress = totalDaysBetween === 0
+        ? (today >= nextDate ? 1 : 0)
+        : diffCalendarDays(today, prevDate) / totalDaysBetween;
+    const progress = clampNumber(rawProgress, 0, 1);
+    const progressPercent = Math.round(progress * 100);
+    const coveredDays = clampNumber(diffCalendarDays(today, prevDate) + 1, 0, calendarDaysTotal);
+
+    setCalendarText('test-calendar-prev', formatFullCalendarDate(prevDate));
+    setCalendarText('test-calendar-next', formatFullCalendarDate(nextDate));
+    setCalendarText(
+        'test-calendar-range',
+        `${calendarDaysTotal} күн`
+    );
+    setCalendarText('test-calendar-progress-text', `${progressPercent}% өтті`);
+    setCalendarText('test-calendar-progress-days', `${coveredDays} / ${calendarDaysTotal} күн`);
+    if (progressFill) progressFill.style.width = `${progressPercent}%`;
+
+    if (daysUntilNextTest > 0) {
+        setCalendarText('test-calendar-days', `${daysUntilNextTest} күн`);
+        setCalendarText(
+            'test-calendar-note',
+            today < prevDate
+                ? `Аралық ${formatFullCalendarDate(prevDate)} күні басталады. Келесі тест ${formatFullCalendarDate(nextDate)} күні.`
+                : `${title} ${formatFullCalendarDate(nextDate)} күні өтеді.`
+        );
+        if (badge) {
+            badge.className = `test-calendar-badge ${daysUntilNextTest <= 3 ? 'is-urgent' : 'is-active'}`;
+            badge.textContent = `${daysUntilNextTest} күн қалды`;
+        }
+    } else if (daysUntilNextTest === 0) {
+        setCalendarText('test-calendar-days', 'Бүгін');
+        setCalendarText('test-calendar-note', `Бүгін ${title} күні.`);
+        if (badge) {
+            badge.className = 'test-calendar-badge is-today';
+            badge.textContent = 'Тест күні';
+        }
+    } else {
+        setCalendarText('test-calendar-days', '0 күн');
+        setCalendarText(
+            'test-calendar-note',
+            `Бұл аралық ${formatFullCalendarDate(nextDate)} күні аяқталды. Енді келесі тест күнін жаңартыңыз.`
+        );
+        if (badge) {
+            badge.className = 'test-calendar-badge is-finished';
+            badge.textContent = 'Аяқталды';
+        }
+    }
+
+    renderInternalTestDays(strip, prevDate, nextDate, today);
 }
 
 function hashString(value) {
@@ -192,6 +390,7 @@ function checkPin() {
         applyUserProfile(user);
 
         if (typeof updateChartDisplay === "function") updateChartDisplay();
+        if (typeof initInternalTestCalendar === "function") initInternalTestCalendar();
     } else {
         // Қате болса тазарту
         if (errorMessage) errorMessage.style.display = 'block';
@@ -283,6 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentUser) applyUserProfile(currentUser);
     updateChartDisplay();
     initQuestionCountSettings();
+    initInternalTestCalendar();
 });
 
 // Ауыстыру функциялары
@@ -576,6 +776,7 @@ function testgo(x) {
     12: 'test/data/mongolshapkyn.json',
     13: 'test/data/ezhelgi.json',
     14: 'test/data/khanatedel.json',
+    15: 'test/data/kz-history-10-test-1.json',
 
     
     
@@ -698,7 +899,7 @@ function testgo(x) {
 
   function render() {
     const q = test[current];
-    const correctAnswer = q.correct || q.options[0];
+    const correctAnswer = q.correct || q.answer || q.options[0];
     const progressPercent = ((current + 1) / test.length) * 100;
 
     document.getElementById("progress").innerHTML = `
