@@ -620,6 +620,7 @@ function testgo(x) {
   const NUMBER_SYSTEM_TEST_ID = 156;
   const NUMBER_BASES = [2, 8, 10, 16];
   const NUMBER_OPS = ["+", "-", "*"];
+  const MAX_TEST_OPTIONS = 4;
 
   function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -760,6 +761,20 @@ function testgo(x) {
     const convertQuestions = Array.from({ length: convertCount }, () => generateConvertQuestion());
 
     return shuffle([...calcQuestions, ...convertQuestions]);
+  }
+
+  function selectDisplayOptions(options, correctAnswer) {
+    if (!Array.isArray(options)) return [];
+    if (options.length <= MAX_TEST_OPTIONS) return [...options];
+    if (!options.includes(correctAnswer)) {
+      console.warn("Correct answer not found in options. Keeping full set.", options);
+      return [...options];
+    }
+
+    const wrongOptions = options.filter((opt) => opt !== correctAnswer);
+    const neededWrong = Math.max(0, MAX_TEST_OPTIONS - 1);
+    const pickedWrong = shuffle([...wrongOptions]).slice(0, neededWrong);
+    return shuffle([correctAnswer, ...pickedWrong]);
   }
 
   // 1. Файлды анықтау немесе барлығын біріктіру
@@ -918,7 +933,7 @@ function testgo(x) {
     else questionText.innerText = q.question;
     questionBox.appendChild(questionText);
 
-    let shuffledOptions = shuffle([...q.options]);
+    const shuffledOptions = selectDisplayOptions(q.options, correctAnswer);
 
     const box = document.getElementById("options");
     box.innerHTML = "";
