@@ -765,10 +765,10 @@ function testgo(x) {
 
   function selectDisplayOptions(options, correctAnswer) {
     if (!Array.isArray(options)) return [];
-    if (options.length <= MAX_TEST_OPTIONS) return [...options];
+    if (options.length <= MAX_TEST_OPTIONS) return shuffle([...options]);
     if (!options.includes(correctAnswer)) {
       console.warn("Correct answer not found in options. Keeping full set.", options);
-      return [...options];
+      return shuffle([...options]);
     }
 
     const wrongOptions = options.filter((opt) => opt !== correctAnswer);
