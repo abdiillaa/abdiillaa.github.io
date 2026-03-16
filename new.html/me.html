@@ -1,0 +1,821 @@
+
+<!doctype html>
+<html lang="kk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sayan Abdilla | Парақша</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+    :root {
+      --ink: #0f1115;
+      --ink-soft: #2b2f3a;
+      --paper: #f6f3ee;
+      --accent: #ff7a50;
+      --accent-dark: #d85d38;
+      --mint: #61c9a8;
+      --sky: #5a8dee;
+      --line: rgba(15, 17, 21, 0.12);
+      --card: rgba(255, 255, 255, 0.72);
+      --shadow: 0 20px 50px rgba(15, 17, 21, 0.15);
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.6;
+    }
+    
+    h1,
+    h2,
+    h3,
+    .brand-title {
+      font-family: "Fraunces", "Georgia", serif;
+      margin: 0;
+    }
+    
+    p {
+      margin: 0;
+    }
+    
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    
+    .ambient {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 122, 80, 0.2), transparent 45%),
+        radial-gradient(circle at 90% 10%, rgba(90, 141, 238, 0.2), transparent 40%),
+        radial-gradient(circle at 70% 80%, rgba(97, 201, 168, 0.25), transparent 45%),
+        linear-gradient(120deg, #fbf7f0, #f4f0ea);
+      filter: saturate(1.1);
+    }
+    
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 5vw 0;
+      gap: 24px;
+    }
+    
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 700;
+    }
+    
+    .brand-title {
+      font-size: 1.15rem;
+    }
+    
+    .brand-subtitle {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+    }
+    
+    .nav {
+      display: flex;
+      gap: 20px;
+      font-size: 0.95rem;
+    }
+    
+    .nav a {
+      position: relative;
+    }
+    
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    
+    .nav a:hover::after {
+      width: 100%;
+    }
+    
+    main {
+      padding: 30px 5vw 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 90px;
+    }
+    
+    section {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .hero {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 36px;
+      align-items: center;
+    }
+    
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+    }
+    
+    .hero-copy h1 {
+      font-size: clamp(2.4rem, 5vw, 3.7rem);
+      line-height: 1.1;
+      margin: 16px 0 18px;
+    }
+    
+    .accent {
+      color: var(--accent-dark);
+    }
+    
+    .lead {
+      font-size: 1.1rem;
+      max-width: 560px;
+    }
+    
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      margin: 26px 0;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .btn.primary {
+      background: var(--accent);
+      color: #fffaf2;
+      box-shadow: 0 12px 24px rgba(255, 122, 80, 0.3);
+    }
+    
+    .btn.primary:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn.outline {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+    
+    .btn.ghost {
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.6);
+    }
+    
+    .focus-chips {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .chip.is-active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    
+    .hero-card {
+      display: grid;
+      gap: 18px;
+    }
+    
+    .profile-card,
+    .signal-card,
+    .highlight-card,
+    .project-card,
+    .skills-card,
+    .contact-card,
+    .timeline-item {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    .profile-top {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--sky), var(--mint));
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .profile-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    
+    .profile-meta {
+      color: var(--ink-soft);
+    }
+    
+    .profile-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
+    }
+    
+    .detail-label {
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-soft);
+    }
+    
+    .detail-value {
+      font-weight: 600;
+    }
+    
+    .profile-links {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+      font-weight: 600;
+    }
+    
+    .signal-card {
+      background: linear-gradient(135deg, rgba(255, 122, 80, 0.18), rgba(255, 255, 255, 0.75));
+    }
+    
+    .signal-title {
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 0.7rem;
+      color: var(--ink-soft);
+    }
+    
+    .signal-text {
+      font-size: 1.05rem;
+      margin: 10px 0 16px;
+    }
+    
+    .signal-tags,
+    .project-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .signal-tags span,
+    .project-tags span {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 17, 21, 0.08);
+      font-size: 0.8rem;
+    }
+    
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    
+    .highlight-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    
+    .highlight-title {
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    
+    .highlight-body {
+      color: var(--ink-soft);
+      margin-top: 10px;
+    }
+    
+    .section-title {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+    
+    .section-title p {
+      color: var(--ink-soft);
+    }
+    
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+    
+    .project-label {
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      color: var(--ink-soft);
+    }
+    
+    .timeline-list {
+      display: grid;
+      gap: 18px;
+    }
+    
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 24px;
+    }
+    
+    .timeline-date {
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+    
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    
+    .skills-card ul {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0 0;
+      display: grid;
+      gap: 10px;
+    }
+    
+    .contact-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .contact-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .site-footer {
+      padding: 40px 5vw 60px;
+      text-align: center;
+      color: var(--ink-soft);
+    }
+    
+    [data-animate] {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    
+    [data-animate].in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 900px) {
+      .site-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    
+      .nav {
+        flex-wrap: wrap;
+      }
+    
+      .timeline-item {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .hero-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    </style>
+  </head>
+  <body>
+     
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<nav class="side-nav">
+    <a href="new.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="me.html" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Me</span>
+    </a>
+    <a href="kitap.html" class="nav-item">
+        <i class="fas fa-book"></i>
+        <span>Kitap</span>
+    </a>
+    <a href="blog.html" class="nav-item">
+        <i class="fas fa-layer-group"></i>
+        <span>Blog</span>
+    </a>
+</nav>
+
+<style>
+      .side-nav {
+    position: fixed;   /* Экранда қатып тұрады */
+    left: 0;
+    top: 0;
+    height: 100vh;     /* Бүкіл экран биіктігін алады */
+    width: 80px;       /* Ені */
+    background-color: #1a1a1a; /* Күңгірт заманауи түс */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    transition: 0.3s;
+}
+
+.nav-item i {
+    font-size: 24px;   /* Иконканың өлшемі */
+    margin-bottom: 5px;
+}
+
+/* Меңзерді апарғандағы эффект */
+.nav-item:hover {
+    color: #007bff;    /* Көк түске өзгереді */
+    transform: scale(1.1);
+}
+
+/* Негізгі мазмұн мәзірдің астында қалып қоймауы үшін */
+body {
+    margin-left: 80px;
+    scroll-behavior: smooth;
+}
+</style>
+    
+    <div class="ambient"></div>
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark">S</span>
+        <div>
+          <p class="brand-title">Sayan Abdilla</p>
+          <p class="brand-subtitle">Киберқауіпсіздік + Веб</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#highlights">Көрсеткіштер</a>
+        <a href="#projects">Жобалар</a>
+        <a href="#timeline">Тәжірибе</a>
+        <a href="#contact">Байланыс</a>
+      </nav>
+      <a class="btn ghost" href="#contact">Хабарласу</a>
+    </header>
+
+    <main>
+      <section class="hero" id="top" data-animate>
+        <div class="hero-copy">
+          <p class="eyebrow">Киберқауіпсіздік студенті</p>
+          <h1>
+            Sayan Abdilla оқу мен қоғамға
+            <span class="accent">пайдалы шешімдер</span>
+            жасайды.
+          </h1>
+          <p class="lead">
+            Қазір
+            <span id="focus-output">Ойын жасау</span> бағытын үйреніп жүрмін.
+            Мақсатым — қауіпсіз әрі түсінікті цифрлық өнімдер жасау.
+          </p>
+          <div class="hero-actions">
+            <a class="btn primary" href="javascript:void(0)">Резюме жүктеу</a>
+            <a class="btn outline" href="#projects">Жобаларды көру</a>
+          </div>
+          <div class="focus-chips" role="group" aria-label="Бағытты өзгерту">
+            <button class="chip is-active" type="button" data-focus="Ойын жасау" aria-pressed="true">
+              Ойын жасау
+            </button>
+            <button class="chip" type="button" data-focus="Сайт жасау" aria-pressed="false">
+              Сайт жасау
+            </button>
+            <button class="chip" type="button" data-focus="Киберқауіпсіздік" aria-pressed="false">
+              Киберқауіпсіздік
+            </button>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="profile-card">
+            <div class="profile-top">
+              
+              <div class="profile-avatar">S</div>
+              <div>
+                <p class="profile-name">Sayan Abdilla</p>
+                <p class="profile-meta">Бастау-2 мектебі • Киберқауіпсіздік, 2027</p>
+              </div>
+            </div>
+            <div class="profile-details">
+              <div>
+                <p class="detail-label">Қала</p>
+                <p class="detail-value">Түркістан</p>
+              </div>
+              <div>
+                <p class="detail-label">ҰБТ</p>
+                <p class="detail-value">115/140</p>
+              </div>
+              <div>
+                <p class="detail-label">Бағыт</p>
+                <p class="detail-value">Ойын жасау + сайт жасау</p>
+              </div>
+              <div>
+                <p class="detail-label">Қолжетімділік</p>
+                <p class="detail-value">Қазір оқуда</p>
+              </div>
+            </div>
+            <div class="profile-links">
+              <a href="javascript:void(0)">Портфолио</a>
+              <a href="javascript:void(0)">LinkedIn</a>
+              <a href="javascript:void(0)">GitHub</a>
+            </div>
+          </div>
+          <div class="signal-card">
+            <p class="signal-title">Қазір</p>
+            <p class="signal-text">Қазір оқу үстіндемін.</p>
+            <div class="signal-tags">
+              <span>Ойын</span>
+              <span>Веб</span>
+              <span>Қауіпсіздік</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="highlights" id="highlights" data-animate>
+        <div class="highlight-card">
+          <p class="highlight-number">115/140</p>
+          <p class="highlight-title">ҰБТ нәтижесі</p>
+          <p class="highlight-body">Ұлттық бірыңғай тестілеу.</p>
+        </div>
+        <div class="highlight-card">
+          <p class="highlight-number">2027</p>
+          <p class="highlight-title">Бітіру жылы</p>
+          <p class="highlight-body">Бастау-2 мектебі.</p>
+        </div>
+        <div class="highlight-card">
+          <p class="highlight-number">Түркістан</p>
+          <p class="highlight-title">Қала</p>
+          <p class="highlight-body">Қазіргі оқу және өмір сүру орны.</p>
+        </div>
+      </section>
+
+      <section class="projects" id="projects" data-animate>
+        <div class="section-title">
+          <h2>Негізгі бағыттар</h2>
+          <p>Қазір үйреніп жатқан негізгі бағыттарым.</p>
+        </div>
+        <div class="project-grid">
+          <article class="project-card">
+            <div>
+              <p class="project-label">Ойын</p>
+              <h3>Ойын жасау</h3>
+              <p>Ойын механикасы, деңгей және интерфейс құруды үйреніп жүрмін.</p>
+            </div>
+            <div class="project-tags">
+              <span>Геймплей</span>
+              <span>Дизайн</span>
+              <span>Прототип</span>
+            </div>
+          </article>
+          <article class="project-card">
+            <div>
+              <p class="project-label">Веб</p>
+              <h3>Сайт жасау</h3>
+              <p>HTML, CSS, JavaScript арқылы жеке сайттар жасауды дамытып жүрмін.</p>
+            </div>
+            <div class="project-tags">
+              <span>HTML</span>
+              <span>CSS</span>
+              <span>JavaScript</span>
+            </div>
+          </article>
+          <article class="project-card">
+            <div>
+              <p class="project-label">Қауіпсіздік</p>
+              <h3>Киберқауіпсіздік</h3>
+              <p>Қауіпсіздік негіздері мен қорғаныс тәсілдерін оқып жүрмін.</p>
+            </div>
+            <div class="project-tags">
+              <span>Қауіпсіздік</span>
+              <span>Этика</span>
+              <span>Тәжірибе</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="timeline" id="timeline" data-animate>
+        <div class="section-title">
+          <h2>Оқу жолы</h2>
+          <p>Қысқаша оқу және мақсаттар.</p>
+        </div>
+        <div class="timeline-list">
+          <div class="timeline-item">
+            <p class="timeline-date">Қазір</p>
+            <div>
+              <h3>Бастау-2 мектебі</h3>
+              <p>Киберқауіпсіздік бағыты бойынша оқып жатырмын.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <p class="timeline-date">2027 (күтілетін)</p>
+            <div>
+              <h3>Бітіру жылы</h3>
+              <p>Мектепті аяқтау.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="skills" id="skills" data-animate>
+        <div class="section-title">
+          <h2>Қабілеттер</h2>
+          <p>Қазір дамытып жатқан бағыттар.</p>
+        </div>
+        <div class="skills-grid">
+          <div class="skills-card">
+            <h3>Ойын жасау</h3>
+            <ul>
+              <li>Ойын механикасын үйрену</li>
+              <li>Прототиптер құру</li>
+              <li>Интерфейс негіздері</li>
+              <li>Сценарий және идеялар</li>
+            </ul>
+          </div>
+          <div class="skills-card">
+            <h3>Веб әзірлеу</h3>
+            <ul>
+              <li>HTML құрылымы</li>
+              <li>CSS безендіру</li>
+              <li>JavaScript негіздері</li>
+              <li>Жеке сайт жасау</li>
+            </ul>
+          </div>
+          <div class="skills-card">
+            <h3>Киберқауіпсіздік</h3>
+            <ul>
+              <li>Қауіпсіздік мәдениеті</li>
+              <li>Қорғаныс тәсілдері</li>
+              <li>Қауіптерді тану</li>
+              <li>Этика және ережелер</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="contact" id="contact" data-animate>
+        <div class="section-title">
+          <h2>Байланыс</h2>
+          <p>Сұрақ немесе ұсыныс болса, хабарласыңыз.</p>
+        </div>
+        <div class="contact-card">
+          <div>
+            <h3>Хабарласу</h3>
+            <p>Email: sayanabdilla.@gmail.com</p>
+            <p>Телефон:+77057171810</p>
+          </div>
+          <div class="contact-actions">
+            <a class="btn primary" href="javascript:void(0)">Хабарласу</a>
+            <a class="btn outline" href="javascript:void(0)">Портфолио жүктеу</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Sayan Abdilla жасаған. Соңғы жаңарту: ақпан 2026.</p>
+    </footer>
+
+    <script>
+		const focusButtons = document.querySelectorAll(".chip[data-focus]");
+		const focusOutput = document.getElementById("focus-output");
+		
+		focusButtons.forEach((button) => {
+		  button.addEventListener("click", () => {
+		    focusButtons.forEach((btn) => {
+		      btn.classList.remove("is-active");
+		      btn.setAttribute("aria-pressed", "false");
+		    });
+		    button.classList.add("is-active");
+		    button.setAttribute("aria-pressed", "true");
+		    if (focusOutput) {
+		      focusOutput.textContent = button.dataset.focus;
+		    }
+		  });
+		});
+		
+		const observer = new IntersectionObserver(
+		  (entries, obs) => {
+		    entries.forEach((entry) => {
+		      if (entry.isIntersecting) {
+		        entry.target.classList.add("in-view");
+		        obs.unobserve(entry.target);
+		      }
+		    });
+		  },
+		  { threshold: 0.2 }
+		);
+		
+		document.querySelectorAll("[data-animate]").forEach((section) => {
+		  observer.observe(section);
+		});
+		
+    </script>
+  </body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Page</title>
+   
+    <link rel="stylesheet" href="new.css">
+    </head>
+<body>
+     <section class="main-navigation">
+    <div class="card-container">
+        
+        <a href="math.html" class="nav-card">
+            <div class="card-icon">📚</div>
+            <h3>Математика</h3>
+            <p>Біліміңді шыңдап, жаңа тақырыптарды меңгер.</p>
+            <span class="btn-text">Кіру →</span>
+        </a>
+
+        <a href="trig.html" class="nav-card">
+            <div class="card-icon">👤</div>
+            <h3>Тригонометрия формулалары</h3>
+            
+            <span class="btn-text">Кіру →</span>
+        </a>
+          <a href="log.html" class="nav-card">
+            <div class="card-icon">👤</div>
+            <h3>Логарифм формулалары</h3>
+            
+            <span class="btn-text">Кіру →</span>
+          </a>
+
+    
+    </div>
+</section>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+     
+  
+
+<nav class="side-nav">
+    <a href="new.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="me.html" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Me</span>
+    </a>
+    <a href="kitap.html" class="nav-item">
+        <i class="fas fa-book"></i>
+        <span>Kitap</span>
+    </a>
+    <a href="blog.html" class="nav-item">
+        <i class="fas fa-layer-group"></i>
+        <span>Blog</span>
+    </a>
+</nav>
+
+<style>
+      .side-nav {
+    position: fixed;   /* Экранда қатып тұрады */
+    left: 0;
+    top: 0;
+    height: 100vh;     /* Бүкіл экран биіктігін алады */
+    width: 80px;       /* Ені */
+    background-color: #1a1a1a; /* Күңгірт заманауи түс */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    transition: 0.3s;
+}
+
+.nav-item i {
+    font-size: 24px;   /* Иконканың өлшемі */
+    margin-bottom: 5px;
+}
+
+/* Меңзерді апарғандағы эффект */
+.nav-item:hover {
+    color: #007bff;    /* Көк түске өзгереді */
+    transform: scale(1.1);
+}
+
+/* Негізгі мазмұн мәзірдің астында қалып қоймауы үшін */
+body {
+    margin-left: 80px;
+    scroll-behavior: smooth;
+}
+</style>
+    
+    
+    
+        
+    </div>
+    
+    
+  <h1>Қазақстан тарихы</h1>
+    <table width="100%" background="https://www.bing.com/images/search?view=detailV2&ccid=y%2fb6TYdr&id=1E3C25B34D79FE3A70D84E8A1F6CB2BD6D0D12DB&thid=OIP.y_b6TYdr5V2aXPk09GrpcQHaE7&mediaurl=https%3a%2f%2fimg.freepik.com%2fpremium-photo%2fnatural-background-with-mountains-landscape-gradient_974629-94947.jpg%3fw%3d2000&cdnurl=https%3a%2f%2fth.bing.com%2fth%2fid%2fR.cbf6fa4d876be55d9a5cf934f46ae971%3frik%3d2xINbb2ybB%252bKTg%26pid%3dImgRaw%26r%3d0&exph=1333&expw=2000&q=background+&FORM=IRPRST&ck=3BB501DD7DCBBC6E805C6F2BA2E29272&selectedIndex=8&itb=0" background="data:i/webp;base64,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" 
+    cellspacing="100" cellpadding="100" >      <tr >
+            <td   background="dataimagee64,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" align="left"  width="300" >
+              <div class="blog">
+                <center>
+                <h2>Тәуелсіз Қазақстан</h2>
+                    <p>
+                        <a href="C:\Users\77789\OneDrive\Desktop\new.html\Тәуелсіз Қазақстан 2025.docx" download="Докуметті жүктеп алу">Докуметті жүктеп алу</a>
+                    </p>
+                    </center>
+                </div>
+            </td>
+              <td align="center" height="10" width="300" >
+              <div class="blog">
+                <center>
+                 <h2>Ұлы отан соғысы  жылдарындағы Қазақстан соңы </h2>
+                    <p>
+                         <a href="C:\Users\77789\OneDrive\Desktop\new.html\Ұлы отан соғысы  жылдарындағы Қазақстан соңы 2025.docx" download="Докуметті жүктеп алу">Докуметті жүктеп алу</a>
+                    </p>
+                    </center>
+                </div>
+            </td>
+         
+        </tr>
+    </table>
+    <style>
+    /* Карточкалардың контейнері */
+    .card-container {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        padding: 50px 20px;
+        flex-wrap: wrap;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Карточканың негізгі стилі */
+    .nav-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px 30px;
+        width: 300px;
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: all 0.4s ease;
+        border: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Меңзерді апарғандағы эффект (Hover) */
+    .nav-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        border-color: #007bff;
+    }
+
+    .card-icon {
+        font-size: 50px;
+        margin-bottom: 20px;
+    }
+
+    .nav-card h3 {
+        font-size: 22px;
+        margin-bottom: 15px;
+        color: #007bff;
+    }
+
+    .nav-card p {
+        font-size: 15px;
+        color: #666;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .btn-text {
+        font-weight: bold;
+        color: #007bff;
+        padding: 10px 20px;
+        border: 2px solid #007bff;
+        border-radius: 30px;
+        transition: 0.3s;
+    }
+
+    .nav-card:hover .btn-text {
+        background: #007bff;
+        color: white;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+    
+   
+
+</body>
+</html>
