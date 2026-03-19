@@ -1,0 +1,12 @@
+{
+  "example-secret": {
+    "name": "Оқушы Аты",
+    "avatar": "avatars/example.jpg",
+    "hist": [10, 12, 14],
+    "math_s": [7, 8, 9],
+    "read_s": [8, 8, 9],
+    "sub1": [35, 39, 41],
+    "sub2": [31, 34, 37],
+    "total": [91, 101, 110]
+  }
+}

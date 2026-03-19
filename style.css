@@ -156,6 +156,18 @@ h1 {
     background: #fff;
 }
 
+.test-settings select {
+    min-width: 320px;
+    max-width: 100%;
+    padding: 9px 10px;
+    border: 1px solid #bfd1e3;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #243447;
+    background: #fff;
+}
+
 .test-settings button {
     width: auto;
     border: 1px solid #1e8ea0;
@@ -201,6 +213,18 @@ h1 {
 }
 
 #question-count-hint.saved {
+    color: #1f8a4c;
+    font-weight: 700;
+}
+
+#test-mode-hint {
+    display: block;
+    margin-top: 10px;
+    color: #6b7f95;
+    font-size: 12px;
+}
+
+#test-mode-hint.saved {
     color: #1f8a4c;
     font-weight: 700;
 }
@@ -483,6 +507,10 @@ h1 {
 
     .test-settings {
         max-width: 100%;
+    }
+
+    .test-settings select {
+        min-width: 100%;
     }
 
     .settings-panel {

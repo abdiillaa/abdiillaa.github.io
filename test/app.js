@@ -1,15 +1,32 @@
 
-// Fetch the login database
-let loginData = {};
-fetch('login.json')
-  .then(response => response.json())
-  .then(data => {
-    loginData = data;
+const PUBLIC_RANKING_URL = 'users/ranking.json';
+const ENCRYPTED_USERS_DIR = 'users';
+const ENCRYPTION_ITERATIONS = 250000;
+let rankingData = [];
+fetch(PUBLIC_RANKING_URL)
+  .then((response) => response.json())
+  .then((data) => {
+    rankingData = Array.isArray(data) ? data : [];
+  })
+  .catch(() => {
+    rankingData = [];
   });
 
 const TEST_QUESTION_COUNT_KEY = 'test_questions_per_test';
 const DEFAULT_TEST_QUESTION_COUNT = 60;
 const MIN_TEST_QUESTION_COUNT = 1;
+const TEST_MODE_KEY = 'test_mode';
+const DEFAULT_TEST_MODE = 'instant';
+const TEST_MODE_LABELS = {
+    instant: 'Қазіргі режим',
+    exam: 'Еркін режим',
+    'self-check': 'Түртіп оқу режимі'
+};
+const TEST_MODE_DESCRIPTIONS = {
+    instant: 'Әр сұрақтан кейін бірден дұрыс/қате көрсетіледі.',
+    exam: 'Сұрақтар арасында еркін жүріп, жауапты өзгертіп, сенімді болғанда аяқтайсыз.',
+    'self-check': 'Түртіп жауапты ашасыз, кейін өзіңіз дұрыс/қате деп белгілейсіз.'
+};
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const KZ_MONTHS_FULL = [
     'қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым',
@@ -30,6 +47,532 @@ const AVATAR_COLOR_PALETTE = [
     ['#ca8a04', '#92400e'],
     ['#0284c7', '#075985']
 ];
+const TEST_METADATA = {
+    '-2': { title: 'Инфо бойынша тапсыру', subject: 'Информатика' },
+    '-1': { title: 'Тарих бойынша тапсыру', subject: 'Қазақстан тарихы' },
+    '0': { title: 'Барлығын бірге', subject: 'Жалпы тест' },
+    '1': { title: 'Ерте орта Қазақстан VI-IX', subject: 'Қазақстан тарихы' },
+    '2': { title: 'Ерте орта ғасыр мәдениеті VI-IX', subject: 'Қазақстан тарихы' },
+    '3': { title: 'IX-XI ғасырлардағы Қазақстан', subject: 'Қазақстан тарихы' },
+    '5': { title: 'Біртұтас қазақ хандығының құрылуы', subject: 'Қазақстан тарихы' },
+    '6': { title: 'Жаңа замандағы Қазақстан', subject: 'Қазақстан тарихы' },
+    '8': { title: 'Сырым Датұлы', subject: 'Қазақстан тарихы' },
+    '9': { title: 'XV-XIX ғасырлардағы мәдениеті', subject: 'Қазақстан тарихы' },
+    '10': { title: 'Ноғай', subject: 'Қазақстан тарихы' },
+    '11': { title: 'Алтын орда', subject: 'Қазақстан тарихы' },
+    '12': { title: 'Шыңғыс хан', subject: 'Қазақстан тарихы' },
+    '13': { title: 'Ежелгі Қазақстан', subject: 'Қазақстан тарихы' },
+    '14': { title: 'Қазақстандағы хандық биліктің жойылуы', subject: 'Қазақстан тарихы' },
+    '15': { title: '10-сынып Қазақстан тарихы тест 1', subject: 'Қазақстан тарихы' },
+    '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика' },
+    '151': { title: '1.2 Компьютер жады', subject: 'Информатика' },
+    '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика' },
+    '153': { title: '1.4 Басқару құрылғысы АЛҚ ЖАД регистірі', subject: 'Информатика' },
+    '154': { title: '2.1 Ақпарат сипаты және қасиеті', subject: 'Информатика' },
+    '155': { title: '2.2 Ақпаратты кодтау және декодтау', subject: 'Информатика' },
+    '156': { title: '2.5 Екілік, ондық, сегіздік, он алтылық', subject: 'Информатика' },
+    '158': { title: '4.1 Компьютерлік желілері', subject: 'Информатика' },
+    '159': { title: '4.3 IP адрес', subject: 'Информатика' },
+    '160': { title: '10.1.1 HTML', subject: 'Информатика' }
+};
+const RUNNER_SECONDS_PER_QUESTION = {
+    instant: 45,
+    exam: 75,
+    'self-check': 60
+};
+const RUNNER_TIMER_WARNING_SECONDS = 300;
+const RUNNER_WIDGET_STORAGE_PREFIX = 'runner_widget_state';
+const RUNNER_UI = {
+    activeApi: null,
+    timerId: null,
+    widgetsInitialized: false,
+    topZIndex: 10020
+};
+const textEncoder = new TextEncoder();
+
+function bytesToBase64(bytes) {
+    let binary = '';
+    const buffer = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    buffer.forEach((value) => {
+        binary += String.fromCharCode(value);
+    });
+    return btoa(binary);
+}
+
+function base64ToBytes(value) {
+    const binary = atob(String(value || ''));
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index);
+    }
+    return bytes;
+}
+
+async function sha256Hex(value) {
+    const digest = await crypto.subtle.digest('SHA-256', textEncoder.encode(String(value)));
+    return Array.from(new Uint8Array(digest))
+        .map((item) => item.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+async function deriveSecretKey(secret, saltBytes, iterations = ENCRYPTION_ITERATIONS) {
+    const baseKey = await crypto.subtle.importKey(
+        'raw',
+        textEncoder.encode(secret),
+        'PBKDF2',
+        false,
+        ['deriveKey']
+    );
+
+    return crypto.subtle.deriveKey(
+        {
+            name: 'PBKDF2',
+            salt: saltBytes,
+            iterations,
+            hash: 'SHA-256'
+        },
+        baseKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['decrypt']
+    );
+}
+
+async function decryptUserPayload(secret, payload) {
+    const saltBytes = base64ToBytes(payload.salt_b64);
+    const ivBytes = base64ToBytes(payload.iv_b64);
+    const cipherBytes = base64ToBytes(payload.ciphertext_b64);
+    const key = await deriveSecretKey(secret, saltBytes, Number(payload.iterations) || ENCRYPTION_ITERATIONS);
+    const plainBuffer = await crypto.subtle.decrypt(
+        {
+            name: 'AES-GCM',
+            iv: ivBytes
+        },
+        key,
+        cipherBytes
+    );
+    return JSON.parse(new TextDecoder().decode(plainBuffer));
+}
+
+async function loadEncryptedUser(secret) {
+    const normalizedSecret = String(secret || '').trim();
+    if (!normalizedSecret) {
+        throw new Error('Secret is empty');
+    }
+
+    const fileKey = await sha256Hex(normalizedSecret);
+    const response = await fetch(`${ENCRYPTED_USERS_DIR}/${fileKey}.json`, { cache: 'no-store' });
+    if (!response.ok) {
+        throw new Error('User file not found');
+    }
+    const payload = await response.json();
+    return decryptUserPayload(normalizedSecret, payload);
+}
+
+function getTestMeta(testId) {
+    return TEST_METADATA[String(testId)] || {
+        title: 'ҰБТ тесті',
+        subject: 'Жалпы бөлім'
+    };
+}
+
+function formatRunnerTime(totalSeconds) {
+    const safeValue = Math.max(0, Number(totalSeconds) || 0);
+    const hours = Math.floor(safeValue / 3600);
+    const minutes = Math.floor((safeValue % 3600) / 60);
+    const seconds = safeValue % 60;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function clearRunnerTimer() {
+    if (RUNNER_UI.timerId) {
+        clearInterval(RUNNER_UI.timerId);
+        RUNNER_UI.timerId = null;
+    }
+}
+
+function setRunnerTimerDisplay(totalSeconds) {
+    const pill = document.getElementById('runnerTimer');
+    const value = document.getElementById('runnerTimerValue');
+    if (!pill || !value) return;
+    const safeValue = Math.max(0, Number(totalSeconds) || 0);
+    value.textContent = formatRunnerTime(safeValue);
+    pill.classList.toggle('danger', safeValue <= RUNNER_TIMER_WARNING_SECONDS);
+}
+
+function getRunnerWidgetStorageKey(widgetId) {
+    return `${RUNNER_WIDGET_STORAGE_PREFIX}:${widgetId}`;
+}
+
+function saveRunnerWidgetState(widgetId) {
+    const widget = document.getElementById(widgetId);
+    if (!widget) return;
+    const payload = {
+        display: widget.style.display || 'none',
+        left: widget.style.left || '',
+        top: widget.style.top || '',
+        zIndex: widget.style.zIndex || ''
+    };
+    localStorage.setItem(getRunnerWidgetStorageKey(widgetId), JSON.stringify(payload));
+}
+
+function restoreRunnerWidgetState(widgetId) {
+    const widget = document.getElementById(widgetId);
+    const rawState = localStorage.getItem(getRunnerWidgetStorageKey(widgetId));
+    if (!widget || !rawState) return;
+    try {
+        const state = JSON.parse(rawState);
+        if (state.display) widget.style.display = state.display;
+        if (state.left) widget.style.left = state.left;
+        if (state.top) widget.style.top = state.top;
+        if (state.zIndex) widget.style.zIndex = state.zIndex;
+    } catch {}
+}
+
+function bringRunnerWidgetToFront(widget) {
+    if (!widget) return;
+    RUNNER_UI.topZIndex += 1;
+    widget.style.zIndex = String(RUNNER_UI.topZIndex);
+}
+
+function toggleRunnerWidget(widgetId) {
+    const widget = document.getElementById(widgetId);
+    if (!widget) return;
+    const nextDisplay = widget.style.display === 'block' ? 'none' : 'block';
+    widget.style.display = nextDisplay;
+    if (nextDisplay === 'block') {
+        bringRunnerWidgetToFront(widget);
+    }
+    saveRunnerWidgetState(widgetId);
+}
+
+function closeRunnerSubjectsModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    const modal = document.getElementById('runnerSubjectsModal');
+    if (modal) modal.hidden = true;
+}
+
+function closeRunnerFinishModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    const modal = document.getElementById('runnerFinishModal');
+    if (modal) modal.hidden = true;
+}
+
+function openRunnerSubjectsModal() {
+    if (RUNNER_UI.activeApi && typeof RUNNER_UI.activeApi.renderSubjectsModal === 'function') {
+        RUNNER_UI.activeApi.renderSubjectsModal();
+    }
+    const modal = document.getElementById('runnerSubjectsModal');
+    if (modal) modal.hidden = false;
+}
+
+function openRunnerFinishModal() {
+    if (RUNNER_UI.activeApi && typeof RUNNER_UI.activeApi.renderFinishModal === 'function') {
+        RUNNER_UI.activeApi.renderFinishModal();
+    }
+    const modal = document.getElementById('runnerFinishModal');
+    if (modal) modal.hidden = false;
+}
+
+function confirmRunnerFinish() {
+    if (RUNNER_UI.activeApi && typeof RUNNER_UI.activeApi.confirmFinish === 'function') {
+        RUNNER_UI.activeApi.confirmFinish();
+    }
+}
+
+function getCalcDisplay() {
+    return document.getElementById('main-display');
+}
+
+function getCalcHistory() {
+    return document.getElementById('history-view');
+}
+
+function ensureRunnerShell() {
+    const app = document.getElementById('app');
+    if (!app) return null;
+
+    if (!app.querySelector('#runnerNavigation')) {
+        app.innerHTML = `
+          <div class="header" id="runnerHeader"></div>
+          <div class="progress-bar" id="progressBar"></div>
+          <div class="container">
+            <div class="sidebar">
+              <div class="sidebar-item" onclick="toggleRunnerWidget('calc-widget')">
+                <div class="sidebar-icon"><i class="fas fa-calculator"></i></div>
+                <div class="sidebar-text">калькулятор</div>
+              </div>
+              <div class="sidebar-item" onclick="toggleRunnerWidget('mendeleev-widget')">
+                <div class="sidebar-icon">🔬</div>
+                <div class="sidebar-text">менделеев</div>
+              </div>
+              <div class="sidebar-item" onclick="toggleRunnerWidget('solubility-widget')">
+                <div class="sidebar-icon">⚗️</div>
+                <div class="sidebar-text">ерігіштік</div>
+              </div>
+              <div class="sidebar-item" onclick="openRunnerSubjectsModal()">
+                <div class="sidebar-icon">📚</div>
+                <div class="sidebar-text">пәндер</div>
+              </div>
+              <div class="sidebar-item" onclick="openRunnerFinishModal()">
+                <div class="sidebar-icon">✅</div>
+                <div class="sidebar-text">аяқтау</div>
+              </div>
+            </div>
+            <div class="main-content">
+              <div id="quizForm" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <div class="question-box" id="question">Жүктелуде...</div>
+                <div class="answers" id="options"></div>
+                <div class="navigation" id="runnerNavigation"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="runnerSubjectsModal" class="modal-overlay runner-modal-overlay" hidden onclick="closeRunnerSubjectsModal(event)">
+            <div class="modal-content runner-modal-content" onclick="event.stopPropagation()">
+              <button type="button" class="close-btn runner-close-btn" onclick="closeRunnerSubjectsModal()">&times;</button>
+              <div class="modal-title runner-modal-title">Пәндер тізімі</div>
+              <ul class="subject-list runner-subject-list" id="runnerSubjectsList"></ul>
+            </div>
+          </div>
+
+          <div id="runnerFinishModal" class="modal-overlay runner-modal-overlay" hidden onclick="closeRunnerFinishModal(event)">
+            <div class="modal-content runner-modal-content runner-modal-content-wide" onclick="event.stopPropagation()">
+              <button type="button" class="close-btn runner-close-btn" onclick="closeRunnerFinishModal()">&times;</button>
+              <div class="modal-title runner-modal-title">Берілген жауаптар саны:</div>
+              <table class="finish-table runner-finish-table">
+                <thead>
+                  <tr>
+                    <th>Бөлім</th>
+                    <th>Барлығы</th>
+                    <th>Жауап берілді</th>
+                    <th>Қалды</th>
+                  </tr>
+                </thead>
+                <tbody id="runnerFinishStatsBody"></tbody>
+              </table>
+              <div class="finish-actions runner-finish-actions">
+                <button type="button" class="finish-btn runner-finish-btn cancel" onclick="closeRunnerFinishModal()">Күшін жою</button>
+                <button type="button" class="finish-btn runner-finish-btn confirm" onclick="confirmRunnerFinish()">Растау</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="calc-widget" class="widget-window runner-widget-window">
+            <div class="header-bar runner-widget-header drag-handle">
+              <span style="font-size: 12px; font-weight: 600;">Калькулятор</span>
+              <button type="button" class="widget-close runner-widget-close" onclick="toggleRunnerWidget('calc-widget')">×</button>
+            </div>
+            <div class="screen-area runner-calc-screen">
+              <div id="history-view" class="history-line runner-calc-history"></div>
+              <input type="text" id="main-display" class="main-input runner-calc-display" value="0" readonly>
+            </div>
+            <div class="grid-layout runner-calc-grid">
+              <button type="button" class="btn-op" onclick="specialAction('%')">%</button>
+              <button type="button" class="btn-op" onclick="clearEntry()">CE</button>
+              <button type="button" class="btn-op" onclick="clearAll()">C</button>
+              <button type="button" class="btn-op" onclick="deleteStep()">⌫</button>
+              <button type="button" class="btn-op" onclick="specialAction('1/x')">1/x</button>
+              <button type="button" class="btn-op" onclick="specialAction('x2')">x²</button>
+              <button type="button" class="btn-op" onclick="specialAction('sqrt')">√x</button>
+              <button type="button" class="btn-op" onclick="insertOp('/')">÷</button>
+              <button type="button" onclick="insertNum('7')">7</button>
+              <button type="button" onclick="insertNum('8')">8</button>
+              <button type="button" onclick="insertNum('9')">9</button>
+              <button type="button" class="btn-op" onclick="insertOp('*')">×</button>
+              <button type="button" onclick="insertNum('4')">4</button>
+              <button type="button" onclick="insertNum('5')">5</button>
+              <button type="button" onclick="insertNum('6')">6</button>
+              <button type="button" class="btn-op" onclick="insertOp('-')">-</button>
+              <button type="button" onclick="insertNum('1')">1</button>
+              <button type="button" onclick="insertNum('2')">2</button>
+              <button type="button" onclick="insertNum('3')">3</button>
+              <button type="button" class="btn-op" onclick="insertOp('+')">+</button>
+              <button type="button" onclick="specialAction('+/-')">±</button>
+              <button type="button" onclick="insertNum('0')">0</button>
+              <button type="button" onclick="insertNum('.')">,</button>
+              <button type="button" class="btn-equal" onclick="processResult()">=</button>
+            </div>
+          </div>
+
+          <div id="mendeleev-widget" class="widget-window runner-widget-window runner-reference-widget">
+            <div class="header-bar runner-widget-header drag-handle">
+              <span style="font-size: 12px; font-weight: 600;">Менделеев кестесі</span>
+              <button type="button" class="widget-close runner-widget-close" onclick="toggleRunnerWidget('mendeleev-widget')">×</button>
+            </div>
+            <div class="table-container runner-reference-body">
+              <div class="runner-reference-card">
+                <h4>Негізгі топтар</h4>
+                <p>1-топ: сілтілік металдар. 2-топ: сілтілік-жер металдар. 17-топ: галогендер. 18-топ: инертті газдар.</p>
+              </div>
+              <div class="runner-reference-card">
+                <h4>Жылдам еске түсіру</h4>
+                <p>Металдық қасиет төменнен жоғары әлсірейді, солдан оңға қарай кемиді. Бейметалдық қасиет оңға және жоғары арттады.</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="solubility-widget" class="widget-window runner-widget-window runner-reference-widget">
+            <div class="header-bar runner-widget-header drag-handle">
+              <span style="font-size: 12px; font-weight: 600;">Ерігіштік кестесі</span>
+              <button type="button" class="widget-close runner-widget-close" onclick="toggleRunnerWidget('solubility-widget')">×</button>
+            </div>
+            <div class="table-container runner-reference-body">
+              <div class="runner-reference-card">
+                <h4>Әдетте ериді</h4>
+                <p>Барлық нитраттар, натрий, калий және аммоний тұздарының көбі суда ериді.</p>
+              </div>
+              <div class="runner-reference-card">
+                <h4>Жиі ерімейді</h4>
+                <p>AgCl, BaSO₄, CaCO₃ сияқты тұздар көбіне нашар ериді немесе ерімейді.</p>
+              </div>
+            </div>
+          </div>
+        `;
+    }
+
+    initRunnerWidgets();
+    return app;
+}
+
+function initRunnerWidgets() {
+    if (RUNNER_UI.widgetsInitialized) return;
+    RUNNER_UI.widgetsInitialized = true;
+
+    document.querySelectorAll('.runner-widget-window').forEach((widget) => {
+        restoreRunnerWidgetState(widget.id);
+        const handle = widget.querySelector('.drag-handle');
+        if (!handle) return;
+
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        handle.addEventListener('mousedown', (event) => {
+            isDragging = true;
+            offsetX = widget.offsetLeft - event.clientX;
+            offsetY = widget.offsetTop - event.clientY;
+            bringRunnerWidgetToFront(widget);
+        });
+
+        document.addEventListener('mousemove', (event) => {
+            if (!isDragging) return;
+            widget.style.left = `${event.clientX + offsetX}px`;
+            widget.style.top = `${event.clientY + offsetY}px`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            saveRunnerWidgetState(widget.id);
+        });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        const calcWidget = document.getElementById('calc-widget');
+        if (!calcWidget || calcWidget.style.display !== 'block') return;
+
+        const key = event.key;
+        const isDigit = /^[0-9]$/.test(key);
+        const isOperator = ['+', '-', '*', '/'].includes(key);
+        const isDot = key === '.' || key === ',';
+        const isControl = ['Enter', 'Backspace', 'Escape'].includes(key);
+
+        if (!isDigit && !isOperator && !isDot && !isControl) {
+            return;
+        }
+
+        if (isDigit) insertNum(key);
+        if (isDot) insertNum('.');
+        if (isOperator) insertOp(key);
+        if (key === 'Enter') {
+            event.preventDefault();
+            processResult();
+        }
+        if (key === 'Backspace') {
+            event.preventDefault();
+            deleteStep();
+        }
+        if (key === 'Escape') {
+            event.preventDefault();
+            clearAll();
+        }
+    });
+}
+
+let isNewCalcSession = false;
+
+function insertNum(value) {
+    const display = getCalcDisplay();
+    if (!display) return;
+    if (display.value === '0' || isNewCalcSession) {
+        display.value = value;
+        isNewCalcSession = false;
+        return;
+    }
+    display.value += value;
+}
+
+function insertOp(operator) {
+    const display = getCalcDisplay();
+    if (!display) return;
+    const lastChar = display.value.slice(-1);
+    if (['+', '-', '*', '/'].includes(lastChar)) {
+        display.value = `${display.value.slice(0, -1)}${operator}`;
+    } else {
+        display.value += operator;
+    }
+    isNewCalcSession = false;
+}
+
+function clearAll() {
+    const display = getCalcDisplay();
+    const history = getCalcHistory();
+    if (display) display.value = '0';
+    if (history) history.textContent = '';
+}
+
+function clearEntry() {
+    const display = getCalcDisplay();
+    if (display) display.value = '0';
+}
+
+function deleteStep() {
+    const display = getCalcDisplay();
+    if (!display) return;
+    display.value = display.value.length > 1 ? display.value.slice(0, -1) : '0';
+}
+
+function processResult() {
+    const display = getCalcDisplay();
+    const history = getCalcHistory();
+    if (!display) return;
+
+    try {
+        const expression = display.value.replace(/,/g, '.').replace(/÷/g, '/').replace(/×/g, '*');
+        const result = eval(expression);
+        if (history) history.textContent = `${display.value} =`;
+        display.value = String(result);
+        isNewCalcSession = true;
+    } catch {
+        display.value = 'Қате';
+        setTimeout(clearAll, 900);
+    }
+}
+
+function specialAction(mode) {
+    const display = getCalcDisplay();
+    if (!display) return;
+    const numericValue = Number.parseFloat(display.value.replace(/,/g, '.'));
+    if (!Number.isFinite(numericValue)) return;
+
+    if (mode === 'x2') display.value = String(numericValue * numericValue);
+    if (mode === 'sqrt') display.value = String(Math.sqrt(numericValue));
+    if (mode === '1/x') display.value = String(1 / numericValue);
+    if (mode === '+/-') display.value = String(numericValue * -1);
+    if (mode === '%') display.value = String(numericValue / 100);
+    isNewCalcSession = true;
+}
 
 function normalizeQuestionCount(value) {
     const numeric = Number.parseInt(value, 10);
@@ -83,6 +626,60 @@ function initQuestionCountSettings() {
             commit();
         }
     });
+    if (saveButton) saveButton.addEventListener('click', commit);
+}
+
+function normalizeTestMode(value) {
+    if (value === 'exam') return 'exam';
+    if (value === 'self-check') return 'self-check';
+    return 'instant';
+}
+
+function getSavedTestMode() {
+    const rawValue = localStorage.getItem(TEST_MODE_KEY);
+    return normalizeTestMode(rawValue);
+}
+
+function setSavedTestMode(value) {
+    const normalized = normalizeTestMode(value);
+    localStorage.setItem(TEST_MODE_KEY, normalized);
+    return normalized;
+}
+
+function getTestModeLabel(mode) {
+    const normalized = normalizeTestMode(mode);
+    return TEST_MODE_LABELS[normalized] || TEST_MODE_LABELS[DEFAULT_TEST_MODE];
+}
+
+function getTestModeDescription(mode) {
+    const normalized = normalizeTestMode(mode);
+    return TEST_MODE_DESCRIPTIONS[normalized] || TEST_MODE_DESCRIPTIONS[DEFAULT_TEST_MODE];
+}
+
+function initTestModeSettings() {
+    const select = document.getElementById('test-mode-select');
+    const saveButton = document.getElementById('test-mode-save');
+    const hint = document.getElementById('test-mode-hint');
+    if (!select) return;
+
+    const savedMode = getSavedTestMode();
+    select.value = savedMode;
+    if (hint) hint.textContent = `Ағымдағы режим: ${getTestModeLabel(savedMode)}. ${getTestModeDescription(savedMode)}`;
+
+    const commit = () => {
+        const nextMode = setSavedTestMode(select.value);
+        select.value = nextMode;
+        if (hint) {
+            hint.textContent = `Сақталды: ${getTestModeLabel(nextMode)}`;
+            hint.classList.add('saved');
+            setTimeout(() => {
+                hint.textContent = `Ағымдағы режим: ${getTestModeLabel(nextMode)}. ${getTestModeDescription(nextMode)}`;
+                hint.classList.remove('saved');
+            }, 1400);
+        }
+    };
+
+    select.addEventListener('change', commit);
     if (saveButton) saveButton.addEventListener('click', commit);
 }
 
@@ -337,68 +934,58 @@ function applyUserProfile(user) {
     });
 }
 
-// 1. Автоматты түрде келесі ұяшыққа секіру функциясы
-function moveFocus(current, nextIndex) {
-    if (current.value.length === 1 && nextIndex < 5) {
-        const nextInput = document.getElementById('pin' + (nextIndex + 1));
-        if (nextInput) nextInput.focus();
+async function checkPin() {
+    const secretInput = document.getElementById('login-secret');
+    const submitButton = document.getElementById('login-submit-btn');
+    const errorMessage = document.getElementById('error-message');
+    const secret = secretInput ? secretInput.value.trim() : '';
+
+    if (!secretInput || !secret) {
+        if (errorMessage) errorMessage.style.display = 'block';
+        if (secretInput) secretInput.focus();
+        return;
     }
-    
-    // Егер соңғы ұяшық толса, автоматты түрде checkPin() шақыру
-    if (nextIndex === 4 && current.value.length === 1) {
-        checkPin();
+
+    if (errorMessage) errorMessage.style.display = 'none';
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Тексерілуде...';
+    }
+
+    try {
+        const user = await loadEncryptedUser(secret);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+
+        const loginScreen = document.getElementById('login-screen');
+        const homeMenu = document.getElementById('homemenu') || document.getElementById('app');
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (homeMenu) homeMenu.style.display = 'flex';
+
+        applyUserProfile(user);
+        if (typeof updateChartDisplay === "function") updateChartDisplay();
+        if (typeof initInternalTestCalendar === "function") initInternalTestCalendar();
+    } catch (error) {
+        if (errorMessage) errorMessage.style.display = 'block';
+        if (secretInput) {
+            secretInput.value = '';
+            secretInput.focus();
+        }
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Кіру';
+        }
     }
 }
 
-// 2. Backspace (өшіру) батырмасын бақылау
-document.querySelectorAll('.pin-box').forEach((input, index) => {
-    input.addEventListener('keydown', function(e) {
-        if (e.key === "Backspace" && this.value === "" && index > 0) {
-            const prevInput = document.getElementById('pin' + index);
-            if (prevInput) prevInput.focus();
-        }
-        if (e.key === "Enter") {
+const loginSecretInput = document.getElementById('login-secret');
+if (loginSecretInput) {
+    loginSecretInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
             checkPin();
         }
     });
-});
-
-// 3. Негізгі Тексеру Функциясы
-function checkPin() {
-    // 4 ұяшықты бір ПИН қылып жинаймыз
-    const p1 = document.getElementById('pin1').value;
-    const p2 = document.getElementById('pin2').value;
-    const p3 = document.getElementById('pin3').value;
-    const p4 = document.getElementById('pin4').value;
-    const pinInput = p1 + p2 + p3 + p4;
-
-    const errorMessage = document.getElementById('error-message');
-
-    // Сіздің loginData базаңызбен тексеру
-    if (loginData && loginData[pinInput]) {
-        const user = loginData[pinInput];
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        
-        // Экранды жабу
-        document.getElementById('login-screen').style.display = 'none';
-        
-        // Негізгі интерфейсті ашу (ID-ді тексеріңіз: homemenu немесе app)
-        const homeMenu = document.getElementById('homemenu') || document.getElementById('app');
-        if (homeMenu) homeMenu.style.display = 'flex';
-
-        // Пайдаланушы профилін жаңарту (аты + аватар)
-        applyUserProfile(user);
-
-        if (typeof updateChartDisplay === "function") updateChartDisplay();
-        if (typeof initInternalTestCalendar === "function") initInternalTestCalendar();
-    } else {
-        // Қате болса тазарту
-        if (errorMessage) errorMessage.style.display = 'block';
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById('pin' + i).value = "";
-        }
-        document.getElementById('pin1').focus();
-    }
 }
 
 // Hide main content initially
@@ -482,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentUser) applyUserProfile(currentUser);
     updateChartDisplay();
     initQuestionCountSettings();
+    initTestModeSettings();
     initInternalTestCalendar();
 });
 
@@ -504,30 +1092,12 @@ function updateRanking() {
     const tbody = document.getElementById('rankingBody');
     if (!tbody) return;
 
-    // loginData бар екенін тексеру (сіз оны fetch арқылы алғансыз)
-    if (!loginData || Object.keys(loginData).length === 0) {
+    if (!Array.isArray(rankingData) || rankingData.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Мәліметтер жүктелуде...</td></tr>';
         return;
     }
 
-    // 1. Объектіні массивке айналдыру (1001, 1002 деген кілттерді алып тастап, тек ішіндегіні алу)
-    const studentsArray = Object.keys(loginData).map(id => {
-        const student = loginData[id];
-        // total массивінің соңғы элементін алу (немесе 0 егер жоқ болса)
-        const lastTotal = student.total && student.total.length > 0 
-                          ? student.total[student.total.length - 1] 
-                          : 0;
-        
-        return {
-            name: student.name,
-            score: lastTotal
-        };
-    });
-
-    // 2. Ұпай бойынша сұрыптау (Кімде көп - сол жоғарыда)
-    studentsArray.sort((a, b) => b.score - a.score);
-
-    // 3. Кестені толтыру
+    const studentsArray = [...rankingData].sort((a, b) => (b.score || 0) - (a.score || 0));
     tbody.innerHTML = '';
     studentsArray.forEach((student, index) => {
         let medal = "";
@@ -536,7 +1106,7 @@ function updateRanking() {
         else if (index === 2) medal = "🥉";
         else medal = index + 1;
         let row;
-      if(student.name == user.name){
+      if(user && student.name == user.name){
         row = `
             <tr style="color: #ffffff;background: linear-gradient(to right, #6666ff, #ff3399);">
                 <td style="padding: 10px; border-bottom: 1px solid #ddd;">${medal}</td>
@@ -587,6 +1157,11 @@ function goBackFromTest() {
   const homeMenu = document.getElementById("homemenu");
   const footerBrand = document.querySelector(".footer-brand");
 
+  clearRunnerTimer();
+  RUNNER_UI.activeApi = null;
+  closeRunnerSubjectsModal();
+  closeRunnerFinishModal();
+  document.body.classList.remove("is-test-runner");
   if (app) app.style.display = "none";
   if (footerBrand) footerBrand.style.display = "block";
 
@@ -607,13 +1182,20 @@ function goBackFromTest() {
   window.location.reload();
 }
 
-
-var testName;
 function testgo(x) {
+  clearRunnerTimer();
+  closeRunnerSubjectsModal();
+  closeRunnerFinishModal();
+
   const selectedTestId = Number(x);
+  const selectedTestMeta = getTestMeta(selectedTestId);
+  const appRoot = ensureRunnerShell();
+  if (!appRoot) return;
   let allQuestions = [];
-  let testName = '';
   const QUESTIONS_PER_TEST = getSavedQuestionCount();
+  const ACTIVE_TEST_MODE = getSavedTestMode();
+  const EXAM_MODE = 'exam';
+  const SELF_CHECK_MODE = 'self-check';
   const HISTORY_ALL_TEST_ID = -1;
   const INFORMATICS_ALL_TEST_ID = -2;
   const ALL_SUBJECTS_TEST_ID = 0;
@@ -621,6 +1203,7 @@ function testgo(x) {
   const NUMBER_BASES = [2, 8, 10, 16];
   const NUMBER_OPS = ["+", "-", "*"];
   const MAX_TEST_OPTIONS = 4;
+  let remainingSeconds = 0;
 
   function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -636,6 +1219,50 @@ function testgo(x) {
 
   function formatWithBase(value, base) {
     return `${value}<sub>${base}</sub>`;
+  }
+
+  function formatAnswerHtml(value, answerBase) {
+    const normalized = value === undefined || value === null || value === '' ? '—' : String(value);
+    if (answerBase && normalized !== '—') return formatWithBase(normalized, answerBase);
+    return normalized;
+  }
+
+  function normalizeAnswerValue(value) {
+    return String(value ?? '').trim();
+  }
+
+  function getCorrectAnswer(question) {
+    if (!question || typeof question !== 'object') return '';
+    if (question.correct !== undefined && question.correct !== null && normalizeAnswerValue(question.correct) !== '') {
+      return normalizeAnswerValue(question.correct);
+    }
+    if (question.answer !== undefined && question.answer !== null && normalizeAnswerValue(question.answer) !== '') {
+      return normalizeAnswerValue(question.answer);
+    }
+    if (Array.isArray(question.options) && question.options.length > 0) {
+      return normalizeAnswerValue(question.options[0]);
+    }
+    return '';
+  }
+
+  function isAnswerMatch(selected, correct) {
+    return normalizeAnswerValue(selected) === normalizeAnswerValue(correct);
+  }
+
+  function sanitizeOptions(options) {
+    const unique = [];
+    const seen = new Set();
+    if (!Array.isArray(options)) return unique;
+
+    for (const item of options) {
+      const value = normalizeAnswerValue(item);
+      if (!value) continue;
+      if (seen.has(value)) continue;
+      seen.add(value);
+      unique.push(value);
+    }
+
+    return unique;
   }
 
   function isValidInBase(text, base) {
@@ -764,17 +1391,20 @@ function testgo(x) {
   }
 
   function selectDisplayOptions(options, correctAnswer) {
-    if (!Array.isArray(options)) return [];
-    if (options.length <= MAX_TEST_OPTIONS) return shuffle([...options]);
-    if (!options.includes(correctAnswer)) {
-      console.warn("Correct answer not found in options. Keeping full set.", options);
-      return shuffle([...options]);
+    const normalizedCorrect = normalizeAnswerValue(correctAnswer);
+    const normalizedOptions = sanitizeOptions(options);
+
+    if (normalizedCorrect && !normalizedOptions.includes(normalizedCorrect)) {
+      normalizedOptions.unshift(normalizedCorrect);
     }
 
-    const wrongOptions = options.filter((opt) => opt !== correctAnswer);
+    if (!normalizedOptions.length) return [];
+    if (normalizedOptions.length <= MAX_TEST_OPTIONS) return shuffle([...normalizedOptions]);
+
+    const wrongOptions = normalizedOptions.filter((opt) => !isAnswerMatch(opt, normalizedCorrect));
     const neededWrong = Math.max(0, MAX_TEST_OPTIONS - 1);
     const pickedWrong = shuffle([...wrongOptions]).slice(0, neededWrong);
-    return shuffle([correctAnswer, ...pickedWrong]);
+    return shuffle([normalizedCorrect, ...pickedWrong]);
   }
 
   // 1. Файлды анықтау немесе барлығын біріктіру
@@ -823,18 +1453,69 @@ function testgo(x) {
   const historyTestIds = allMappedTestIds.filter((id) => id >= 1 && id <= 149);
   const informaticsTestIds = allMappedTestIds.filter((id) => id >= 150 && id <= 299);
 
+  function attachQuestionMeta(questions, testId) {
+    const meta = getTestMeta(testId);
+    if (!Array.isArray(questions)) return [];
+    return questions.map((question) => {
+      if (!question || typeof question !== 'object') return question;
+      return {
+        ...question,
+        __testId: testId,
+        __sectionTitle: meta.title,
+        __subjectTitle: meta.subject
+      };
+    });
+  }
+
+  function fetchQuestionFile(filePath, testId) {
+    return fetch(filePath).then((response) => {
+      if (!response.ok) {
+        throw new Error(`Файл жүктелмеді: ${filePath} (${response.status})`);
+      }
+      return response.json().then((questions) => attachQuestionMeta(questions, testId));
+    });
+  }
+
   function loadGroupedTests(testIds) {
     const validIds = testIds.filter((testId) => files[testId]);
     if (!validIds.length) {
-      alert('Бұл диапазонда тест табылмады.');
-      return;
+      return Promise.reject(new Error('Бұл диапазонда тест табылмады.'));
     }
 
-    const promises = validIds.map((testId) => fetch(files[testId]).then((r) => r.json()));
-    Promise.all(promises).then((results) => {
-      allQuestions = [].concat(...results);
-      start();
-    });
+    return Promise.all(validIds.map((testId) => fetchQuestionFile(files[testId], testId)))
+      .then((results) => [].concat(...results));
+  }
+
+  function loadQuestionsForTest(testId) {
+    if (testId === NUMBER_SYSTEM_TEST_ID) {
+      return Promise.resolve(attachQuestionMeta(buildNumberSystemQuestions(QUESTIONS_PER_TEST), testId));
+    }
+
+    if (testId >= 1 && files[testId]) {
+      return fetchQuestionFile(files[testId], testId);
+    }
+
+    if (testId === HISTORY_ALL_TEST_ID) {
+      return loadGroupedTests(historyTestIds);
+    }
+
+    if (testId === INFORMATICS_ALL_TEST_ID) {
+      return loadGroupedTests(informaticsTestIds);
+    }
+
+    if (testId === ALL_SUBJECTS_TEST_ID) {
+      return loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
+    }
+
+    return loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
+  }
+
+  function handleLoadError(error) {
+    clearRunnerTimer();
+    RUNNER_UI.activeApi = null;
+    console.error('Тестті жүктеу қатесі:', error);
+    alert('Тестті жүктеу кезінде қате шықты. Қайта көріңіз.');
+    goBackFromTest();
   }
 
   function normalizeQuestionText(value) {
@@ -853,7 +1534,7 @@ function testgo(x) {
       if (!item || typeof item !== 'object') continue;
 
       const questionKey = normalizeQuestionText(item.question);
-      const fallbackKey = `${normalizeQuestionText(item.correct)}|${Array.isArray(item.options) ? item.options.map(normalizeQuestionText).join('|') : ''}`;
+      const fallbackKey = `${normalizeQuestionText(getCorrectAnswer(item))}|${Array.isArray(item.options) ? item.options.map(normalizeQuestionText).join('|') : ''}`;
       const key = questionKey || fallbackKey;
       if (!key) continue;
       if (seen.has(key)) continue;
@@ -869,95 +1550,617 @@ function testgo(x) {
   let current = 0;
   let score = 0;
   let mistakes = [];
+  let answers = [];
+  let selfCheckLogs = [];
   const footerBrand = document.querySelector(".footer-brand");
 
-  document.getElementById("homemenu").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  document.body.classList.add("is-test-runner");
+  const homeMenu = document.getElementById("homemenu");
+  if (homeMenu) homeMenu.style.display = "none";
+  appRoot.style.display = "block";
   if (footerBrand) footerBrand.style.display = "none";
 
-  if (selectedTestId === NUMBER_SYSTEM_TEST_ID) {
-    allQuestions = buildNumberSystemQuestions(QUESTIONS_PER_TEST);
-    start();
-  } else if (selectedTestId >= 1 && files[selectedTestId]) {
-    // Жалғыз файлды жүктеу
-    fetch(files[selectedTestId])
-      .then(r => r.json())
-      .then(data => {
-        allQuestions = data;
-        start();
-      });
-  } else if (selectedTestId === HISTORY_ALL_TEST_ID) {
-    // Қазақстан тарихы бойынша барлық тақырыпты біріктіру
-    loadGroupedTests(historyTestIds);
-  } else if (selectedTestId === INFORMATICS_ALL_TEST_ID) {
-    // Информатика бойынша барлық тақырыпты біріктіру
-    loadGroupedTests(informaticsTestIds);
-  } else if (selectedTestId === ALL_SUBJECTS_TEST_ID) {
-    // Тарих + информатика тақырыптарын бірге біріктіру
-    loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
-  } else {
-    // Белгісіз ID берілсе, барлық тақырыпты жүктеу
-    loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
-  }
+  loadQuestionsForTest(selectedTestId)
+    .then((questions) => {
+      allQuestions = Array.isArray(questions) ? questions : [];
+      start();
+    })
+    .catch(handleLoadError);
 
   function start() {
-    // Қанша сұрақ болса да, рандом 60 сұрақ алу
-    const randomizedPool = shuffle([...allQuestions]);
-    const uniquePool = deduplicateQuestions(randomizedPool);
-    const questionCount = Math.min(QUESTIONS_PER_TEST, uniquePool.length);
-    test = uniquePool.slice(0, questionCount);
+    const uniquePool = deduplicateQuestions(allQuestions);
+    const preparedPool = uniquePool.map(prepareQuestion).filter(Boolean);
+    const questionCount = Math.min(QUESTIONS_PER_TEST, preparedPool.length);
+
+    if (questionCount < 1) {
+      alert('Бұл тестте сұрақ табылмады.');
+      goBackFromTest();
+      return;
+    }
+
+    test = preparedPool.slice(0, questionCount);
     current = 0;
     score = 0;
     mistakes = [];
+    answers = Array(questionCount).fill(null);
+    selfCheckLogs = [];
+    remainingSeconds = Math.max(
+      300,
+      questionCount * (RUNNER_SECONDS_PER_QUESTION[ACTIVE_TEST_MODE] || RUNNER_SECONDS_PER_QUESTION.instant)
+    );
+    RUNNER_UI.activeApi = {
+      renderSubjectsModal,
+      renderFinishModal,
+      confirmFinish: () => finishCurrentTest(true)
+    };
+    startRunnerTimer();
     render();
   }
 
-  function render() {
-    const q = test[current];
-    const correctAnswer = q.correct || q.answer || q.options[0];
-    const progressPercent = ((current + 1) / test.length) * 100;
+  function getAnsweredCount() {
+    return answers.filter((value) => value !== null && value !== undefined).length;
+  }
 
-    document.getElementById("progress").innerHTML = `
-      <button type="button" class="back-btn" onclick="goBackFromTest()">← Артқа</button>
-      <div class="progress-track">
-        <span class="progress-fill" style="width: ${progressPercent}%"></span>
+  function getExamUnansweredCount() {
+    return Math.max(0, test.length - getAnsweredCount());
+  }
+
+  function getSectionStats() {
+    const sections = [];
+    const byKey = new Map();
+
+    test.forEach((question, index) => {
+      const key = String(question.sectionId || question.sectionTitle || `section-${index}`);
+      if (!byKey.has(key)) {
+        const entry = {
+          key,
+          title: question.sectionTitle || selectedTestMeta.title,
+          subject: question.subjectTitle || selectedTestMeta.subject,
+          firstIndex: index,
+          total: 0,
+          answered: 0
+        };
+        byKey.set(key, entry);
+        sections.push(entry);
+      }
+
+      const section = byKey.get(key);
+      section.total += 1;
+      if (answers[index] !== null && answers[index] !== undefined) {
+        section.answered += 1;
+      }
+    });
+
+    return sections.map((section) => ({
+      ...section,
+      unanswered: Math.max(0, section.total - section.answered)
+    }));
+  }
+
+  function getCurrentSectionIndex() {
+    const sections = getSectionStats();
+    if (!sections.length) return 0;
+    const safeCurrent = clampNumber(current, 0, Math.max(test.length - 1, 0));
+    let activeIndex = 0;
+
+    sections.forEach((section, index) => {
+      if (section.firstIndex <= safeCurrent) {
+        activeIndex = index;
+      }
+    });
+
+    return activeIndex;
+  }
+
+  function getCurrentSection() {
+    const sections = getSectionStats();
+    return sections[getCurrentSectionIndex()] || {
+      title: selectedTestMeta.title,
+      subject: selectedTestMeta.subject,
+      firstIndex: 0,
+      total: test.length,
+      answered: getAnsweredCount(),
+      unanswered: getExamUnansweredCount()
+    };
+  }
+
+  function goToSectionByIndex(index) {
+    const sections = getSectionStats();
+    const nextSection = sections[index];
+    if (!nextSection) return;
+    if (ACTIVE_TEST_MODE !== EXAM_MODE && index !== getCurrentSectionIndex()) return;
+    current = clampNumber(nextSection.firstIndex, 0, test.length - 1);
+    closeRunnerSubjectsModal();
+    render();
+  }
+
+  function moveSection(step) {
+    goToSectionByIndex(getCurrentSectionIndex() + step);
+  }
+
+  function startRunnerTimer() {
+    clearRunnerTimer();
+    setRunnerTimerDisplay(remainingSeconds);
+    RUNNER_UI.timerId = setInterval(() => {
+      remainingSeconds = Math.max(0, remainingSeconds - 1);
+      setRunnerTimerDisplay(remainingSeconds);
+      if (remainingSeconds > 0) return;
+      clearRunnerTimer();
+      finishCurrentTest(true, true);
+    }, 1000);
+  }
+
+  function prepareQuestion(rawQuestion) {
+    const source = rawQuestion && typeof rawQuestion === 'object' ? rawQuestion : {};
+    const correct = normalizeAnswerValue(getCorrectAnswer(source));
+    const questionText = String(source.question ?? '').trim();
+    if (!questionText || !correct) return null;
+
+    const options = sanitizeOptions(source.options);
+    if (!options.includes(correct)) options.unshift(correct);
+    if (!options.length) options.push(correct);
+
+    return {
+      question: questionText,
+      correct,
+      options,
+      displayOptions: selectDisplayOptions(options, correct),
+      answerBase: source.answerBase || null,
+      useHtml: Boolean(source.useHtml),
+      contextText: String(source.contextText ?? source.context_text ?? '').trim(),
+      contextText2: String(source.contextText2 ?? source.context_text_2 ?? '').trim(),
+      imageUrl: typeof source.image === 'string' ? source.image.trim() : '',
+      sectionId: String(source.__testId ?? source.sectionId ?? selectedTestId),
+      sectionTitle: String(source.__sectionTitle ?? selectedTestMeta.title),
+      subjectTitle: String(source.__subjectTitle ?? selectedTestMeta.subject)
+    };
+  }
+
+  function escapeText(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function getCurrentUserName() {
+    try {
+      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (user && typeof user.name === 'string' && user.name.trim()) {
+        return user.name.trim();
+      }
+    } catch {}
+    return 'Оқушы';
+  }
+
+  function getCurrentUserProfile() {
+    try {
+      return JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch {
+      return null;
+    }
+  }
+
+  function getProgressItemStatus(index) {
+    if (ACTIVE_TEST_MODE === EXAM_MODE) {
+      if (index === current) return 'current';
+      return answers[index] !== null && answers[index] !== undefined ? 'completed' : 'pending';
+    }
+
+    if (index < current) return 'completed';
+    if (index === current) return 'current';
+    return 'pending';
+  }
+
+  function getModeQuestionTypeLabel() {
+    if (ACTIVE_TEST_MODE === EXAM_MODE) return 'ЕРКІН РЕЖИМ';
+    if (ACTIVE_TEST_MODE === SELF_CHECK_MODE) return 'ТҮРТІП ОҚУ РЕЖИМІ';
+    return 'ҚАЗІРГІ РЕЖИМ';
+  }
+
+  function renderSubjectsModal() {
+    const list = document.getElementById('runnerSubjectsList');
+    if (!list) return;
+
+    const sections = getSectionStats();
+    const activeIndex = getCurrentSectionIndex();
+    list.innerHTML = sections.map((section, index) => `
+      <li class="subject-item runner-subject-item">
+        <button
+          type="button"
+          class="subject-link runner-subject-link ${index === activeIndex ? 'active' : ''}"
+          data-section-index="${index}"
+          ${ACTIVE_TEST_MODE !== EXAM_MODE && index !== activeIndex ? 'disabled' : ''}
+        >
+          <span>${escapeText(section.title)}</span>
+          ${index === activeIndex ? '<span><i class="fas fa-check"></i></span>' : ''}
+        </button>
+      </li>
+    `).join('');
+
+    list.querySelectorAll('[data-section-index]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const index = Number(button.getAttribute('data-section-index'));
+        if (!Number.isInteger(index)) return;
+        goToSectionByIndex(index);
+      });
+    });
+  }
+
+  function renderFinishModal() {
+    const body = document.getElementById('runnerFinishStatsBody');
+    if (!body) return;
+
+    body.innerHTML = getSectionStats().map((section) => `
+      <tr>
+        <td>${escapeText(section.title)}</td>
+        <td>${section.total}</td>
+        <td>${section.answered}</td>
+        <td class="cell-missed runner-cell-missed">${section.unanswered}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderRunnerHeader(answeredCount) {
+    const headerRoot = document.getElementById("runnerHeader");
+    const progressRoot = document.getElementById("progressBar");
+    if (!headerRoot || !progressRoot) return;
+
+    const userName = escapeText(getCurrentUserName());
+    const sections = getSectionStats();
+    const currentSectionIndex = getCurrentSectionIndex();
+    const currentSection = sections[currentSectionIndex] || getCurrentSection();
+    const prevSection = sections[currentSectionIndex - 1] || null;
+    const nextSection = sections[currentSectionIndex + 1] || null;
+    const allowSectionNavigation = ACTIVE_TEST_MODE === EXAM_MODE;
+
+    const itemsHtml = test.map((_, index) => {
+      const status = getProgressItemStatus(index);
+      const baseClass = `progress-item runner-progress-item ${status}`;
+      const label = index + 1;
+      if (ACTIVE_TEST_MODE === EXAM_MODE) {
+        return `<button type="button" class="${baseClass} is-clickable" data-jump-index="${index}">${label}</button>`;
+      }
+      return `<span class="${baseClass}">${label}</span>`;
+    }).join('');
+
+    headerRoot.innerHTML = `
+      <div class="header-left">
+        <div class="logo runner-brand-logo"><i class="fas fa-book-open"></i></div>
+        <div>
+          <span class="header-title">${userName}</span>
+        </div>
       </div>
-      <div class="progress-count">Сұрақ ${current + 1} / ${test.length}</div>
+      <div class="header-right">
+        <div class="timer-pill runner-timer-pill" id="runnerTimer">
+          <i class="fa-regular fa-clock"></i>
+          <span class="timer-value runner-timer-value" id="runnerTimerValue">${formatRunnerTime(remainingSeconds)}</span>
+        </div>
+        ${allowSectionNavigation && prevSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="-1"><i class="fas fa-chevron-left" style="margin-right:5px;"></i> Алдыңғы пән</button>` : `<span class="header-btn disabled">Алдыңғы пән</span>`}
+        <button class="header-btn header-subject" type="button">${escapeText(currentSection.title)}</button>
+        ${allowSectionNavigation && nextSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="1">Келесі пән <i class="fas fa-chevron-right" style="margin-left:5px;"></i></button>` : `<span class="header-btn disabled">Келесі пән</span>`}
+      </div>
+    `;
+    progressRoot.innerHTML = itemsHtml;
+
+    if (ACTIVE_TEST_MODE === EXAM_MODE) {
+      progressRoot.querySelectorAll('[data-jump-index]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const index = Number(button.getAttribute('data-jump-index'));
+          if (!Number.isInteger(index)) return;
+          current = clampNumber(index, 0, test.length - 1);
+          render();
+        });
+      });
+    }
+
+    if (allowSectionNavigation) {
+      progressRoot.querySelectorAll('[data-section-step]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const step = Number(button.getAttribute('data-section-step'));
+          if (!Number.isInteger(step)) return;
+          moveSection(step);
+        });
+      });
+    }
+
+    const currentItem = progressRoot.querySelector('.runner-progress-item.current');
+    if (currentItem) {
+      currentItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+    setRunnerTimerDisplay(remainingSeconds);
+  }
+
+  function goExamStep(step) {
+    const next = clampNumber(current + step, 0, test.length - 1);
+    if (next === current) return;
+    current = next;
+    render();
+  }
+
+  function finishCurrentTest(skipPrompt = false, isTimedOut = false) {
+    const unanswered = getExamUnansweredCount();
+    if (!skipPrompt && unanswered > 0) {
+      const proceed = confirm(`Әлі ${unanswered} сұрақ жауапсыз. Қазір аяқтайсыз ба?`);
+      if (!proceed) return;
+    }
+    if (isTimedOut) {
+      alert('Уақыт аяқталды. Тест автоматты түрде аяқталды.');
+    }
+    closeRunnerFinishModal();
+    current = test.length;
+    finish();
+  }
+
+  function finishExamWhenReady() {
+    finishCurrentTest(false);
+  }
+
+  function renderRunnerNavigation() {
+    const nav = document.getElementById('runnerNavigation');
+    if (!nav) return;
+
+    if (ACTIVE_TEST_MODE === EXAM_MODE) {
+      nav.innerHTML = `
+        <div class="nav-slot nav-slot-left">
+          ${current > 0 ? `<button type="button" class="nav-btn runner-nav-btn" data-nav-step="-1">< Алдыңғы сұрақ</button>` : `<div class="nav-btn-placeholder"></div>`}
+        </div>
+        <div class="nav-slot nav-slot-center">
+          <div class="question-counter runner-question-counter">${current + 1}-сұрақ</div>
+        </div>
+        <div class="nav-slot nav-slot-right">
+          <button type="button" class="nav-btn next runner-nav-btn" id="runnerPrimaryNavBtn">${current === test.length - 1 ? 'Аяқтау ✅' : 'Келесі сұрақ >'}</button>
+        </div>
+      `;
+
+      const prevBtn = nav.querySelector('[data-nav-step="-1"]');
+      const primaryBtn = nav.querySelector('#runnerPrimaryNavBtn');
+      if (prevBtn) prevBtn.onclick = () => goExamStep(-1);
+      if (primaryBtn) {
+        primaryBtn.onclick = () => {
+          if (current === test.length - 1) {
+            openRunnerFinishModal();
+            return;
+          }
+          goExamStep(1);
+        };
+      }
+      return;
+    }
+
+    const canAdvance = answers[current] !== null && answers[current] !== undefined;
+    nav.innerHTML = `
+      <div class="nav-slot nav-slot-left">
+        ${current > 0 ? `<button type="button" class="nav-btn runner-nav-btn" data-nav-step="-1">< Алдыңғы сұрақ</button>` : `<div class="nav-btn-placeholder"></div>`}
+      </div>
+      <div class="nav-slot nav-slot-center">
+        <div class="question-counter runner-question-counter">${current + 1}-сұрақ</div>
+      </div>
+      <div class="nav-slot nav-slot-right">
+        <button type="button" class="nav-btn next runner-nav-btn" id="runnerQuickFinishBtn" ${!canAdvance ? 'disabled' : ''}>${current === test.length - 1 ? 'Аяқтау ✅' : 'Келесі сұрақ >'}</button>
+      </div>
     `;
 
+    const prevBtn = nav.querySelector('[data-nav-step="-1"]');
+    const finishBtn = nav.querySelector('#runnerQuickFinishBtn');
+    if (prevBtn) {
+      prevBtn.onclick = () => {
+        current = clampNumber(current - 1, 0, test.length - 1);
+        render();
+      };
+    }
+    if (finishBtn) {
+      finishBtn.onclick = () => {
+        if (current === test.length - 1) {
+          openRunnerFinishModal();
+          return;
+        }
+        current++;
+        render();
+      };
+    }
+  }
+
+  function render() {
+    if (!test.length || current >= test.length) {
+      finish();
+      return;
+    }
+
+    const q = test[current];
+    const correctAnswer = q.correct;
+    const answeredCount = getAnsweredCount();
+    renderRunnerHeader(answeredCount);
+
     const questionBox = document.getElementById("question");
-    questionBox.innerHTML = "";
-    const questionText = document.createElement("span");
+    questionBox.innerHTML = `<div class="question-number">${current + 1}</div>`;
+    if (q.contextText) {
+      const contextPrimary = document.createElement("div");
+      contextPrimary.className = "context-text runner-context-text";
+      contextPrimary.textContent = q.contextText;
+      questionBox.appendChild(contextPrimary);
+    }
+    if (q.contextText2) {
+      const contextSecondary = document.createElement("div");
+      contextSecondary.className = "context-text runner-context-text";
+      contextSecondary.textContent = q.contextText2;
+      questionBox.appendChild(contextSecondary);
+    }
+    if (q.imageUrl) {
+      const imageWrap = document.createElement("div");
+      imageWrap.className = "question-image runner-question-image";
+      const image = document.createElement("img");
+      image.src = q.imageUrl;
+      image.alt = "Сұрақ суреті";
+      imageWrap.appendChild(image);
+      questionBox.appendChild(imageWrap);
+    }
+    const questionText = document.createElement("div");
     questionText.className = "question-text";
     if (q.useHtml) questionText.innerHTML = q.question;
     else questionText.innerText = q.question;
     questionBox.appendChild(questionText);
 
-    const shuffledOptions = selectDisplayOptions(q.options, correctAnswer);
-
     const box = document.getElementById("options");
     box.innerHTML = "";
 
+    if (ACTIVE_TEST_MODE === SELF_CHECK_MODE) {
+      renderSelfCheckMode(box, q, correctAnswer);
+      renderRunnerNavigation();
+      return;
+    }
+
+    if (ACTIVE_TEST_MODE === EXAM_MODE) {
+      renderReviewMode(box, q);
+      renderRunnerNavigation();
+      return;
+    }
+
+    const shuffledOptions = q.displayOptions;
     shuffledOptions.forEach((ans, index) => {
       const btn = document.createElement("button");
-      btn.className = "option-btn";
+      btn.className = "answer";
       btn.dataset.value = ans;
-      btn.dataset.letter = String.fromCharCode(65 + index);
-      const optionText = document.createElement("span");
-      optionText.className = "option-text";
+      const letter = document.createElement("div");
+      letter.className = "answer-letter";
+      letter.textContent = String.fromCharCode(65 + index);
+      const content = document.createElement("div");
+      content.className = "answer-content";
+      const optionText = document.createElement("div");
+      optionText.className = "answer-text option-text";
       if (q.answerBase) optionText.innerHTML = formatWithBase(ans, q.answerBase);
       else optionText.innerText = ans;
-      btn.appendChild(optionText);
+      content.appendChild(optionText);
+      btn.appendChild(letter);
+      btn.appendChild(content);
       btn.onclick = () => select(ans, correctAnswer, btn);
       box.appendChild(btn);
     });
+    renderRunnerNavigation();
+  }
+
+  function renderReviewMode(box, question) {
+    const selectedValue = answers[current];
+    const options = question.displayOptions;
+    box.innerHTML = `<div class="exam-options"></div>`;
+
+    const optionsWrap = box.querySelector(".exam-options");
+    if (optionsWrap) {
+      options.forEach((ans, index) => {
+        const btn = document.createElement("button");
+        btn.className = "answer";
+        if (isAnswerMatch(selectedValue, ans)) btn.classList.add("selected");
+        btn.dataset.value = ans;
+        const letter = document.createElement("div");
+        letter.className = "answer-letter";
+        letter.textContent = String.fromCharCode(65 + index);
+        const content = document.createElement("div");
+        content.className = "answer-content";
+        const optionText = document.createElement("div");
+        optionText.className = "answer-text option-text";
+        if (question.answerBase) optionText.innerHTML = formatWithBase(ans, question.answerBase);
+        else optionText.innerText = ans;
+        content.appendChild(optionText);
+        btn.appendChild(letter);
+        btn.appendChild(content);
+        btn.onclick = () => {
+          answers[current] = isAnswerMatch(answers[current], ans) ? null : ans;
+          render();
+        };
+        optionsWrap.appendChild(btn);
+      });
+    }
+  }
+
+  function renderSelfCheckMode(box, question, correctAnswer) {
+    box.innerHTML = `
+      <div class="self-check-card">
+        <button type="button" class="self-tap-zone">Түрту арқылы жауапты ашу</button>
+        <div class="self-answer" hidden>
+          <p class="self-answer-label">Дұрыс жауап:</p>
+          <div class="self-answer-value"></div>
+        </div>
+        <div class="self-actions" hidden>
+          <button type="button" class="self-good-btn">Дұрыс ойладым</button>
+          <button type="button" class="self-bad-btn">Қате ойладым</button>
+        </div>
+      </div>
+    `;
+
+    const tapZone = box.querySelector(".self-tap-zone");
+    const answerWrap = box.querySelector(".self-answer");
+    const answerValue = box.querySelector(".self-answer-value");
+    const actions = box.querySelector(".self-actions");
+    const goodBtn = box.querySelector(".self-good-btn");
+    const badBtn = box.querySelector(".self-bad-btn");
+    const normalizedAnswer = correctAnswer === undefined || correctAnswer === null || String(correctAnswer).trim() === ''
+      ? '—'
+      : correctAnswer;
+
+    if (answerValue) {
+      if (question.answerBase && normalizedAnswer !== '—') answerValue.innerHTML = formatWithBase(normalizedAnswer, question.answerBase);
+      else answerValue.innerText = normalizedAnswer;
+    }
+
+    if (tapZone) {
+      tapZone.onclick = () => {
+        tapZone.disabled = true;
+        tapZone.textContent = 'Жауап ашылды';
+        tapZone.classList.add('is-revealed');
+        if (answerWrap) answerWrap.hidden = false;
+        if (actions) actions.hidden = false;
+      };
+    }
+
+    const lockAndSubmit = (isCorrect) => {
+      if (goodBtn) goodBtn.disabled = true;
+      if (badBtn) badBtn.disabled = true;
+      submitSelfCheckResult(isCorrect, question, correctAnswer);
+    };
+
+    if (goodBtn) goodBtn.onclick = () => lockAndSubmit(true);
+    if (badBtn) badBtn.onclick = () => lockAndSubmit(false);
+  }
+
+  function submitSelfCheckResult(isCorrect, question, correctAnswer) {
+    answers[current] = isCorrect ? correctAnswer : '__self_check__';
+    if (isCorrect) {
+      score++;
+    } else {
+      mistakes.push({
+        question: question.question,
+        correct: correctAnswer,
+        selected: 'Қате ойладым',
+        answerBase: question.answerBase || null,
+        selectedAnswerBase: null,
+        useHtml: !!question.useHtml
+      });
+    }
+
+    selfCheckLogs.push({
+      question: question.question,
+      correct: correctAnswer,
+      selected: isCorrect ? 'Дұрыс ойладым' : 'Қате ойладым',
+      isCorrect,
+      answerBase: question.answerBase || null,
+      selectedAnswerBase: null,
+      useHtml: !!question.useHtml
+    });
+
+    setTimeout(() => {
+      current++;
+      current < test.length ? render() : finish();
+    }, 260);
   }
 
   function select(selected, correct, btn) {
-    const buttons = document.querySelectorAll(".option-btn");
+    const buttons = document.querySelectorAll(".answer");
     buttons.forEach(b => b.style.pointerEvents = "none");
+    answers[current] = selected;
 
-    if (selected === correct) {
+    if (isAnswerMatch(selected, correct)) {
       score++;
       btn.classList.add("correct");
     } else {
@@ -967,46 +2170,112 @@ function testgo(x) {
         correct: correct,
         selected: selected,
         answerBase: test[current].answerBase || null,
+        selectedAnswerBase: test[current].answerBase || null,
         useHtml: !!test[current].useHtml
       });
       
       buttons.forEach(b => {
-        if (b.dataset.value === correct) b.classList.add("correct");
+        if (isAnswerMatch(b.dataset.value, correct)) b.classList.add("correct");
       });
     }
-
-    setTimeout(() => {
-      current++;
-      current < test.length ? render() : finish();
-    }, 1200);
+    renderRunnerNavigation();
   }
 
   function finish() {
-    const app = document.getElementById("app");
-    const percent = Math.round((score / test.length) * 100);
+    clearRunnerTimer();
+    RUNNER_UI.activeApi = null;
+    closeRunnerSubjectsModal();
+    closeRunnerFinishModal();
+    const total = test.length || 1;
 
-    let html = `
+    let finalScore = score;
+    let finalMistakes = [...mistakes];
+    let examReview = [];
+
+    if (ACTIVE_TEST_MODE === EXAM_MODE) {
+      examReview = test.map((question, index) => {
+        const correct = question.correct;
+        const selected = answers[index];
+        const isCorrect = isAnswerMatch(selected, correct);
+
+        return {
+          question: question.question,
+          correct,
+          selected: selected ?? 'Жауап берілмеді',
+          isCorrect,
+          answerBase: question.answerBase || null,
+          selectedAnswerBase: (selected === undefined || selected === null) ? null : (question.answerBase || null),
+          useHtml: !!question.useHtml
+        };
+      });
+      finalScore = examReview.filter((item) => item.isCorrect).length;
+      finalMistakes = examReview.filter((item) => !item.isCorrect);
+    }
+
+    if (ACTIVE_TEST_MODE === SELF_CHECK_MODE) {
+      finalMistakes = selfCheckLogs.filter((item) => item.isCorrect === false).map((item) => ({
+        question: item.question,
+        correct: item.correct,
+        selected: item.selected,
+        answerBase: item.answerBase,
+        selectedAnswerBase: item.selectedAnswerBase,
+        useHtml: item.useHtml
+      }));
+    }
+
+    const percent = Math.round((finalScore / total) * 100);
+    const resultTitle = ACTIVE_TEST_MODE === SELF_CHECK_MODE ? 'Өзін-өзі тексеру аяқталды' : 'Тест аяқталды';
+    const scoreLabel = ACTIVE_TEST_MODE === SELF_CHECK_MODE ? 'Өзіңіз бағалаған нәтиже' : 'Жиналған ұпай';
+    const selectedLabel = ACTIVE_TEST_MODE === SELF_CHECK_MODE ? 'Өзіңіз белгіледіңіз:' : 'Сіздің жауабыңыз:';
+
+    const headerRoot = document.getElementById("runnerHeader");
+    const progressRoot = document.getElementById("progressBar");
+    if (headerRoot) {
+      headerRoot.innerHTML = `
+        <div class="header-left">
+          <div class="logo"><i class="fas fa-flag-checkered"></i></div>
+          <div>
+            <span class="header-title">${escapeText(getCurrentUserName())}</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="header-btn header-subject" type="button">Нәтиже</button>
+          <div class="timer-pill" id="runnerTimer">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span class="timer-value" id="runnerTimerValue">${finalScore} / ${test.length}</span>
+          </div>
+        </div>
+      `;
+    }
+    if (progressRoot) progressRoot.innerHTML = '';
+
+    const questionBox = document.getElementById("question");
+    const box = document.getElementById("options");
+    const nav = document.getElementById("runnerNavigation");
+
+    let summaryHtml = `
       <div class="result">
         <div class="score-circle">${percent}%</div>
-        <h2>Тест аяқталды</h2>
-        <p>Жиналған ұпай: <b>${score}</b> / ${test.length}</p>
-        <button class="retry-btn" onclick="location.reload()">Қайта бастау</button>
+        <h2>${resultTitle}</h2>
+        <p>${scoreLabel}: <b>${finalScore}</b> / ${test.length}</p>
       </div>
     `;
 
-    if (mistakes.length > 0) {
-      html += `<div class="mistakes-container"><h3 class="mistakes-title">Қателермен жұмыс:</h3>`;
-      mistakes.forEach((m, index) => {
-        const selectedText = m.answerBase ? formatWithBase(m.selected, m.answerBase) : m.selected;
-        const correctText = m.answerBase ? formatWithBase(m.correct, m.answerBase) : m.correct;
-        html += `
-          <div class="mistake-card">
+    let detailsHtml = '';
+    if (ACTIVE_TEST_MODE === EXAM_MODE) {
+      detailsHtml += `<div class="mistakes-container"><h3 class="mistakes-title">Толық талдау:</h3>`;
+      examReview.forEach((item, index) => {
+        const selectedText = formatAnswerHtml(item.selected, item.selectedAnswerBase);
+        const correctText = formatAnswerHtml(item.correct, item.answerBase);
+        detailsHtml += `
+          <div class="mistake-card review-card ${item.isCorrect ? 'is-correct' : 'is-wrong'}">
             <div class="m-number">${index + 1}</div>
             <div class="m-content">
-              <div class="m-question">${m.question}</div>
+              <div class="review-status">${item.isCorrect ? 'Дұрыс' : 'Қате'}</div>
+              <div class="m-question">${item.question}</div>
               <div class="m-details">
-                <div class="m-line wrong-line">
-                  <span class="m-icon">✕</span>
+                <div class="m-line ${item.isCorrect ? 'correct-line' : 'wrong-line'}">
+                  <span class="m-icon">${item.isCorrect ? '✓' : '✕'}</span>
                   <span class="m-label">Сіздің жауабыңыз:</span> 
                   <span class="m-val">${selectedText}</span>
                 </div>
@@ -1019,11 +2288,51 @@ function testgo(x) {
             </div>
           </div>`;
       });
-      html += `</div>`;
+      detailsHtml += `</div>`;
+    } else if (finalMistakes.length > 0) {
+      detailsHtml += `<div class="mistakes-container"><h3 class="mistakes-title">Қателермен жұмыс:</h3>`;
+      finalMistakes.forEach((m, index) => {
+        const selectedText = formatAnswerHtml(m.selected, m.selectedAnswerBase);
+        const correctText = formatAnswerHtml(m.correct, m.answerBase);
+        detailsHtml += `
+          <div class="mistake-card">
+            <div class="m-number">${index + 1}</div>
+            <div class="m-content">
+              <div class="m-question">${m.question}</div>
+              <div class="m-details">
+                <div class="m-line wrong-line">
+                  <span class="m-icon">✕</span>
+                  <span class="m-label">${selectedLabel}</span> 
+                  <span class="m-val">${selectedText}</span>
+                </div>
+                <div class="m-line correct-line">
+                  <span class="m-icon">✓</span>
+                  <span class="m-label">Дұрыс жауап:</span> 
+                  <span class="m-val">${correctText}</span>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      });
+      detailsHtml += `</div>`;
     } else {
-      html += `<div class="perfect-score">Керемет! Сіз ешқандай қате жібермедіңіз! 🚀</div>`;
+      detailsHtml += `<div class="perfect-score">Керемет! Ешқандай қате белгіленбеді.</div>`;
     }
-    app.innerHTML = html;
+
+    if (questionBox) questionBox.innerHTML = summaryHtml;
+    if (box) box.innerHTML = detailsHtml;
+    if (nav) {
+      nav.innerHTML = `
+        <button type="button" class="runner-nav-btn" id="runnerBackBtn">← Тесттерге оралу</button>
+        <div class="runner-question-counter">Нәтиже</div>
+        <button type="button" class="runner-nav-btn next" id="runnerRetryBtn">Қайта бастау</button>
+      `;
+
+      const backBtn = nav.querySelector('#runnerBackBtn');
+      const retryBtn = nav.querySelector('#runnerRetryBtn');
+      if (backBtn) backBtn.onclick = () => goBackFromTest();
+      if (retryBtn) retryBtn.onclick = () => testgo(selectedTestId);
+    }
   }
 
   function shuffle(array) {

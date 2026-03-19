@@ -33,6 +33,20 @@ python -m http.server 8000
 2. `test/app.js` ішінде `files` объектісіне ID және файл жолын қосыңыз.
 3. `index.html` ішінде тест тізіміне жаңа жол (`testgo(ID)`) қосыңыз.
 
+**Шифрланған логин деректері**
+1. `users-source.example.json` файлын үлгі ретінде пайдаланыңыз.
+2. Локалда `users-source.json` деген файл жасаңыз. Бұл файл `.gitignore` ішінде, сондықтан commit-ке түспейді.
+3. Пайдаланушы кілті JSON-дағы объект кілті болады. Мысалы: `"rama2025": { ...user data... }`.
+4. Шифрланған output шығару:
+
+```bash
+python scripts/encrypt_users.py --input users-source.json --output-dir users
+```
+
+Нәтижесінде:
+- `users/*.json` — әр қолданушыға бөлек шифрланған файл
+- `users/ranking.json` — public рейтинг summary
+
 **Тест дерек форматы**
 ```json
 [

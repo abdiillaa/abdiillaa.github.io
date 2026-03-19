@@ -1,7 +1,7 @@
-n = 1000000
+n = 100000000
 def f(x):
     return x**2
-x=1
+x=10
 ax=x/n
 s=0
 for i in range(n):
