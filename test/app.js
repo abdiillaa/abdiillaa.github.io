@@ -88,7 +88,8 @@ const RUNNER_UI = {
     activeApi: null,
     timerId: null,
     widgetsInitialized: false,
-    topZIndex: 10020
+    topZIndex: 10020,
+    fullscreenBound: false
 };
 const textEncoder = new TextEncoder();
 
@@ -104,6 +105,7 @@ function getRunnerIcon(name) {
         clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
         chevronLeft: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>',
         chevronRight: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>',
+        menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>',
         flag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M6 4h9l-1.5 3L15 10H6"></path></svg>',
         chart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7M4 19h16"></path></svg>'
     };
@@ -429,6 +431,53 @@ function closeRunnerSubjectsModal(event) {
     if (modal) modal.hidden = true;
 }
 
+function closeRunnerToolsModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    const modal = document.getElementById('runnerToolsModal');
+    if (modal) modal.hidden = true;
+}
+
+function isRunnerFullscreenActive() {
+    return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+function updateRunnerFullscreenButton() {
+    const button = document.getElementById('runnerFullscreenBtn');
+    if (!button) return;
+    button.textContent = isRunnerFullscreenActive() ? 'Толық экраннан шығу' : 'Толық экран';
+}
+
+async function toggleRunnerFullscreen() {
+    closeRunnerToolsModal();
+    try {
+        if (isRunnerFullscreenActive()) {
+            if (document.exitFullscreen) {
+                await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        } else {
+            const target = document.documentElement;
+            if (target.requestFullscreen) {
+                await target.requestFullscreen();
+            } else if (target.webkitRequestFullscreen) {
+                target.webkitRequestFullscreen();
+            }
+        }
+    } catch (error) {
+        console.error('Fullscreen toggle failed:', error);
+    } finally {
+        updateRunnerFullscreenButton();
+    }
+}
+
+function bindRunnerFullscreenEvents() {
+    if (RUNNER_UI.fullscreenBound) return;
+    document.addEventListener('fullscreenchange', updateRunnerFullscreenButton);
+    document.addEventListener('webkitfullscreenchange', updateRunnerFullscreenButton);
+    RUNNER_UI.fullscreenBound = true;
+}
+
 function closeRunnerFinishModal(event) {
     if (event && event.target !== event.currentTarget) return;
     const modal = document.getElementById('runnerFinishModal');
@@ -440,6 +489,12 @@ function openRunnerSubjectsModal() {
         RUNNER_UI.activeApi.renderSubjectsModal();
     }
     const modal = document.getElementById('runnerSubjectsModal');
+    if (modal) modal.hidden = false;
+}
+
+function openRunnerToolsModal() {
+    const modal = document.getElementById('runnerToolsModal');
+    updateRunnerFullscreenButton();
     if (modal) modal.hidden = false;
 }
 
@@ -468,6 +523,7 @@ function getCalcHistory() {
 function ensureRunnerShell() {
     const app = document.getElementById('app');
     if (!app) return null;
+    bindRunnerFullscreenEvents();
 
     if (!app.querySelector('#runnerNavigation')) {
         app.innerHTML = `
@@ -531,6 +587,21 @@ function ensureRunnerShell() {
               <div class="finish-actions runner-finish-actions">
                 <button type="button" class="finish-btn runner-finish-btn cancel" onclick="closeRunnerFinishModal()">Күшін жою</button>
                 <button type="button" class="finish-btn runner-finish-btn confirm" onclick="confirmRunnerFinish()">Растау</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="runnerToolsModal" class="modal-overlay runner-modal-overlay runner-tools-modal" hidden onclick="closeRunnerToolsModal(event)">
+            <div class="modal-content runner-modal-content runner-tools-modal-content" onclick="event.stopPropagation()">
+              <button type="button" class="close-btn runner-close-btn" onclick="closeRunnerToolsModal()">&times;</button>
+              <div class="modal-title runner-modal-title">Құралдар</div>
+              <div class="runner-tools-list">
+                <button type="button" class="runner-tool-btn" id="runnerFullscreenBtn" onclick="toggleRunnerFullscreen()">Толық экран</button>
+                <button type="button" class="runner-tool-btn" onclick="closeRunnerToolsModal(); toggleRunnerWidget('calc-widget')">Калькулятор</button>
+                <button type="button" class="runner-tool-btn" onclick="closeRunnerToolsModal(); toggleRunnerWidget('mendeleev-widget')">Менделеев</button>
+                <button type="button" class="runner-tool-btn" onclick="closeRunnerToolsModal(); toggleRunnerWidget('solubility-widget')">Ерігіштік</button>
+                <button type="button" class="runner-tool-btn" onclick="closeRunnerToolsModal(); openRunnerFinishModal()">Аяқтау</button>
+                <button type="button" class="runner-tool-btn danger" onclick="closeRunnerToolsModal(); goBackFromTest()">Артқа</button>
               </div>
             </div>
           </div>
@@ -2016,6 +2087,9 @@ function testgo(x) {
           <span class="timer-value runner-timer-value" id="runnerTimerValue">${formatRunnerTime(remainingSeconds)}</span>
         </div>
         <button class="header-btn header-subject" type="button">${escapeText(currentSection.title)}</button>
+        <button class="header-btn runner-header-menu-btn" type="button" onclick="openRunnerToolsModal()" aria-label="Құралдар">
+          ${getRunnerIcon('menu')}
+        </button>
       </div>
     `;
     progressRoot.innerHTML = itemsHtml;
@@ -2070,13 +2144,13 @@ function testgo(x) {
     if (ACTIVE_TEST_MODE === EXAM_MODE) {
       nav.innerHTML = `
         <div class="nav-slot nav-slot-left">
-          ${current > 0 ? `<button type="button" class="nav-btn runner-nav-btn" data-nav-step="-1">< Алдыңғы сұрақ</button>` : `<div class="nav-btn-placeholder"></div>`}
+          <button type="button" class="nav-btn runner-nav-btn" data-nav-step="-1" ${current > 0 ? '' : 'disabled'}>Алдыңғы</button>
         </div>
         <div class="nav-slot nav-slot-center">
           <div class="question-counter runner-question-counter">${current + 1}-сұрақ</div>
         </div>
         <div class="nav-slot nav-slot-right">
-          <button type="button" class="nav-btn next runner-nav-btn" id="runnerPrimaryNavBtn">${current === test.length - 1 ? 'Аяқтау ✅' : 'Келесі сұрақ >'}</button>
+          <button type="button" class="nav-btn next runner-nav-btn" id="runnerPrimaryNavBtn">${current === test.length - 1 ? 'Аяқтау' : 'Келесі'}</button>
         </div>
       `;
 
@@ -2098,13 +2172,13 @@ function testgo(x) {
     const canAdvance = answers[current] !== null && answers[current] !== undefined;
     nav.innerHTML = `
       <div class="nav-slot nav-slot-left">
-        ${current > 0 ? `<button type="button" class="nav-btn runner-nav-btn" data-nav-step="-1">< Алдыңғы сұрақ</button>` : `<div class="nav-btn-placeholder"></div>`}
+        <button type="button" class="nav-btn runner-nav-btn" data-nav-step="-1" ${current > 0 ? '' : 'disabled'}>Алдыңғы</button>
       </div>
       <div class="nav-slot nav-slot-center">
         <div class="question-counter runner-question-counter">${current + 1}-сұрақ</div>
       </div>
       <div class="nav-slot nav-slot-right">
-        <button type="button" class="nav-btn next runner-nav-btn" id="runnerQuickFinishBtn" ${!canAdvance ? 'disabled' : ''}>${current === test.length - 1 ? 'Аяқтау ✅' : 'Келесі сұрақ >'}</button>
+        <button type="button" class="nav-btn next runner-nav-btn" id="runnerQuickFinishBtn" ${!canAdvance ? 'disabled' : ''}>${current === test.length - 1 ? 'Аяқтау' : 'Келесі'}</button>
       </div>
     `;
 

@@ -399,8 +399,8 @@ body.is-test-runner #app.container{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.48);
-  backdrop-filter:blur(3px);
+  background:rgba(2, 6, 23, .62);
+  backdrop-filter:blur(8px);
   z-index:10030;
 }
 
@@ -1511,6 +1511,10 @@ body.is-test-runner #app .header-btn:hover{
   background-color:#eef7f5;
 }
 
+body.is-test-runner #app .runner-header-menu-btn{
+  display:none;
+}
+
 body.is-test-runner #app .header-btn.disabled{
   opacity:.5;
   cursor:not-allowed;
@@ -1651,6 +1655,7 @@ body.is-test-runner #app .sidebar-icon{
 body.is-test-runner #app .sidebar-icon svg,
 body.is-test-runner #app .logo svg,
 body.is-test-runner #app .timer-pill svg,
+body.is-test-runner #app .runner-header-menu-btn svg,
 body.is-test-runner #app .runner-section-btn svg,
 body.is-test-runner #app .runner-subject-link svg{
   width:1.1em;
@@ -1868,14 +1873,10 @@ body.is-test-runner #app .nav-slot-right{
   justify-content:flex-end;
 }
 
-body.is-test-runner #app .nav-btn-placeholder{
-  width:104px;
-  height:48px;
-  flex:0 0 104px;
-}
-
 body.is-test-runner #app .nav-btn{
-  min-width:104px;
+  width:100%;
+  min-width:0;
+  min-height:48px;
   justify-content:center;
   padding:13px 14px;
   border-radius:10px;
@@ -1890,7 +1891,10 @@ body.is-test-runner #app .nav-btn{
   display:flex;
   align-items:center;
   font-weight:700;
-  max-width: 275px;
+  max-width:none;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 body.is-test-runner #app .nav-btn:hover:not(:disabled){
@@ -1915,6 +1919,14 @@ body.is-test-runner #app .nav-btn.next:disabled{
   cursor:not-allowed;
 }
 
+body.is-test-runner #app .nav-btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+  background:#f4f6f8;
+  color:#94a3b8;
+  border-color:#dde4ea;
+}
+
 body.is-test-runner #app .question-counter{
   background-color:var(--brand-soft);
   padding:12px 14px;
@@ -1933,11 +1945,11 @@ body.is-test-runner #app .modal-overlay{
   left:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,.5);
-  z-index:1000;
+  background:rgba(2, 6, 23, .62);
+  z-index:10030;
   justify-content:center;
   align-items:center;
-  backdrop-filter:blur(3px);
+  backdrop-filter:blur(8px);
 }
 
 body.is-test-runner #app .modal-overlay[hidden]{
@@ -2189,28 +2201,37 @@ body.is-test-runner #app .finish-btn.confirm{
   color:#fff;
 }
 
+body.is-test-runner #app .runner-tools-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+body.is-test-runner #app .runner-tool-btn{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:14px 16px;
+  background:#f4f8fb;
+  color:var(--ink);
+  font-size:15px;
+  font-weight:700;
+  text-align:left;
+  cursor:pointer;
+}
+
+body.is-test-runner #app .runner-tool-btn.danger{
+  background:#fff1f2;
+  color:#b42318;
+}
+
 @media (max-width: 900px){
   body.is-test-runner #app > .container{
     flex-direction:column;
   }
 
   body.is-test-runner #app > .container > .sidebar{
-    width:100%;
-    flex-direction:row;
-    gap:10px;
-    justify-content:space-between;
-    border-right:none;
-    border-bottom:none;
-    padding:10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:0;
-    z-index:10030;
-    background:rgba(255,255,255,.96);
-    backdrop-filter:blur(14px);
-    box-shadow:0 -10px 24px rgba(15, 23, 42, .12);
-    overflow-x:auto;
+    display:none;
   }
 
   body.is-test-runner #app > .container > .main-content{
@@ -2218,27 +2239,73 @@ body.is-test-runner #app .finish-btn.confirm{
   }
 
   body.is-test-runner #app > .header{
-    padding:14px;
+    padding:10px 12px;
     flex-direction:column;
     align-items:flex-start;
+    gap:8px;
+  }
+
+  body.is-test-runner #app .header-left{
     gap:10px;
+  }
+
+  body.is-test-runner #app .runner-user-avatar{
+    width:34px;
+    height:34px;
+    border-radius:8px;
+  }
+
+  body.is-test-runner #app .header-title{
+    font-size:16px;
   }
 
   body.is-test-runner #app .header-right{
     width:100%;
     justify-content:flex-start;
-    gap:8px;
+    gap:6px;
   }
 
-  body.is-test-runner #app .header-subject,
   body.is-test-runner #app .timer-pill{
-    width:100%;
-    max-width:100%;
+    flex:1 1 0;
+    width:auto;
+    max-width:none;
     min-width:0;
+    padding:6px 10px;
+    font-size:12px;
+    gap:6px;
+  }
+
+  body.is-test-runner #app .timer-pill .timer-value{
+    font-size:13px;
+  }
+
+  body.is-test-runner #app .header-subject{
+    display:none;
+  }
+
+  body.is-test-runner #app .runner-header-menu-btn{
+    display:inline-flex;
+    flex:0 0 auto;
+    width:40px;
+    height:40px;
+    min-width:40px;
+    padding:0;
+    border-radius:12px;
+    background:rgba(255,255,255,.18);
+    border-color:rgba(255,255,255,.32);
+    color:#fff;
+  }
+
+  body.is-test-runner #app .runner-header-menu-btn svg{
+    width:18px;
+    height:18px;
+  }
+
+  body.is-test-runner #app .runner-header-menu-btn:hover{
+    background:rgba(255,255,255,.24);
   }
 
   body.is-test-runner #app .header-btn{
-    width:100%;
     justify-content:center;
   }
 
@@ -2248,7 +2315,7 @@ body.is-test-runner #app .finish-btn.confirm{
   }
 
   body.is-test-runner #app > .progress-bar{
-    padding:12px 14px;
+    padding:10px 12px;
     position:sticky;
     top:0;
     z-index:10010;
@@ -2269,6 +2336,23 @@ body.is-test-runner #app .finish-btn.confirm{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:10px;
+    position:fixed;
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index:10015;
+    padding:10px;
+    border-radius:16px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(12px);
+    box-shadow:0 10px 24px rgba(15, 23, 42, .10);
+    max-width:none;
+  }
+
+  body.is-test-runner #app .answers{
+    margin-bottom:92px;
+  }
+
+  body.is-test-runner #app .runner-tools-modal .runner-modal-content{
+    width:min(92vw, 360px);
   }
 
   body.is-test-runner #app .nav-slot{
@@ -2294,11 +2378,8 @@ body.is-test-runner #app .finish-btn.confirm{
     width:100%;
     max-width:none;
     min-width:0;
+    min-height:46px;
     justify-content:center;
-  }
-
-  body.is-test-runner #app .nav-btn-placeholder{
-    display:none;
   }
 
   body.is-test-runner #app .sidebar-item{
