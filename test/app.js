@@ -487,10 +487,6 @@ function ensureRunnerShell() {
                 <div class="sidebar-icon">${getRunnerIcon('flask')}</div>
                 <div class="sidebar-text">ерігіштік</div>
               </div>
-              <div class="sidebar-item" onclick="openRunnerSubjectsModal()">
-                <div class="sidebar-icon">${getRunnerIcon('book')}</div>
-                <div class="sidebar-text">пәндер</div>
-              </div>
               <div class="sidebar-item" onclick="openRunnerFinishModal()">
                 <div class="sidebar-icon">${getRunnerIcon('checkCircle')}</div>
                 <div class="sidebar-text">аяқтау</div>
@@ -582,14 +578,7 @@ function ensureRunnerShell() {
               <button type="button" class="widget-close runner-widget-close" onclick="toggleRunnerWidget('mendeleev-widget')">×</button>
             </div>
             <div class="table-container runner-reference-body">
-              <div class="runner-reference-card">
-                <h4>Негізгі топтар</h4>
-                <p>1-топ: сілтілік металдар. 2-топ: сілтілік-жер металдар. 17-топ: галогендер. 18-топ: инертті газдар.</p>
-              </div>
-              <div class="runner-reference-card">
-                <h4>Жылдам еске түсіру</h4>
-                <p>Металдық қасиет төменнен жоғары әлсірейді, солдан оңға қарай кемиді. Бейметалдық қасиет оңға және жоғары арттады.</p>
-              </div>
+              <img src="mendeleev.jpg" alt="Менделеев кестесі" class="runner-reference-image">
             </div>
           </div>
 
@@ -599,14 +588,7 @@ function ensureRunnerShell() {
               <button type="button" class="widget-close runner-widget-close" onclick="toggleRunnerWidget('solubility-widget')">×</button>
             </div>
             <div class="table-container runner-reference-body">
-              <div class="runner-reference-card">
-                <h4>Әдетте ериді</h4>
-                <p>Барлық нитраттар, натрий, калий және аммоний тұздарының көбі суда ериді.</p>
-              </div>
-              <div class="runner-reference-card">
-                <h4>Жиі ерімейді</h4>
-                <p>AgCl, BaSO₄, CaCO₃ сияқты тұздар көбіне нашар ериді немесе ерімейді.</p>
-              </div>
+              <img src="erigish.png" alt="Ерігіштік кестесі" class="runner-reference-image">
             </div>
           </div>
         `;
@@ -1746,6 +1728,7 @@ function testgo(x) {
   let answers = [];
   let instantResults = [];
   let selfCheckLogs = [];
+  let lastRenderedQuestionIndex = -1;
   const footerBrand = document.querySelector(".footer-brand");
 
   document.body.classList.add("is-test-runner");
@@ -1999,7 +1982,7 @@ function testgo(x) {
     `).join('');
   }
 
-  function renderRunnerHeader(answeredCount) {
+  function renderRunnerHeader(answeredCount, allowProgressScroll = true) {
     const headerRoot = document.getElementById("runnerHeader");
     const progressRoot = document.getElementById("progressBar");
     if (!headerRoot || !progressRoot) return;
@@ -2010,10 +1993,6 @@ function testgo(x) {
     const sections = getSectionStats();
     const currentSectionIndex = getCurrentSectionIndex();
     const currentSection = sections[currentSectionIndex] || getCurrentSection();
-    const prevSection = sections[currentSectionIndex - 1] || null;
-    const nextSection = sections[currentSectionIndex + 1] || null;
-    const allowSectionNavigation = ACTIVE_TEST_MODE === EXAM_MODE;
-
     const itemsHtml = test.map((_, index) => {
       const status = getProgressItemStatus(index);
       const baseClass = `progress-item runner-progress-item ${status}`;
@@ -2036,9 +2015,7 @@ function testgo(x) {
           ${getRunnerIcon('clock')}
           <span class="timer-value runner-timer-value" id="runnerTimerValue">${formatRunnerTime(remainingSeconds)}</span>
         </div>
-        ${allowSectionNavigation && prevSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="-1">${getRunnerIcon('chevronLeft')} Алдыңғы пән</button>` : `<span class="header-btn disabled">Алдыңғы пән</span>`}
         <button class="header-btn header-subject" type="button">${escapeText(currentSection.title)}</button>
-        ${allowSectionNavigation && nextSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="1">Келесі пән ${getRunnerIcon('chevronRight')}</button>` : `<span class="header-btn disabled">Келесі пән</span>`}
       </div>
     `;
     progressRoot.innerHTML = itemsHtml;
@@ -2054,18 +2031,8 @@ function testgo(x) {
       });
     }
 
-    if (allowSectionNavigation) {
-      progressRoot.querySelectorAll('[data-section-step]').forEach((button) => {
-        button.addEventListener('click', () => {
-          const step = Number(button.getAttribute('data-section-step'));
-          if (!Number.isInteger(step)) return;
-          moveSection(step);
-        });
-      });
-    }
-
     const currentItem = progressRoot.querySelector('.runner-progress-item.current');
-    if (currentItem) {
+    if (currentItem && allowProgressScroll) {
       currentItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
     setRunnerTimerDisplay(remainingSeconds);
@@ -2170,7 +2137,9 @@ function testgo(x) {
     const q = test[current];
     const correctAnswer = q.correct;
     const answeredCount = getAnsweredCount();
-    renderRunnerHeader(answeredCount);
+    const shouldAutoScrollProgress = current !== lastRenderedQuestionIndex;
+    renderRunnerHeader(answeredCount, shouldAutoScrollProgress);
+    lastRenderedQuestionIndex = current;
 
     const questionBox = document.getElementById("question");
     questionBox.innerHTML = `<div class="question-number">${current + 1}</div>`;
@@ -2221,7 +2190,10 @@ function testgo(x) {
     const instantState = instantResults[current];
     shuffledOptions.forEach((ans, index) => {
       const btn = document.createElement("button");
+      btn.type = "button";
       btn.className = "answer";
+      btn.onmousedown = (event) => event.preventDefault();
+      btn.ontouchstart = () => {};
       btn.dataset.value = ans;
       const letter = document.createElement("div");
       letter.className = "answer-letter";
@@ -2261,7 +2233,10 @@ function testgo(x) {
     if (optionsWrap) {
       options.forEach((ans, index) => {
         const btn = document.createElement("button");
+        btn.type = "button";
         btn.className = "answer";
+        btn.onmousedown = (event) => event.preventDefault();
+        btn.ontouchstart = () => {};
         if (isAnswerMatch(selectedValue, ans)) btn.classList.add("selected");
         btn.dataset.value = ans;
         const letter = document.createElement("div");
@@ -2372,6 +2347,7 @@ function testgo(x) {
       return;
     }
 
+    if (btn && typeof btn.blur === 'function') btn.blur();
     const buttons = document.querySelectorAll(".answer");
     buttons.forEach(b => b.style.pointerEvents = "none");
     answers[current] = selected;

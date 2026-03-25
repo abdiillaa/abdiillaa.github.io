@@ -653,10 +653,20 @@ body.is-test-runner #app.container{
 }
 
 #app .runner-reference-body{
-  padding:16px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+  padding:12px;
+  display:block;
+  overflow:auto;
+}
+
+#app .runner-reference-image{
+  display:block;
+  width:auto;
+  min-width:100%;
+  height:auto;
+  max-width:none;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
 }
 
 #app .runner-reference-card{
@@ -2018,6 +2028,11 @@ body.is-test-runner #app .widget-window{
   min-width:300px;
 }
 
+body.is-test-runner #app #calc-widget{
+  width:320px;
+  min-width:320px;
+}
+
 body.is-test-runner #app .header-bar{
   padding:10px;
   cursor:move;
@@ -2030,11 +2045,16 @@ body.is-test-runner #app .header-bar{
 }
 
 body.is-test-runner #app .widget-close{
+  width:auto;
+  min-width:0;
+  margin-left:auto;
+  padding:0 2px;
   background:none;
   border:none;
   font-size:20px;
   cursor:pointer;
   color:#666;
+  flex:0 0 auto;
 }
 
 body.is-test-runner #app .widget-close:hover{
@@ -2065,6 +2085,11 @@ body.is-test-runner #app .main-input{
   outline:none;
 }
 
+body.is-test-runner #app #calc-widget .main-input{
+  height:46px;
+  font-size:30px;
+}
+
 body.is-test-runner #app .grid-layout{
   display:grid;
   grid-template-columns:repeat(4, 1fr);
@@ -2081,6 +2106,11 @@ body.is-test-runner #app .grid-layout button{
   cursor:pointer;
 }
 
+body.is-test-runner #app #calc-widget .grid-layout button{
+  padding:15px 0;
+  font-size:15px;
+}
+
 body.is-test-runner #app .grid-layout button:hover{
   background:#d0d0d0;
 }
@@ -2095,11 +2125,17 @@ body.is-test-runner #app .grid-layout .btn-equal{
 }
 
 body.is-test-runner #app .table-container{
-  width:85vw;
-  max-width:1200px;
-  max-height:70vh;
+  width:min(94vw, 1180px);
+  max-width:1180px;
+  max-height:78vh;
   overflow:auto;
-  padding:10px;
+  padding:8px;
+  overscroll-behavior:contain;
+  touch-action:pan-x pan-y;
+}
+
+body.is-test-runner #app .runner-reference-widget{
+  width:min(96vw, 1200px);
 }
 
 body.is-test-runner #app .finish-table{
@@ -2224,19 +2260,40 @@ body.is-test-runner #app .finish-btn.confirm{
     border-radius:16px;
   }
 
-  body.is-test-runner #app .navigation,
   body.is-test-runner #app .finish-actions{
     flex-direction:column;
     align-items:stretch;
   }
 
   body.is-test-runner #app .navigation{
-    display:flex;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  body.is-test-runner #app .nav-slot{
+    width:100%;
+  }
+
+  body.is-test-runner #app .nav-slot-center{
+    grid-column:1 / -1;
+    order:-1;
+  }
+
+  body.is-test-runner #app .nav-slot-left,
+  body.is-test-runner #app .nav-slot-right{
+    width:100%;
+  }
+
+  body.is-test-runner #app .nav-slot-right{
+    justify-content:stretch;
   }
 
   body.is-test-runner #app .nav-btn,
   body.is-test-runner #app .finish-btn{
     width:100%;
+    max-width:none;
+    min-width:0;
     justify-content:center;
   }
 
@@ -2256,11 +2313,26 @@ body.is-test-runner #app .finish-btn.confirm{
 
   body.is-test-runner #app .answer{
     padding:14px 12px;
+    gap:12px;
+    border-radius:14px;
   }
 
   body.is-test-runner #app .question-counter{
     text-align:center;
     width:100%;
+    padding:10px 12px;
+  }
+
+  body.is-test-runner #app .answer-letter{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    font-size:16px;
+  }
+
+  body.is-test-runner #app .answer-text{
+    font-size:15px;
+    line-height:1.4;
   }
 
   body.is-test-runner #app .widget-window{
@@ -2268,5 +2340,38 @@ body.is-test-runner #app .finish-btn.confirm{
     top:96px !important;
     width:calc(100vw - 24px);
     min-width:0;
+  }
+
+  body.is-test-runner #app #calc-widget{
+    width:min(280px, calc(100vw - 24px));
+    min-width:0;
+  }
+
+  body.is-test-runner #app #calc-widget .header-bar{
+    padding:8px 10px;
+  }
+
+  body.is-test-runner #app #calc-widget .screen-area{
+    padding:10px 8px;
+  }
+
+  body.is-test-runner #app #calc-widget .history-line{
+    font-size:11px;
+    height:16px;
+  }
+
+  body.is-test-runner #app #calc-widget .main-input{
+    height:40px;
+    font-size:24px;
+  }
+
+  body.is-test-runner #app #calc-widget .grid-layout{
+    gap:1px;
+    padding:1px;
+  }
+
+  body.is-test-runner #app #calc-widget .grid-layout button{
+    padding:12px 0;
+    font-size:14px;
   }
 }
