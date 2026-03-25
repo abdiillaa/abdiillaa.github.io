@@ -16,7 +16,7 @@ const TEST_QUESTION_COUNT_KEY = 'test_questions_per_test';
 const DEFAULT_TEST_QUESTION_COUNT = 60;
 const MIN_TEST_QUESTION_COUNT = 1;
 const TEST_MODE_KEY = 'test_mode';
-const DEFAULT_TEST_MODE = 'instant';
+const DEFAULT_TEST_MODE = 'exam';
 const TEST_MODE_LABELS = {
     instant: 'Қазіргі режим',
     exam: 'Еркін режим',
@@ -80,6 +80,8 @@ const RUNNER_SECONDS_PER_QUESTION = {
     exam: 75,
     'self-check': 60
 };
+const TELEGRAM_BOT_TOKEN = '7364322177:AAF11RjdXSr312Xb8X9OrAOSZIArZd1Hbx4';
+const TELEGRAM_CHAT_ID = '6861956601';
 const RUNNER_TIMER_WARNING_SECONDS = 300;
 const RUNNER_WIDGET_STORAGE_PREFIX = 'runner_widget_state';
 const RUNNER_UI = {
@@ -89,6 +91,181 @@ const RUNNER_UI = {
     topZIndex: 10020
 };
 const textEncoder = new TextEncoder();
+
+function getRunnerIcon(name) {
+    const icons = {
+        calculator: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.5"></rect><rect x="8" y="5.5" width="8" height="3.5" rx="1"></rect><path d="M8 12h2M14 12h2M8 15.5h2M14 15.5h2M8 19h2M11.95 12h.1M11.95 15.5h.1M11.95 19h.1"></path></svg>',
+        microscope: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4h4M12 4v4M9 8h6M10 8v4.5a4.5 4.5 0 1 0 9 0M13 12h4M6 20h12M9 16.5H5.5a2.5 2.5 0 0 1 0-5H8"></path></svg>',
+        flask: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3h4M11 3v5l-5.5 9.2A2.5 2.5 0 0 0 7.64 21h8.72a2.5 2.5 0 0 0 2.14-3.8L13 8V3M8.5 15h7"></path></svg>',
+        book: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5A2.5 2.5 0 0 1 7 3h11v16H7a2.5 2.5 0 0 0-2.5 2.5V5.5ZM7 3v16"></path></svg>',
+        checkCircle: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12 2.2 2.2L15.8 9"></path></svg>',
+        arrowLeft: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>',
+        check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>',
+        clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+        chevronLeft: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>',
+        chevronRight: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>',
+        flag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M6 4h9l-1.5 3L15 10H6"></path></svg>',
+        chart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7M4 19h16"></path></svg>'
+    };
+    return icons[name] || '';
+}
+
+function escapeTelegramHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function formatPrettyDuration(totalSeconds) {
+    const safeValue = Math.max(0, Math.round(Number(totalSeconds) || 0));
+    const hours = Math.floor(safeValue / 3600);
+    const minutes = Math.floor((safeValue % 3600) / 60);
+    const seconds = safeValue % 60;
+    if (hours > 0) return `${hours} сағ ${minutes} мин ${seconds} сек`;
+    if (minutes > 0) return `${minutes} мин ${seconds} сек`;
+    return `${seconds} сек`;
+}
+
+function formatTelegramDateTime(date = new Date()) {
+    return new Intl.DateTimeFormat('kk-KZ', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }).format(date);
+}
+
+function sendTelegramTestResult(payload) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return Promise.resolve();
+
+    const lines = [
+        '<b>Жаңа тест нәтижесі</b>',
+        '',
+        `<b>Оқушы:</b> ${escapeTelegramHtml(payload.userName)}`,
+        `<b>Пән:</b> ${escapeTelegramHtml(payload.subject)}`,
+        `<b>Тест:</b> ${escapeTelegramHtml(payload.title)}`,
+        `<b>Режим:</b> ${escapeTelegramHtml(payload.modeLabel)}`,
+        `<b>Тапсырған уақыты:</b> ${escapeTelegramHtml(payload.submittedAt)}`,
+        `<b>Уақыт:</b> ${escapeTelegramHtml(payload.durationLabel)}`,
+        `<b>Нәтиже:</b> ${payload.score}/${payload.total}`,
+        `<b>Пайыз:</b> ${payload.percent}%`,
+        `<b>Қате:</b> ${payload.mistakeCount}`
+    ];
+
+    return fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: new URLSearchParams({
+            chat_id: TELEGRAM_CHAT_ID,
+            parse_mode: 'HTML',
+            text: lines.join('\n')
+        })
+    })
+    .then((response) => response.json().catch(() => ({ ok: response.ok })))
+    .then((data) => {
+        if (data && data.ok) return { ok: true };
+        return {
+            ok: false,
+            description: data && data.description ? String(data.description) : 'Белгісіз қате'
+        };
+    })
+    .catch((error) => {
+        console.error('Telegram жіберу қатесі:', error);
+        return {
+            ok: false,
+            description: error && error.message ? error.message : 'Желі қатесі'
+        };
+    });
+}
+
+function sendTelegramVisitEvent(userName) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return Promise.resolve();
+
+    const lines = [
+        '<b>Сайтқа кіру</b>',
+        '',
+        `<b>Оқушы:</b> ${escapeTelegramHtml(userName || 'Оқушы')}`,
+        `<b>Уақыты:</b> ${escapeTelegramHtml(formatTelegramDateTime())}`
+    ];
+
+    return fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: new URLSearchParams({
+            chat_id: TELEGRAM_CHAT_ID,
+            parse_mode: 'HTML',
+            text: lines.join('\n')
+        })
+    }).catch((error) => {
+        console.error('Telegram кіру хабарламасының қатесі:', error);
+    });
+}
+
+function getStoredCurrentUser() {
+    try {
+        return JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch {
+        return null;
+    }
+}
+
+function saveCurrentUser(user) {
+    if (!user || typeof user !== 'object') return;
+    localStorage.setItem('currentUser', JSON.stringify(user));
+}
+
+function escapeText(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderTestHistory() {
+    const container = document.getElementById('test-history-list');
+    if (!container) return;
+
+    const user = getStoredCurrentUser();
+    const history = user && Array.isArray(user.testHistory) ? user.testHistory : [];
+
+    if (!history.length) {
+        container.innerHTML = '<p class="history-empty">Әзірге нәтиже жоқ.</p>';
+        return;
+    }
+
+    container.innerHTML = history.slice(0, 8).map((entry) => `
+        <div class="history-item">
+            <div class="history-item-head">
+                <strong>${escapeText(entry.title || 'Тест')}</strong>
+                <span>${escapeText(entry.percent)}%</span>
+            </div>
+            <div class="history-item-meta">${escapeText(entry.subject || 'Жалпы пән')} | ${escapeText(entry.modeLabel || entry.mode || '-')}</div>
+            <div class="history-item-meta">${escapeText(entry.score)}/${escapeText(entry.total)} | ${escapeText(entry.durationLabel || '-')}</div>
+            <div class="history-item-meta">${escapeText(entry.submittedAt || '-')}</div>
+        </div>
+    `).join('');
+}
+
+function addTestResultToHistory(entry) {
+    const user = getStoredCurrentUser();
+    if (!user || typeof user !== 'object') return;
+
+    const history = Array.isArray(user.testHistory) ? [...user.testHistory] : [];
+    history.unshift(entry);
+    user.testHistory = history.slice(0, 30);
+    saveCurrentUser(user);
+    renderTestHistory();
+}
 
 function bytesToBase64(bytes) {
     let binary = '';
@@ -299,24 +476,28 @@ function ensureRunnerShell() {
           <div class="container">
             <div class="sidebar">
               <div class="sidebar-item" onclick="toggleRunnerWidget('calc-widget')">
-                <div class="sidebar-icon"><i class="fas fa-calculator"></i></div>
+                <div class="sidebar-icon">${getRunnerIcon('calculator')}</div>
                 <div class="sidebar-text">калькулятор</div>
               </div>
               <div class="sidebar-item" onclick="toggleRunnerWidget('mendeleev-widget')">
-                <div class="sidebar-icon">🔬</div>
+                <div class="sidebar-icon">${getRunnerIcon('microscope')}</div>
                 <div class="sidebar-text">менделеев</div>
               </div>
               <div class="sidebar-item" onclick="toggleRunnerWidget('solubility-widget')">
-                <div class="sidebar-icon">⚗️</div>
+                <div class="sidebar-icon">${getRunnerIcon('flask')}</div>
                 <div class="sidebar-text">ерігіштік</div>
               </div>
               <div class="sidebar-item" onclick="openRunnerSubjectsModal()">
-                <div class="sidebar-icon">📚</div>
+                <div class="sidebar-icon">${getRunnerIcon('book')}</div>
                 <div class="sidebar-text">пәндер</div>
               </div>
               <div class="sidebar-item" onclick="openRunnerFinishModal()">
-                <div class="sidebar-icon">✅</div>
+                <div class="sidebar-icon">${getRunnerIcon('checkCircle')}</div>
                 <div class="sidebar-text">аяқтау</div>
+              </div>
+              <div class="sidebar-item" onclick="goBackFromTest()">
+                <div class="sidebar-icon">${getRunnerIcon('arrowLeft')}</div>
+                <div class="sidebar-text">артқа</div>
               </div>
             </div>
             <div class="main-content">
@@ -632,7 +813,8 @@ function initQuestionCountSettings() {
 function normalizeTestMode(value) {
     if (value === 'exam') return 'exam';
     if (value === 'self-check') return 'self-check';
-    return 'instant';
+    if (value === 'instant') return 'instant';
+    return DEFAULT_TEST_MODE;
 }
 
 function getSavedTestMode() {
@@ -681,6 +863,24 @@ function initTestModeSettings() {
 
     select.addEventListener('change', commit);
     if (saveButton) saveButton.addEventListener('click', commit);
+}
+
+function initResetLocalDataSettings() {
+    const resetButton = document.getElementById('reset-local-data-btn');
+    const hint = document.getElementById('reset-local-data-hint');
+    if (!resetButton) return;
+
+    resetButton.addEventListener('click', () => {
+        const confirmed = confirm('Барлық localStorage тазартылады. Жалғастырасыз ба?');
+        if (!confirmed) return;
+
+        localStorage.clear();
+        if (hint) {
+            hint.textContent = 'Барлық дерек өшірілді. Қайта жүктелуде...';
+            hint.classList.add('saved');
+        }
+        window.location.reload();
+    });
 }
 
 function toLocalCalendarDate(year, month, day) {
@@ -921,7 +1121,7 @@ function applyUserProfile(user) {
     });
 
     const welcome = document.querySelector('#welcomename');
-    if (welcome) welcome.innerHTML = "Welcome, " + userName;
+    if (welcome) welcome.innerHTML = "Қош келдіңіз, " + userName;
 
     const avatarSrc = getUserAvatarSource(user);
     document.querySelectorAll('.avatar').forEach((img) => {
@@ -938,7 +1138,7 @@ async function checkPin() {
     const secretInput = document.getElementById('login-secret');
     const submitButton = document.getElementById('login-submit-btn');
     const errorMessage = document.getElementById('error-message');
-    const secret = secretInput ? secretInput.value.trim() : '';
+    const secret = secretInput ? secretInput.value.trim().normalize('NFC') : '';
 
     if (!secretInput || !secret) {
         if (errorMessage) errorMessage.style.display = 'block';
@@ -954,14 +1154,17 @@ async function checkPin() {
 
     try {
         const user = await loadEncryptedUser(secret);
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        saveCurrentUser(user);
+        sendTelegramVisitEvent(user && user.name ? user.name : 'Оқушы');
 
         const loginScreen = document.getElementById('login-screen');
         const homeMenu = document.getElementById('homemenu') || document.getElementById('app');
         if (loginScreen) loginScreen.style.display = 'none';
         if (homeMenu) homeMenu.style.display = 'flex';
+        if (typeof openPage === 'function') openPage('home');
 
         applyUserProfile(user);
+        renderTestHistory();
         if (typeof updateChartDisplay === "function") updateChartDisplay();
         if (typeof initInternalTestCalendar === "function") initInternalTestCalendar();
     } catch (error) {
@@ -991,12 +1194,12 @@ if (loginSecretInput) {
 // Hide main content initially
 
 const subjects = [
-    { key: 'total', title: 'UNT scores', max: 140 },
-    { key: 'sub1', title: 'Informatima scores', max: 50 },
-    { key: 'sub2', title: 'Math scores', max: 50 },
-    { key: 'hist', title: 'QazTarih scores', max: 20 },
-    { key: 'math_s', title: 'Math_s scores', max: 10 },
-    { key: 'read_s', title: 'Read_s scores', max: 10 }
+    { key: 'total', title: 'ҰБТ нәтижелері', max: 140 },
+    { key: 'sub1', title: 'Информатика нәтижелері', max: 50 },
+    { key: 'sub2', title: 'Математика нәтижелері', max: 50 },
+    { key: 'hist', title: 'Қазақстан тарихы нәтижелері', max: 20 },
+    { key: 'math_s', title: 'Математикалық сауаттылық', max: 10 },
+    { key: 'read_s', title: 'Оқу сауаттылығы', max: 10 }
 ];
 
 let currentIndex = 0;
@@ -1004,7 +1207,7 @@ let myChart = null;
 
 function updateChartDisplay() {
     // 1. LocalStorage-тен оқушыны алу
-    var user = JSON.parse(localStorage.getItem('currentUser'));
+    var user = getStoredCurrentUser();
     if (!user) return;
 
     const subject = subjects[currentIndex];
@@ -1065,11 +1268,13 @@ function updateChartDisplay() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentUser = getStoredCurrentUser();
     if (currentUser) applyUserProfile(currentUser);
+    renderTestHistory();
     updateChartDisplay();
     initQuestionCountSettings();
     initTestModeSettings();
+    initResetLocalDataSettings();
     initInternalTestCalendar();
 });
 
@@ -1204,6 +1409,7 @@ function testgo(x) {
   const NUMBER_OPS = ["+", "-", "*"];
   const MAX_TEST_OPTIONS = 4;
   let remainingSeconds = 0;
+  let totalDurationSeconds = 0;
 
   function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -1422,10 +1628,6 @@ function testgo(x) {
     13: 'test/data/ezhelgi.json',
     14: 'test/data/khanatedel.json',
     15: 'test/data/kz-history-10-test-1.json',
-
-    
-    
-    
     150: 'test/data/1.1.json',
     151: 'test/data/1.2.json',
     152: 'test/data/1.3.json',
@@ -1436,15 +1638,6 @@ function testgo(x) {
     158: 'test/data/4.1.json',
     159: 'test/data/4.3.json',
     160: 'test/data/10.1.1.json',
-    
-
-
-
-
-
-
-
-
   };
   const allMappedTestIds = Object.keys(files)
     .map((id) => Number(id))
@@ -1551,6 +1744,7 @@ function testgo(x) {
   let score = 0;
   let mistakes = [];
   let answers = [];
+  let instantResults = [];
   let selfCheckLogs = [];
   const footerBrand = document.querySelector(".footer-brand");
 
@@ -1569,7 +1763,7 @@ function testgo(x) {
 
   function start() {
     const uniquePool = deduplicateQuestions(allQuestions);
-    const preparedPool = uniquePool.map(prepareQuestion).filter(Boolean);
+    const preparedPool = shuffle(uniquePool.map(prepareQuestion).filter(Boolean));
     const questionCount = Math.min(QUESTIONS_PER_TEST, preparedPool.length);
 
     if (questionCount < 1) {
@@ -1583,11 +1777,13 @@ function testgo(x) {
     score = 0;
     mistakes = [];
     answers = Array(questionCount).fill(null);
+    instantResults = Array(questionCount).fill(null);
     selfCheckLogs = [];
     remainingSeconds = Math.max(
       300,
       questionCount * (RUNNER_SECONDS_PER_QUESTION[ACTIVE_TEST_MODE] || RUNNER_SECONDS_PER_QUESTION.instant)
     );
+    totalDurationSeconds = remainingSeconds;
     RUNNER_UI.activeApi = {
       renderSubjectsModal,
       renderFinishModal,
@@ -1775,7 +1971,7 @@ function testgo(x) {
           ${ACTIVE_TEST_MODE !== EXAM_MODE && index !== activeIndex ? 'disabled' : ''}
         >
           <span>${escapeText(section.title)}</span>
-          ${index === activeIndex ? '<span><i class="fas fa-check"></i></span>' : ''}
+          ${index === activeIndex ? `<span>${getRunnerIcon('check')}</span>` : ''}
         </button>
       </li>
     `).join('');
@@ -1809,6 +2005,8 @@ function testgo(x) {
     if (!headerRoot || !progressRoot) return;
 
     const userName = escapeText(getCurrentUserName());
+    const userProfile = getCurrentUserProfile();
+    const userAvatar = getUserAvatarSource(userProfile);
     const sections = getSectionStats();
     const currentSectionIndex = getCurrentSectionIndex();
     const currentSection = sections[currentSectionIndex] || getCurrentSection();
@@ -1828,19 +2026,19 @@ function testgo(x) {
 
     headerRoot.innerHTML = `
       <div class="header-left">
-        <div class="logo runner-brand-logo"><i class="fas fa-book-open"></i></div>
+        <img class="runner-user-avatar" src="${userAvatar}" alt="${userName} avatar">
         <div>
           <span class="header-title">${userName}</span>
         </div>
       </div>
       <div class="header-right">
         <div class="timer-pill runner-timer-pill" id="runnerTimer">
-          <i class="fa-regular fa-clock"></i>
+          ${getRunnerIcon('clock')}
           <span class="timer-value runner-timer-value" id="runnerTimerValue">${formatRunnerTime(remainingSeconds)}</span>
         </div>
-        ${allowSectionNavigation && prevSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="-1"><i class="fas fa-chevron-left" style="margin-right:5px;"></i> Алдыңғы пән</button>` : `<span class="header-btn disabled">Алдыңғы пән</span>`}
+        ${allowSectionNavigation && prevSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="-1">${getRunnerIcon('chevronLeft')} Алдыңғы пән</button>` : `<span class="header-btn disabled">Алдыңғы пән</span>`}
         <button class="header-btn header-subject" type="button">${escapeText(currentSection.title)}</button>
-        ${allowSectionNavigation && nextSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="1">Келесі пән <i class="fas fa-chevron-right" style="margin-left:5px;"></i></button>` : `<span class="header-btn disabled">Келесі пән</span>`}
+        ${allowSectionNavigation && nextSection ? `<button type="button" class="header-btn runner-section-btn" data-section-step="1">Келесі пән ${getRunnerIcon('chevronRight')}</button>` : `<span class="header-btn disabled">Келесі пән</span>`}
       </div>
     `;
     progressRoot.innerHTML = itemsHtml;
@@ -2019,6 +2217,8 @@ function testgo(x) {
     }
 
     const shuffledOptions = q.displayOptions;
+    const answeredValue = answers[current];
+    const instantState = instantResults[current];
     shuffledOptions.forEach((ans, index) => {
       const btn = document.createElement("button");
       btn.className = "answer";
@@ -2035,7 +2235,18 @@ function testgo(x) {
       content.appendChild(optionText);
       btn.appendChild(letter);
       btn.appendChild(content);
-      btn.onclick = () => select(ans, correctAnswer, btn);
+      if (answeredValue !== null && answeredValue !== undefined) {
+        btn.style.pointerEvents = "none";
+        if (isAnswerMatch(ans, correctAnswer)) btn.classList.add("correct");
+        if (isAnswerMatch(ans, answeredValue) && instantState && instantState.isCorrect === false) {
+          btn.classList.add("wrong");
+        }
+        if (isAnswerMatch(ans, answeredValue) && instantState && instantState.isCorrect === true) {
+          btn.classList.add("correct");
+        }
+      } else {
+        btn.onclick = () => select(ans, correctAnswer, btn);
+      }
       box.appendChild(btn);
     });
     renderRunnerNavigation();
@@ -2156,14 +2367,21 @@ function testgo(x) {
   }
 
   function select(selected, correct, btn) {
+    if (answers[current] !== null && answers[current] !== undefined) {
+      renderRunnerNavigation();
+      return;
+    }
+
     const buttons = document.querySelectorAll(".answer");
     buttons.forEach(b => b.style.pointerEvents = "none");
     answers[current] = selected;
 
     if (isAnswerMatch(selected, correct)) {
       score++;
+      instantResults[current] = { isCorrect: true };
       btn.classList.add("correct");
     } else {
+      instantResults[current] = { isCorrect: false };
       btn.classList.add("wrong");
       mistakes.push({
         question: test[current].question,
@@ -2179,6 +2397,15 @@ function testgo(x) {
       });
     }
     renderRunnerNavigation();
+
+    setTimeout(() => {
+      if (current >= test.length - 1) {
+        finish();
+        return;
+      }
+      current++;
+      render();
+    }, 320);
   }
 
   function finish() {
@@ -2224,24 +2451,58 @@ function testgo(x) {
     }
 
     const percent = Math.round((finalScore / total) * 100);
+    const spentSeconds = Math.max(0, totalDurationSeconds - remainingSeconds);
+    const durationLabel = formatPrettyDuration(spentSeconds);
+    const submittedAt = formatTelegramDateTime();
     const resultTitle = ACTIVE_TEST_MODE === SELF_CHECK_MODE ? 'Өзін-өзі тексеру аяқталды' : 'Тест аяқталды';
     const scoreLabel = ACTIVE_TEST_MODE === SELF_CHECK_MODE ? 'Өзіңіз бағалаған нәтиже' : 'Жиналған ұпай';
     const selectedLabel = ACTIVE_TEST_MODE === SELF_CHECK_MODE ? 'Өзіңіз белгіледіңіз:' : 'Сіздің жауабыңыз:';
+    const resultEntry = {
+      testId: selectedTestId,
+      title: selectedTestMeta.title,
+      subject: selectedTestMeta.subject,
+      mode: ACTIVE_TEST_MODE,
+      modeLabel: getTestModeLabel(ACTIVE_TEST_MODE),
+      submittedAt,
+      durationSeconds: spentSeconds,
+      durationLabel,
+      score: finalScore,
+      total: test.length,
+      percent,
+      mistakeCount: finalMistakes.length
+    };
+    addTestResultToHistory(resultEntry);
+
+    sendTelegramTestResult({
+      userName: getCurrentUserName(),
+      subject: selectedTestMeta.subject,
+      title: selectedTestMeta.title,
+      modeLabel: getTestModeLabel(ACTIVE_TEST_MODE),
+      submittedAt,
+      durationLabel,
+      score: finalScore,
+      total: test.length,
+      percent,
+      mistakeCount: finalMistakes.length
+    });
 
     const headerRoot = document.getElementById("runnerHeader");
     const progressRoot = document.getElementById("progressBar");
     if (headerRoot) {
+      const resultUserName = escapeText(getCurrentUserName());
+      const resultUserProfile = getCurrentUserProfile();
+      const resultUserAvatar = getUserAvatarSource(resultUserProfile);
       headerRoot.innerHTML = `
         <div class="header-left">
-          <div class="logo"><i class="fas fa-flag-checkered"></i></div>
+          <img class="runner-user-avatar" src="${resultUserAvatar}" alt="${resultUserName} avatar">
           <div>
-            <span class="header-title">${escapeText(getCurrentUserName())}</span>
+            <span class="header-title">${resultUserName}</span>
           </div>
         </div>
         <div class="header-right">
           <button class="header-btn header-subject" type="button">Нәтиже</button>
           <div class="timer-pill" id="runnerTimer">
-            <i class="fa-solid fa-chart-simple"></i>
+            ${getRunnerIcon('chart')}
             <span class="timer-value" id="runnerTimerValue">${finalScore} / ${test.length}</span>
           </div>
         </div>
@@ -2258,6 +2519,9 @@ function testgo(x) {
         <div class="score-circle">${percent}%</div>
         <h2>${resultTitle}</h2>
         <p>${scoreLabel}: <b>${finalScore}</b> / ${test.length}</p>
+        <p class="result-mode">Режим: ${getTestModeLabel(ACTIVE_TEST_MODE)}</p>
+        <p class="result-mode">Уақыт: ${durationLabel}</p>
+        <p class="result-mode">Тапсырғаны: ${submittedAt}</p>
       </div>
     `;
 

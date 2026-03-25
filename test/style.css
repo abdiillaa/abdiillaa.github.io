@@ -990,6 +990,42 @@ body.is-test-runner #app.container{
   font-size:14px;
 }
 
+.history-section{
+  margin-top:28px;
+}
+
+.history-list{
+  display:grid;
+  gap:12px;
+  margin-top:14px;
+}
+
+.history-item{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:14px 16px;
+  box-shadow:var(--shadow);
+}
+
+.history-item-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:6px;
+}
+
+.history-item-meta{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:3px;
+}
+
+.history-empty{
+  color:var(--muted);
+}
+
 #app .retry-btn{
   margin-top:14px;
   border:none;
@@ -1400,6 +1436,16 @@ body.is-test-runner #app .header-left{
   gap:15px;
 }
 
+body.is-test-runner #app .runner-user-avatar{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  object-fit:cover;
+  display:block;
+  border:2px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.16);
+}
+
 body.is-test-runner #app .logo{
   width:40px;
   height:40px;
@@ -1590,6 +1636,33 @@ body.is-test-runner #app .sidebar-item:hover{
 
 body.is-test-runner #app .sidebar-icon{
   font-size:24px;
+}
+
+body.is-test-runner #app .sidebar-icon svg,
+body.is-test-runner #app .logo svg,
+body.is-test-runner #app .timer-pill svg,
+body.is-test-runner #app .runner-section-btn svg,
+body.is-test-runner #app .runner-subject-link svg{
+  width:1.1em;
+  height:1.1em;
+  display:inline-block;
+  vertical-align:middle;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+body.is-test-runner #app .sidebar-icon svg{
+  width:24px;
+  height:24px;
+}
+
+body.is-test-runner #app .timer-pill,
+body.is-test-runner #app .runner-section-btn,
+body.is-test-runner #app .runner-subject-link{
+  gap:8px;
 }
 
 body.is-test-runner #app .sidebar-text{
@@ -2088,15 +2161,24 @@ body.is-test-runner #app .finish-btn.confirm{
   body.is-test-runner #app > .container > .sidebar{
     width:100%;
     flex-direction:row;
-    gap:14px;
+    gap:10px;
     justify-content:space-between;
     border-right:none;
-    border-bottom:1px solid var(--line);
-    padding:14px 10px;
+    border-bottom:none;
+    padding:10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:10030;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:blur(14px);
+    box-shadow:0 -10px 24px rgba(15, 23, 42, .12);
+    overflow-x:auto;
   }
 
   body.is-test-runner #app > .container > .main-content{
-    padding:24px 16px;
+    padding:18px 12px 110px;
   }
 
   body.is-test-runner #app > .header{
@@ -2109,21 +2191,37 @@ body.is-test-runner #app .finish-btn.confirm{
   body.is-test-runner #app .header-right{
     width:100%;
     justify-content:flex-start;
+    gap:8px;
   }
 
   body.is-test-runner #app .header-subject,
   body.is-test-runner #app .timer-pill{
-    width:auto;
+    width:100%;
     max-width:100%;
     min-width:0;
   }
 
+  body.is-test-runner #app .header-btn{
+    width:100%;
+    justify-content:center;
+  }
+
+  body.is-test-runner #app .header-subject{
+    white-space:normal;
+    text-align:center;
+  }
+
   body.is-test-runner #app > .progress-bar{
     padding:12px 14px;
+    position:sticky;
+    top:0;
+    z-index:10010;
+    background:var(--surface);
   }
 
   body.is-test-runner #app .question-box{
-    padding:24px 16px;
+    padding:22px 14px;
+    border-radius:16px;
   }
 
   body.is-test-runner #app .navigation,
@@ -2144,6 +2242,25 @@ body.is-test-runner #app .finish-btn.confirm{
 
   body.is-test-runner #app .nav-btn-placeholder{
     display:none;
+  }
+
+  body.is-test-runner #app .sidebar-item{
+    min-width:72px;
+    padding:8px 6px;
+    flex:0 0 auto;
+  }
+
+  body.is-test-runner #app .sidebar-text{
+    font-size:11px;
+  }
+
+  body.is-test-runner #app .answer{
+    padding:14px 12px;
+  }
+
+  body.is-test-runner #app .question-counter{
+    text-align:center;
+    width:100%;
   }
 
   body.is-test-runner #app .widget-window{

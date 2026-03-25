@@ -34,7 +34,7 @@ body {
     width: 50px;
     height: 50px;
     background-color: #e0e0e0;
-    border-radius: 50%;
+    border-radius: 10px;
     object-fit: cover;
     border: 2px solid #dbe7f3;
     display: block;
@@ -184,6 +184,7 @@ h1 {
     background: #138595;
     border-color: #138595;
 }
+
 
 .quick-counts {
     display: flex;
@@ -475,42 +476,87 @@ h1 {
     .containers {
         flex-direction: column;
         height: auto;
-        align-items: stretch; /* Ensure proper alignment */
-        padding: 10px; /* Add padding for spacing */
-        padding-bottom: 200px;
+        align-items: stretch;
+        padding: 0;
+        margin-top: 0;
+        padding-bottom: 110px;
     }
 
     .sidebar {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid #ddd; /* Neutral border */
-        padding: 10px; /* Adjust padding */
+        border-bottom: 1px solid #ddd;
+        padding: 16px;
+        box-sizing: border-box;
     }
 
     .main-content {
-        padding: 10px; /* Adjust padding */
+        padding: 18px 14px 28px;
+        box-sizing: border-box;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 0;
+    }
+
+    .username {
+        margin-bottom: 0;
+        font-size: 18px;
+    }
+
+    .menu ul {
+        display: block;
+        margin-top: 16px;
     }
 
     .menu li {
-        font-size: 16px; /* Slightly smaller font size */
-        padding: 6px 0; /* Adjust padding */
+        font-size: 16px;
+        padding: 10px 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        text-align: left;
+        white-space: normal;
     }
 
     h1 {
-        font-size: 22px; /* Adjust heading size */
+        font-size: 24px;
+        margin-bottom: 24px;
     }
 
     .topics-list li {
-        font-size: 16px; /* Adjust font size */
-        margin-bottom: 8px; /* Adjust margin */
+        font-size: 16px;
+        margin-bottom: 10px;
+        padding: 10px 0;
     }
 
     .test-settings {
         max-width: 100%;
+        padding: 16px 14px;
     }
 
+    .test-settings-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .test-settings input,
     .test-settings select {
         min-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .test-settings button {
+        width: 100%;
     }
 
     .settings-panel {
@@ -540,6 +586,35 @@ h1 {
 
     .test-calendar-strip {
         grid-auto-columns: minmax(74px, 1fr);
+    }
+
+    .chart-switcher {
+        gap: 12px;
+    }
+
+    .chart-switcher h3 {
+        min-width: 0;
+        font-size: 1rem;
+    }
+
+    .materials-toolbar {
+        gap: 8px;
+    }
+
+    .subject-chip {
+        flex: 1 1 calc(50% - 8px);
+        text-align: center;
+    }
+
+    .materials-viewer-head,
+    .materials-viewer-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .materials-viewer-head h3,
+    #materials-viewer-page-info {
+        text-align: center;
     }
 }
 .chart-switcher {

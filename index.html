@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>ҰБТ дайындық</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.6">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css?v=20260301-1">
     <link rel="stylesheet" href="test/style.css?v=20260319-1">
     <link rel="manifest" href="manifest.json">
@@ -22,7 +22,7 @@
         <h3>Қош келдіңіз!</h3>
         <p>Кіру кодын енгізіңіз:</p>
         <div class="login-secret-wrap">
-            <input type="password" class="login-secret-input" id="login-secret" autocomplete="current-password" placeholder="Кіру коды">
+            <input type="password" class="login-secret-input" id="login-secret" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" placeholder="Кіру коды">
             <button type="button" id="login-submit-btn" onclick="checkPin()">Кіру</button>
         </div>
         <p id="error-message" style="color: #ff4d4d; display: none; margin-top: 15px; font-weight: bold;">
@@ -131,6 +131,30 @@
     button:hover {
         background-color: #23a2f6;
     }
+
+    @media (max-width: 768px) {
+        #login-screen {
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        .background {
+            width: 100%;
+            max-width: 360px;
+            height: 460px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 360px;
+            padding: 36px 20px;
+        }
+
+        .login-secret-input {
+            font-size: 18px;
+            height: 54px;
+        }
+    }
 </style>
 
     <div class="containers" id="homemenu" style="display: none;">
@@ -141,12 +165,13 @@
             </div>
             <nav class="menu">
                 <ul>
-                    <li onclick="openPage('home')" id="nav-home" class="active">Home</li>
-                <li onclick="openPage('profile')" id="nav-profile">Profile</li>
-                <li onclick="openPage('test')" id="nav-test">Test</li>
-                <li onclick="openPage('settings')" id="nav-settings">Settings</li>
-                <li onclick="openPage('ranking')" id="nav-ranking">Academic Ranking</li>
-                <li onclick="openPage('materials')" id="nav-materials">Study Materials</li>
+                    <li onclick="openPage('home')" id="nav-home" class="active">Басты бет</li>
+                <li onclick="openPage('profile')" id="nav-profile">Профиль</li>
+                <li onclick="openPage('test')" id="nav-test">Тест</li>
+                <li onclick="openPage('settings')" id="nav-settings">Баптаулар</li>
+                <li onclick="openPage('ranking')" id="nav-ranking">Рейтинг</li>
+                <li onclick="openPage('materials')" id="nav-materials">Оқу материалдары</li>
+                <li onclick="logoutUser()" id="nav-logout">Шығу</li>
                 </ul>
             </nav>
         </aside>
@@ -180,8 +205,8 @@
             </section>
 
             <section id="profile" class="content-page">
-                <h1 class="text-center">Profile</h1>
-                <h2 id="welcomename">Welcome, </h2>
+                <h1 class="text-center">Профиль</h1>
+                <h2 id="welcomename">Қош келдіңіз, </h2>
                 <div class="motivation-box">
                     <p>"Кодтағы қате (bug) — бұл жай ғана тәжірибе. ҰБТ-дағы қате де солай. Әр қате сені дұрыс шешімге жақындатады."</p>
                     <p>Әр дұрыс жауап — сіздің күшіңізді арттырады, әр қате — "жаудың" (ҰБТ-ның) сізге жасаған соққысы. Егер оқушы қатесімен жұмыс істесе, ол "жауды жеңген" болып есептеледі.</p>
@@ -190,14 +215,20 @@
                 <div class="chart-section">
     <div class="chart-switcher">
         <button onclick="prevChart()">&#10094;</button>
-        <h3 id="chartTitle">UNT scores</h3>
+        <h3 id="chartTitle">ҰБТ нәтижелері</h3>
         <button onclick="nextChart()">&#10095;</button>
     </div>
     
-    <div class="chart-container" style="height: 300px;">
+<div class="chart-container" style="height: 300px;">
         <canvas id="scoreChart"></canvas>
     </div>
 </div>
+                <div class="history-section">
+                    <h3>Соңғы нәтижелер</h3>
+                    <div id="test-history-list" class="history-list">
+                        <p class="history-empty">Әзірге нәтиже жоқ.</p>
+                    </div>
+                </div>
                 
                 
             </section>
@@ -244,7 +275,7 @@
             </ul>
             </section>
             <section id="settings" class="content-page settings-page">
-            <h1>Settings</h1>
+            <h1>Баптаулар</h1>
             <div class="settings-panel">
                 <div class="settings-hero">
                     <h2>Тест ұзындығы</h2>
@@ -278,6 +309,14 @@
                     </div>
                     <small id="test-mode-hint">Ағымдағы режим: Қазіргі режим (әр сұрақтан кейін бірден тексеру)</small>
                 </div>
+                <div class="test-settings danger-settings">
+                    <div class="test-settings-title">Толық тазалау</div>
+                    <p>Барлық сақталған дерек өшеді: қолданушы, тест баптаулары, виджет күйі және жергілікті кэш.</p>
+                    <div class="test-settings-row">
+                        <button id="reset-local-data-btn" type="button">Reset</button>
+                    </div>
+                    <small id="reset-local-data-hint">Қажет болса ғана қолданыңыз.</small>
+                </div>
             </div>
             </section>
             <section id="ranking" class="content-page">
@@ -304,7 +343,7 @@
             
             <section id="materials" class="content-page">
     <header class="materials-head">
-        <h1>Study Materials</h1>
+        <h1>Оқу материалдары</h1>
         <p>GitHub Pages (server жоқ): материалды кодпен JSON файлдарға толтырасыз.</p>
     </header>
 
@@ -702,6 +741,28 @@
             }
             if (pageId === 'materials') {
                 initMaterialsSection();
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('currentUser');
+            document.querySelectorAll('.content-page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.querySelectorAll('.menu li').forEach(li => {
+                li.classList.remove('active');
+            });
+            const homeMenu = document.getElementById('homemenu');
+            const loginScreen = document.getElementById('login-screen');
+            const secretInput = document.getElementById('login-secret');
+            const errorMessage = document.getElementById('error-message');
+
+            if (homeMenu) homeMenu.style.display = 'none';
+            if (loginScreen) loginScreen.style.display = 'flex';
+            if (errorMessage) errorMessage.style.display = 'none';
+            if (secretInput) {
+                secretInput.value = '';
+                secretInput.focus();
             }
         }
 
