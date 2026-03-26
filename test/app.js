@@ -141,6 +141,35 @@ function formatTelegramDateTime(date = new Date()) {
     }).format(date);
 }
 
+function detectDeviceDetails() {
+    const nav = typeof navigator !== 'undefined' ? navigator : null;
+    const userAgent = nav && nav.userAgent ? nav.userAgent : '';
+    const platform = nav && nav.platform ? nav.platform : '';
+
+    const deviceType = /iPad|Tablet|Android(?!.*Mobile)|Silk/i.test(userAgent)
+        ? 'Планшет'
+        : /Mobi|Android|iPhone|iPod/i.test(userAgent)
+            ? 'Телефон'
+            : 'Компьютер';
+
+    let osName = 'Белгісіз ОС';
+    if (/Windows NT/i.test(userAgent)) osName = 'Windows';
+    else if (/iPhone|iPad|iPod/i.test(userAgent)) osName = 'iOS';
+    else if (/Android/i.test(userAgent)) osName = 'Android';
+    else if (/Mac OS X|Macintosh/i.test(userAgent)) osName = 'macOS';
+    else if (/Linux/i.test(userAgent) || /X11/i.test(platform)) osName = 'Linux';
+
+    let browserName = 'Белгісіз браузер';
+    if (/Edg\//i.test(userAgent)) browserName = 'Edge';
+    else if (/OPR\//i.test(userAgent) || /Opera/i.test(userAgent)) browserName = 'Opera';
+    else if (/SamsungBrowser/i.test(userAgent)) browserName = 'Samsung Internet';
+    else if (/Chrome\//i.test(userAgent) && !/Edg\//i.test(userAgent) && !/OPR\//i.test(userAgent)) browserName = 'Chrome';
+    else if (/Firefox\//i.test(userAgent)) browserName = 'Firefox';
+    else if (/Safari\//i.test(userAgent) && !/Chrome\//i.test(userAgent) && !/Chromium\//i.test(userAgent)) browserName = 'Safari';
+
+    return `${deviceType} · ${osName} · ${browserName}`;
+}
+
 function sendTelegramTestResult(payload) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return Promise.resolve();
 
@@ -193,6 +222,7 @@ function sendTelegramVisitEvent(userName) {
         '<b>Сайтқа кіру</b>',
         '',
         `<b>Оқушы:</b> ${escapeTelegramHtml(userName || 'Оқушы')}`,
+        `<b>Құрылғы:</b> ${escapeTelegramHtml(detectDeviceDetails())}`,
         `<b>Уақыты:</b> ${escapeTelegramHtml(formatTelegramDateTime())}`
     ];
 
