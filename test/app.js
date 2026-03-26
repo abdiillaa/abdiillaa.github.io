@@ -165,11 +165,35 @@ function detectDeviceDetails() {
             : 'Компьютер';
 
     let osName = 'Белгісіз ОС';
-    if (/Windows NT/i.test(userAgent)) osName = 'Windows';
-    else if (/iPhone|iPad|iPod/i.test(userAgent)) osName = 'iOS';
-    else if (/Android/i.test(userAgent)) osName = 'Android';
-    else if (/Mac OS X|Macintosh/i.test(userAgent)) osName = 'macOS';
-    else if (/Linux/i.test(userAgent) || /X11/i.test(platform)) osName = 'Linux';
+    let osVersion = 'Белгісіз';
+    const windowsMatch = userAgent.match(/Windows NT ([0-9.]+)/i);
+    const iosMatch = userAgent.match(/OS ([0-9_]+)/i);
+    const androidMatch = userAgent.match(/Android ([0-9.]+)/i);
+    const macMatch = userAgent.match(/Mac OS X ([0-9_]+)/i);
+
+    if (windowsMatch) {
+        osName = 'Windows';
+        const windowsVersionMap = {
+            '10.0': '10/11',
+            '6.3': '8.1',
+            '6.2': '8',
+            '6.1': '7',
+            '6.0': 'Vista',
+            '5.1': 'XP'
+        };
+        osVersion = windowsVersionMap[windowsMatch[1]] || windowsMatch[1];
+    } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+        osName = 'iOS';
+        osVersion = iosMatch ? iosMatch[1].replace(/_/g, '.') : 'Белгісіз';
+    } else if (androidMatch) {
+        osName = 'Android';
+        osVersion = androidMatch[1];
+    } else if (macMatch || /Macintosh/i.test(userAgent)) {
+        osName = 'macOS';
+        osVersion = macMatch ? macMatch[1].replace(/_/g, '.') : 'Белгісіз';
+    } else if (/Linux/i.test(userAgent) || /X11/i.test(platform)) {
+        osName = 'Linux';
+    }
 
     let browserName = 'Белгісіз браузер';
     if (/Edg\//i.test(userAgent)) browserName = 'Edge';
@@ -183,6 +207,7 @@ function detectDeviceDetails() {
         summary: `${deviceType} · ${osName} · ${browserName}`,
         deviceType,
         osName,
+        osVersion,
         browserName,
         platform: platform || 'Белгісіз',
         language,
@@ -259,7 +284,7 @@ async function sendTelegramVisitEvent(userName) {
         '',
         `<b>Оқушы:</b> ${escapeTelegramHtml(userName || 'Оқушы')}`,
         `<b>Құрылғы:</b> ${escapeTelegramHtml(deviceInfo.summary)}`,
-        `<b>ОЖ:</b> ${escapeTelegramHtml(deviceInfo.osName)}`,
+        `<b>ОЖ:</b> ${escapeTelegramHtml(`${deviceInfo.osName} ${deviceInfo.osVersion}`.trim())}`,
         `<b>Браузер:</b> ${escapeTelegramHtml(deviceInfo.browserName)}`,
         `<b>Платформа:</b> ${escapeTelegramHtml(deviceInfo.platform)}`,
         `<b>Тіл:</b> ${escapeTelegramHtml(deviceInfo.language)}`,
