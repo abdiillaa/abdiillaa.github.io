@@ -8,15 +8,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="ҰБТ дайындық">
-    <link rel="stylesheet" href="style.css?v=20260301-1">
-    <link rel="stylesheet" href="test/style.css?v=20260319-1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="test/style.css">
     <link rel="manifest" href="manifest.json">
     <link rel="shortcut icon" href="1.png">
     <link rel="icon" type="image/png" sizes="32x32" href="1.png">
     <link rel="icon" type="image/png" sizes="192x192" href="1.png">
     <link rel="apple-touch-icon" href="1.png">
-    <script defer src="test/app.js?v=20260319-1"></script>
+    <script defer src="test/app.js"></script>
 <script src="chart.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch((error) => {
+                    console.error('Service Worker тіркелмеді:', error);
+                });
+            });
+        }
+    </script>
 
 </head>
 <body>
