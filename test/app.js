@@ -145,6 +145,18 @@ function detectDeviceDetails() {
     const nav = typeof navigator !== 'undefined' ? navigator : null;
     const userAgent = nav && nav.userAgent ? nav.userAgent : '';
     const platform = nav && nav.platform ? nav.platform : '';
+    const language = nav && nav.language ? nav.language : 'Белгісіз';
+    const vendor = nav && nav.vendor ? nav.vendor : 'Белгісіз';
+    const screenWidth = typeof screen !== 'undefined' && screen.width ? screen.width : 0;
+    const screenHeight = typeof screen !== 'undefined' && screen.height ? screen.height : 0;
+    const pixelRatio = typeof window !== 'undefined' && window.devicePixelRatio ? window.devicePixelRatio : 1;
+    const timezone = (() => {
+        try {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Белгісіз';
+        } catch {
+            return 'Белгісіз';
+        }
+    })();
 
     const deviceType = /iPad|Tablet|Android(?!.*Mobile)|Silk/i.test(userAgent)
         ? 'Планшет'
@@ -167,7 +179,29 @@ function detectDeviceDetails() {
     else if (/Firefox\//i.test(userAgent)) browserName = 'Firefox';
     else if (/Safari\//i.test(userAgent) && !/Chrome\//i.test(userAgent) && !/Chromium\//i.test(userAgent)) browserName = 'Safari';
 
-    return `${deviceType} · ${osName} · ${browserName}`;
+    return {
+        summary: `${deviceType} · ${osName} · ${browserName}`,
+        deviceType,
+        osName,
+        browserName,
+        platform: platform || 'Белгісіз',
+        language,
+        vendor,
+        resolution: screenWidth && screenHeight ? `${screenWidth}x${screenHeight}` : 'Белгісіз',
+        pixelRatio: String(pixelRatio || 1),
+        timezone,
+        userAgent: userAgent || 'Белгісіз'
+    };
+}
+
+function getPublicIpAddress() {
+    return fetch('https://api.ipify.org?format=json')
+        .then((response) => response.json())
+        .then((data) => {
+            if (data && data.ip) return String(data.ip);
+            return 'Анықталмады';
+        })
+        .catch(() => 'Анықталмады');
 }
 
 function sendTelegramTestResult(payload) {
@@ -215,14 +249,25 @@ function sendTelegramTestResult(payload) {
     });
 }
 
-function sendTelegramVisitEvent(userName) {
+async function sendTelegramVisitEvent(userName) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return Promise.resolve();
+    const deviceInfo = detectDeviceDetails();
+    const publicIp = await getPublicIpAddress();
 
     const lines = [
         '<b>Сайтқа кіру</b>',
         '',
         `<b>Оқушы:</b> ${escapeTelegramHtml(userName || 'Оқушы')}`,
-        `<b>Құрылғы:</b> ${escapeTelegramHtml(detectDeviceDetails())}`,
+        `<b>Құрылғы:</b> ${escapeTelegramHtml(deviceInfo.summary)}`,
+        `<b>ОЖ:</b> ${escapeTelegramHtml(deviceInfo.osName)}`,
+        `<b>Браузер:</b> ${escapeTelegramHtml(deviceInfo.browserName)}`,
+        `<b>Платформа:</b> ${escapeTelegramHtml(deviceInfo.platform)}`,
+        `<b>Тіл:</b> ${escapeTelegramHtml(deviceInfo.language)}`,
+        `<b>Vendor:</b> ${escapeTelegramHtml(deviceInfo.vendor)}`,
+        `<b>Экран:</b> ${escapeTelegramHtml(deviceInfo.resolution)} @${escapeTelegramHtml(deviceInfo.pixelRatio)}x`,
+        `<b>Timezone:</b> ${escapeTelegramHtml(deviceInfo.timezone)}`,
+        `<b>IP:</b> ${escapeTelegramHtml(publicIp)}`,
+        `<b>User-Agent:</b> ${escapeTelegramHtml(deviceInfo.userAgent)}`,
         `<b>Уақыты:</b> ${escapeTelegramHtml(formatTelegramDateTime())}`
     ];
 
