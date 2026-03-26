@@ -2191,6 +2191,24 @@ body.is-test-runner #app .finish-btn{
   font-weight:600;
 }
 
+/* Compact finish modal */
+#app .runner-finish-compact{
+  width:min(420px, calc(100vw - 24px));
+  padding:22px;
+}
+
+#app .runner-finish-summary{
+  margin-top:6px;
+  margin-bottom:8px;
+  font-size:15px;
+  font-weight:600;
+}
+
+@media (max-width: 900px){
+  #app .runner-finish-compact{ width:min(360px, calc(100vw - 16px)); padding:18px; }
+  #app .runner-finish-summary{ font-size:14px; }
+}
+
 body.is-test-runner #app .finish-btn.cancel{
   background:#ef4444;
   color:#fff;

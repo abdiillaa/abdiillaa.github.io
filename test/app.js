@@ -570,20 +570,10 @@ function ensureRunnerShell() {
           </div>
 
           <div id="runnerFinishModal" class="modal-overlay runner-modal-overlay" hidden onclick="closeRunnerFinishModal(event)">
-            <div class="modal-content runner-modal-content runner-modal-content-wide" onclick="event.stopPropagation()">
+            <div class="modal-content runner-modal-content runner-finish-compact" onclick="event.stopPropagation()">
               <button type="button" class="close-btn runner-close-btn" onclick="closeRunnerFinishModal()">&times;</button>
-              <div class="modal-title runner-modal-title">Берілген жауаптар саны:</div>
-              <table class="finish-table runner-finish-table">
-                <thead>
-                  <tr>
-                    <th>Бөлім</th>
-                    <th>Барлығы</th>
-                    <th>Жауап берілді</th>
-                    <th>Қалды</th>
-                  </tr>
-                </thead>
-                <tbody id="runnerFinishStatsBody"></tbody>
-              </table>
+              <div class="modal-title runner-modal-title">Аяқтайсыз ба?</div>
+              <div class="runner-finish-summary" id="runnerFinishSummary"></div>
               <div class="finish-actions runner-finish-actions">
                 <button type="button" class="finish-btn runner-finish-btn cancel" onclick="closeRunnerFinishModal()">Күшін жою</button>
                 <button type="button" class="finish-btn runner-finish-btn confirm" onclick="confirmRunnerFinish()">Растау</button>
@@ -2040,17 +2030,14 @@ function testgo(x) {
   }
 
   function renderFinishModal() {
-    const body = document.getElementById('runnerFinishStatsBody');
-    if (!body) return;
+    const summary = document.getElementById('runnerFinishSummary');
+    if (!summary) return;
 
-    body.innerHTML = getSectionStats().map((section) => `
-      <tr>
-        <td>${escapeText(section.title)}</td>
-        <td>${section.total}</td>
-        <td>${section.answered}</td>
-        <td class="cell-missed runner-cell-missed">${section.unanswered}</td>
-      </tr>
-    `).join('');
+    const stats = getSectionStats();
+    const total = stats.reduce((acc, s) => acc + s.total, 0);
+    const answered = stats.reduce((acc, s) => acc + s.answered, 0);
+    const left = total - answered;
+    summary.textContent = `Жауап берілді: ${answered} / ${total}. Қалды: ${left}.`;
   }
 
   function renderRunnerHeader(answeredCount, allowProgressScroll = true) {
