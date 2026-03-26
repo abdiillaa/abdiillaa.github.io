@@ -1,21 +1,33 @@
 {
-  "name": "Qazaqstan Tarikh",
-  "short_name": "Tarikh",
-  "description": "A web application about the history of Kazakhstan.",
+  "name": "ҰБТ дайындық",
+  "short_name": "ҰБТ",
+  "description": "ҰБТ-ға дайындалуға арналған оқу және тест платформасы.",
+  "lang": "kk",
+  "dir": "ltr",
   "start_url": "/index.html",
-  "display": "fullscreen",
-  "background_color": "#ffffff",
-  "theme_color": "#333333",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7faf9",
+  "theme_color": "#0f766e",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/1.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/1.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/4.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
