@@ -286,13 +286,9 @@ async function sendTelegramVisitEvent(userName) {
         `<b>Құрылғы:</b> ${escapeTelegramHtml(deviceInfo.summary)}`,
         `<b>ОЖ:</b> ${escapeTelegramHtml(`${deviceInfo.osName} ${deviceInfo.osVersion}`.trim())}`,
         `<b>Браузер:</b> ${escapeTelegramHtml(deviceInfo.browserName)}`,
-        `<b>Платформа:</b> ${escapeTelegramHtml(deviceInfo.platform)}`,
-        `<b>Тіл:</b> ${escapeTelegramHtml(deviceInfo.language)}`,
-        `<b>Vendor:</b> ${escapeTelegramHtml(deviceInfo.vendor)}`,
         `<b>Экран:</b> ${escapeTelegramHtml(deviceInfo.resolution)} @${escapeTelegramHtml(deviceInfo.pixelRatio)}x`,
         `<b>Timezone:</b> ${escapeTelegramHtml(deviceInfo.timezone)}`,
         `<b>IP:</b> ${escapeTelegramHtml(publicIp)}`,
-        `<b>User-Agent:</b> ${escapeTelegramHtml(deviceInfo.userAgent)}`,
         `<b>Уақыты:</b> ${escapeTelegramHtml(formatTelegramDateTime())}`
     ];
 
