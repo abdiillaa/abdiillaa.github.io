@@ -772,6 +772,32 @@ h1 {
     box-shadow: 0 8px 24px rgba(7, 28, 66, 0.06);
 }
 
+.materials-shortcut-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #d8e7de;
+    background: linear-gradient(135deg, #f4fffb, #eef8ff);
+    margin-bottom: 14px;
+}
+
+.materials-shortcut-card strong {
+    display: block;
+    font-size: 16px;
+    color: #1f3b5b;
+    margin-bottom: 4px;
+}
+
+.materials-shortcut-card p {
+    margin: 0;
+    color: #617487;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
 .materials-flow-row {
     display: grid;
     grid-template-columns: 170px 1fr auto;
@@ -1079,6 +1105,150 @@ h1 {
     background: #ebf5ff;
 }
 
+.feature-link-card {
+    margin-top: 24px;
+    padding: 20px 22px;
+    border-radius: 20px;
+    border: 1px solid #d7e5ee;
+    background:
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.12), transparent 34%),
+        linear-gradient(135deg, #ffffff, #f4fbff);
+    box-shadow: 0 12px 28px rgba(8, 36, 61, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.feature-link-eyebrow {
+    margin: 0 0 8px;
+    color: #0f766e;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.feature-link-card h3 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #1e2a37;
+}
+
+.feature-link-card p {
+    margin: 0;
+    color: #607486;
+    line-height: 1.55;
+}
+
+.feature-link-btn {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+}
+
+.formulas-page {
+    display: none;
+    font-family: "STIX Two Text", "Cambria", "Times New Roman", Georgia, serif;
+    color: #1f2430;
+}
+
+.formulas-page.active {
+    display: block;
+}
+
+.formulas-title {
+    margin: 0 0 16px;
+    font-size: 28px;
+    color: #1f2430;
+}
+
+.formulas-section {
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #dfe5ec;
+    background: #ffffff;
+    box-shadow: none;
+}
+
+.formulas-section-head {
+    margin-bottom: 10px;
+}
+
+.formulas-section-head h2 {
+    margin: 0;
+    font-size: 21px;
+    color: #213245;
+    letter-spacing: 0;
+}
+
+.formula-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.formula-card {
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #d9e1ea;
+    background: #fcfdff;
+}
+
+.formula-card h3 {
+    margin: 0 0 10px;
+    color: #1f4f7b;
+    font-size: 15px;
+    font-family: "Segoe UI", "Arial", sans-serif;
+    font-weight: 700;
+}
+
+.formula-list {
+    display: grid;
+    gap: 10px;
+}
+
+.formula-item {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e3e8ee;
+}
+
+.formula-item:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.label {
+    display: block;
+    margin-bottom: 6px;
+    color: #5c6c7d;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: "Segoe UI", "Arial", sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.expr {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.45;
+    color: #1f2430;
+    word-break: normal;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.expr-small {
+    font-size: 15px;
+}
+
+.expr math {
+    font-size: 1em;
+    font-family: "STIX Two Math", "Cambria Math", "STIX Two Text", serif;
+}
+
 @media (max-width: 860px) {
     .subject-head {
         flex-direction: column;
@@ -1087,6 +1257,29 @@ h1 {
 
     .materials-flow-row {
         grid-template-columns: 1fr;
+    }
+
+    .materials-shortcut-card,
+    .feature-link-card,
+    .formulas-section-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .formulas-title {
+        font-size: 24px;
+    }
+
+    .formula-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .expr {
+        font-size: 16px;
+    }
+
+    .expr-small {
+        font-size: 14px;
     }
 }
 

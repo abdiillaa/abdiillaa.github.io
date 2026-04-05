@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Математика формулалар</title>
+    <meta name="theme-color" content="#0f766e">
+    <style>
+        :root {
+            --bg: #f3f8fb;
+            --bg-strong: #e7f1f5;
+            --card: rgba(255, 255, 255, 0.9);
+            --text: #183042;
+            --muted: #5f7385;
+            --line: #d6e4ed;
+            --accent: #0f766e;
+            --accent-soft: #d9f3ee;
+            --accent-2: #1f6fb2;
+            --shadow: 0 18px 40px rgba(16, 50, 76, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(31, 111, 178, 0.14), transparent 30%),
+                radial-gradient(circle at top right, rgba(15, 118, 110, 0.16), transparent 28%),
+                linear-gradient(180deg, #f8fbfd 0%, var(--bg) 52%, var(--bg-strong) 100%);
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .page {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 56px;
+        }
+
+        .hero {
+            padding: 32px;
+            border-radius: 28px;
+            background:
+                linear-gradient(135deg, rgba(15, 118, 110, 0.95), rgba(31, 111, 178, 0.94)),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+            color: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero h1 {
+            margin: 14px 0 10px;
+            font-size: clamp(32px, 5vw, 52px);
+            line-height: 1.05;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 760px;
+            font-size: 17px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .jump-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .jump-link {
+            text-decoration: none;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .notice {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.92);
+            line-height: 1.55;
+        }
+
+        .section {
+            margin-top: 22px;
+            padding: 24px;
+            border-radius: 24px;
+            background: var(--card);
+            border: 1px solid rgba(214, 228, 237, 0.95);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .section h2 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .section-tag {
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .formula-card {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .formula-card h3 {
+            margin: 0 0 12px;
+            font-size: 17px;
+            color: var(--accent-2);
+        }
+
+        .formula-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .formula-item {
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #dbe6ee;
+        }
+
+        .formula-item:last-child {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .expr {
+            margin: 0;
+            font-size: 21px;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .expr.small {
+            font-size: 18px;
+        }
+
+        .note-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .note-card {
+            padding: 16px;
+            border-radius: 18px;
+            background: #f8fbfd;
+            border: 1px solid var(--line);
+        }
+
+        .note-card h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+
+        .note-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                width: min(100% - 20px, 1180px);
+                padding-top: 14px;
+            }
+
+            .hero,
+            .section {
+                padding: 20px;
+                border-radius: 22px;
+            }
+
+            .expr {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header class="hero">
+            <div class="hero-top">
+                <a class="back-link" href="index.html">← Басты бетке қайту</a>
+                <div class="section-tag">ҰБТ шпаргалка</div>
+            </div>
+            <h1>Математика формулалар</h1>
+            <p>ҰБТ-да жиі кездесетін негізгі формулалар осы бетке топтастырылды. Бұл жинақ тез қайталауға арналған: алгебра, теңдеулер, тригонометрия, геометрия, прогрессия, комбинаторика және ықтималдық.</p>
+
+            <nav class="jump-grid">
+                <a class="jump-link" href="#algebra">Алгебра</a>
+                <a class="jump-link" href="#equations">Теңдеулер</a>
+                <a class="jump-link" href="#trigonometry">Тригонометрия</a>
+                <a class="jump-link" href="#geometry">Геометрия</a>
+                <a class="jump-link" href="#stereometry">Стереометрия</a>
+                <a class="jump-link" href="#progressions">Прогрессия</a>
+                <a class="jump-link" href="#probability">Ықтималдық</a>
+            </nav>
+
+            <div class="notice">
+                Белгілеулер: <strong>S</strong> ауданы, <strong>V</strong> көлем, <strong>p</strong> жарты периметр, <strong>n</strong> мүше саны, <strong>q</strong> еселігі, <strong>d</strong> айырмасы, <strong>C</strong> бұрыш.
+            </div>
+        </header>
+
+        <section class="section" id="algebra">
+            <div class="section-head">
+                <h2>Алгебра</h2>
+                <div class="section-tag">Негізгі түрлендірулер</div>
+            </div>
+            <div class="formula-grid">
+                <article class="formula-card">
+                    <h3>Қысқаша көбейту формулалары</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Квадрат қосындысы</span><p class="expr">(a + b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup></p></div>
+                        <div class="formula-item"><span class="label">Квадрат айырмасы</span><p class="expr">(a - b)<sup>2</sup> = a<sup>2</sup> - 2ab + b<sup>2</sup></p></div>
+                        <div class="formula-item"><span class="label">Айырма көбейтіндісі</span><p class="expr">(a + b)(a - b) = a<sup>2</sup> - b<sup>2</sup></p></div>
+                        <div class="formula-item"><span class="label">Куб қосындысы</span><p class="expr">(a + b)<sup>3</sup> = a<sup>3</sup> + 3a<sup>2</sup>b + 3ab<sup>2</sup> + b<sup>3</sup></p></div>
+                        <div class="formula-item"><span class="label">Куб айырмасы</span><p class="expr">(a - b)<sup>3</sup> = a<sup>3</sup> - 3a<sup>2</sup>b + 3ab<sup>2</sup> - b<sup>3</sup></p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Кубтар формуласы</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Кубтар айырмасы</span><p class="expr">a<sup>3</sup> - b<sup>3</sup> = (a - b)(a<sup>2</sup> + ab + b<sup>2</sup>)</p></div>
+                        <div class="formula-item"><span class="label">Кубтар қосындысы</span><p class="expr">a<sup>3</sup> + b<sup>3</sup> = (a + b)(a<sup>2</sup> - ab + b<sup>2</sup>)</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Дәреже және түбір</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Көбейту</span><p class="expr">a<sup>m</sup> · a<sup>n</sup> = a<sup>m+n</sup></p></div>
+                        <div class="formula-item"><span class="label">Бөлу</span><p class="expr">a<sup>m</sup> / a<sup>n</sup> = a<sup>m-n</sup></p></div>
+                        <div class="formula-item"><span class="label">Дәреженің дәрежесі</span><p class="expr">(a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup></p></div>
+                        <div class="formula-item"><span class="label">Көбейтіндінің дәрежесі</span><p class="expr">(ab)<sup>n</sup> = a<sup>n</sup>b<sup>n</sup></p></div>
+                        <div class="formula-item"><span class="label">Теріс дәреже</span><p class="expr">a<sup>-n</sup> = 1 / a<sup>n</sup></p></div>
+                        <div class="formula-item"><span class="label">Түбір</span><p class="expr">√ab = √a · √b,  √(a / b) = √a / √b</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Логарифм</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Негізгі мәндер</span><p class="expr">log<sub>a</sub>1 = 0,  log<sub>a</sub>a = 1</p></div>
+                        <div class="formula-item"><span class="label">Көбейтінді</span><p class="expr">log<sub>a</sub>(bc) = log<sub>a</sub>b + log<sub>a</sub>c</p></div>
+                        <div class="formula-item"><span class="label">Бөлінді</span><p class="expr">log<sub>a</sub>(b / c) = log<sub>a</sub>b - log<sub>a</sub>c</p></div>
+                        <div class="formula-item"><span class="label">Дәреже</span><p class="expr">log<sub>a</sub>b<sup>n</sup> = n log<sub>a</sub>b</p></div>
+                        <div class="formula-item"><span class="label">Негізді ауыстыру</span><p class="expr">log<sub>a</sub>b = log<sub>c</sub>b / log<sub>c</sub>a</p></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="equations">
+            <div class="section-head">
+                <h2>Теңдеулер мен тізбектер</h2>
+                <div class="section-tag">Квадрат, Виет, модуль</div>
+            </div>
+            <div class="formula-grid">
+                <article class="formula-card">
+                    <h3>Квадрат теңдеу</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Жалпы түрі</span><p class="expr">ax<sup>2</sup> + bx + c = 0,  a ≠ 0</p></div>
+                        <div class="formula-item"><span class="label">Дискриминант</span><p class="expr">D = b<sup>2</sup> - 4ac</p></div>
+                        <div class="formula-item"><span class="label">Түбірлер</span><p class="expr">x<sub>1,2</sub> = (-b ± √D) / 2a</p></div>
+                        <div class="formula-item"><span class="label">Толымсыз түрлер</span><p class="expr small">ax<sup>2</sup> + bx = 0 → x(ax + b) = 0</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Виет теоремасы</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Түбірлер қосындысы</span><p class="expr">x<sub>1</sub> + x<sub>2</sub> = -b / a</p></div>
+                        <div class="formula-item"><span class="label">Түбірлер көбейтіндісі</span><p class="expr">x<sub>1</sub>x<sub>2</sub> = c / a</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Модуль</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Анықтама</span><p class="expr">|x| = x, x ≥ 0;  |x| = -x, x &lt; 0</p></div>
+                        <div class="formula-item"><span class="label">Негізгі қасиет</span><p class="expr">|ab| = |a|·|b|,  |a / b| = |a| / |b|</p></div>
+                        <div class="formula-item"><span class="label">Арақашықтық</span><p class="expr">|x - a| = d</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Функция және график</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Түзу сызық</span><p class="expr">y = kx + b</p></div>
+                        <div class="formula-item"><span class="label">Парабола төбесі</span><p class="expr">x<sub>0</sub> = -b / 2a,  y<sub>0</sub> = -D / 4a</p></div>
+                        <div class="formula-item"><span class="label">Қашықтық формуласы</span><p class="expr">d = √((x<sub>2</sub> - x<sub>1</sub>)<sup>2</sup> + (y<sub>2</sub> - y<sub>1</sub>)<sup>2</sup>)</p></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="trigonometry">
+            <div class="section-head">
+                <h2>Тригонометрия</h2>
+                <div class="section-tag">sin, cos, tg</div>
+            </div>
+            <div class="formula-grid">
+                <article class="formula-card">
+                    <h3>Негізгі теңдіктер</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Пифагорлық теңдік</span><p class="expr">sin<sup>2</sup>x + cos<sup>2</sup>x = 1</p></div>
+                        <div class="formula-item"><span class="label">Тангенс</span><p class="expr">tg x = sin x / cos x</p></div>
+                        <div class="formula-item"><span class="label">Котангенс</span><p class="expr">ctg x = cos x / sin x</p></div>
+                        <div class="formula-item"><span class="label">Қосымша теңдіктер</span><p class="expr">1 + tg<sup>2</sup>x = 1 / cos<sup>2</sup>x</p></div>
+                        <div class="formula-item"><span class="label">Қосымша теңдіктер</span><p class="expr">1 + ctg<sup>2</sup>x = 1 / sin<sup>2</sup>x</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Қосу және айыру</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Синус</span><p class="expr small">sin(α ± β) = sin α cos β ± cos α sin β</p></div>
+                        <div class="formula-item"><span class="label">Косинус</span><p class="expr small">cos(α ± β) = cos α cos β ∓ sin α sin β</p></div>
+                        <div class="formula-item"><span class="label">Тангенс</span><p class="expr small">tg(α ± β) = (tg α ± tg β) / (1 ∓ tg α tg β)</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Қос бұрыш және жарты бұрыш</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Синус</span><p class="expr">sin 2x = 2 sin x cos x</p></div>
+                        <div class="formula-item"><span class="label">Косинус</span><p class="expr">cos 2x = cos<sup>2</sup>x - sin<sup>2</sup>x</p></div>
+                        <div class="formula-item"><span class="label">Балама түрлері</span><p class="expr">cos 2x = 2cos<sup>2</sup>x - 1 = 1 - 2sin<sup>2</sup>x</p></div>
+                        <div class="formula-item"><span class="label">Жарты бұрыш</span><p class="expr">sin<sup>2</sup>x = (1 - cos 2x) / 2</p></div>
+                        <div class="formula-item"><span class="label">Жарты бұрыш</span><p class="expr">cos<sup>2</sup>x = (1 + cos 2x) / 2</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Негізгі мәндер</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">30°</span><p class="expr">sin 30° = 1 / 2,  cos 30° = √3 / 2,  tg 30° = √3 / 3</p></div>
+                        <div class="formula-item"><span class="label">45°</span><p class="expr">sin 45° = cos 45° = √2 / 2,  tg 45° = 1</p></div>
+                        <div class="formula-item"><span class="label">60°</span><p class="expr">sin 60° = √3 / 2,  cos 60° = 1 / 2,  tg 60° = √3</p></div>
+                        <div class="formula-item"><span class="label">Радиан</span><p class="expr">180° = π рад,  90° = π / 2</p></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="geometry">
+            <div class="section-head">
+                <h2>Жазықтық геометриясы</h2>
+                <div class="section-tag">Үшбұрыш, шеңбер, көпбұрыш</div>
+            </div>
+            <div class="formula-grid">
+                <article class="formula-card">
+                    <h3>Үшбұрыш</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Периметр</span><p class="expr">P = a + b + c</p></div>
+                        <div class="formula-item"><span class="label">Жарты периметр</span><p class="expr">p = (a + b + c) / 2</p></div>
+                        <div class="formula-item"><span class="label">Аудан</span><p class="expr">S = 1 / 2 · a · h</p></div>
+                        <div class="formula-item"><span class="label">Екі қабырға және бұрыш</span><p class="expr">S = 1 / 2 · ab sin C</p></div>
+                        <div class="formula-item"><span class="label">Герон формуласы</span><p class="expr">S = √(p(p - a)(p - b)(p - c))</p></div>
+                        <div class="formula-item"><span class="label">Пифагор теоремасы</span><p class="expr">c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup></p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Үшбұрыш теоремалары</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Синустар теоремасы</span><p class="expr">a / sin A = b / sin B = c / sin C = 2R</p></div>
+                        <div class="formula-item"><span class="label">Косинустар теоремасы</span><p class="expr">c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup> - 2ab cos C</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Төртбұрыштар</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Тік төртбұрыш</span><p class="expr">S = ab,  P = 2(a + b)</p></div>
+                        <div class="formula-item"><span class="label">Шаршы</span><p class="expr">S = a<sup>2</sup>,  P = 4a,  d = a√2</p></div>
+                        <div class="formula-item"><span class="label">Параллелограмм</span><p class="expr">S = a · h = ab sin α</p></div>
+                        <div class="formula-item"><span class="label">Ромб</span><p class="expr">S = 1 / 2 · d<sub>1</sub>d<sub>2</sub></p></div>
+                        <div class="formula-item"><span class="label">Трапеция</span><p class="expr">S = (a + b)h / 2</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Шеңбер</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Ұзындығы</span><p class="expr">L = 2πr = πd</p></div>
+                        <div class="formula-item"><span class="label">Ауданы</span><p class="expr">S = πr<sup>2</sup></p></div>
+                        <div class="formula-item"><span class="label">Доға ұзындығы</span><p class="expr">l = πrα / 180°</p></div>
+                        <div class="formula-item"><span class="label">Сектор ауданы</span><p class="expr">S = πr<sup>2</sup>α / 360°</p></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="stereometry">
+            <div class="section-head">
+                <h2>Стереометрия</h2>
+                <div class="section-tag">Көлем мен толық бет</div>
+            </div>
+            <div class="formula-grid">
+                <article class="formula-card">
+                    <h3>Призма және параллелепипед</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Призма көлемі</span><p class="expr">V = S<sub>табан</sub> · h</p></div>
+                        <div class="formula-item"><span class="label">Тікбұрышты параллелепипед</span><p class="expr">V = abc</p></div>
+                        <div class="formula-item"><span class="label">Толық бет</span><p class="expr">S = 2(ab + bc + ac)</p></div>
+                        <div class="formula-item"><span class="label">Диагональ</span><p class="expr">d = √(a<sup>2</sup> + b<sup>2</sup> + c<sup>2</sup>)</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Цилиндр және конус</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Цилиндр көлемі</span><p class="expr">V = πr<sup>2</sup>h</p></div>
+                        <div class="formula-item"><span class="label">Цилиндр толық беті</span><p class="expr">S = 2πr(r + h)</p></div>
+                        <div class="formula-item"><span class="label">Конус көлемі</span><p class="expr">V = 1 / 3 · πr<sup>2</sup>h</p></div>
+                        <div class="formula-item"><span class="label">Конус толық беті</span><p class="expr">S = πr(r + l)</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Шар</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Көлемі</span><p class="expr">V = 4 / 3 · πr<sup>3</sup></p></div>
+                        <div class="formula-item"><span class="label">Бет ауданы</span><p class="expr">S = 4πr<sup>2</sup></p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Пирамида</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Көлемі</span><p class="expr">V = 1 / 3 · S<sub>табан</sub> · h</p></div>
+                        <div class="formula-item"><span class="label">Бүйір беті</span><p class="expr">S<sub>бүйір</sub> = 1 / 2 · P<sub>табан</sub> · l</p></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="progressions">
+            <div class="section-head">
+                <h2>Прогрессиялар</h2>
+                <div class="section-tag">Арифметикалық және геометриялық</div>
+            </div>
+            <div class="formula-grid">
+                <article class="formula-card">
+                    <h3>Арифметикалық прогрессия</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">n-ші мүшесі</span><p class="expr">a<sub>n</sub> = a<sub>1</sub> + (n - 1)d</p></div>
+                        <div class="formula-item"><span class="label">Айырмасы</span><p class="expr">d = a<sub>n+1</sub> - a<sub>n</sub></p></div>
+                        <div class="formula-item"><span class="label">Қосындысы</span><p class="expr">S<sub>n</sub> = (a<sub>1</sub> + a<sub>n</sub>)n / 2</p></div>
+                        <div class="formula-item"><span class="label">Балама түрі</span><p class="expr">S<sub>n</sub> = (2a<sub>1</sub> + (n - 1)d)n / 2</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Геометриялық прогрессия</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">n-ші мүшесі</span><p class="expr">b<sub>n</sub> = b<sub>1</sub>q<sup>n-1</sup></p></div>
+                        <div class="formula-item"><span class="label">Еселігі</span><p class="expr">q = b<sub>n+1</sub> / b<sub>n</sub></p></div>
+                        <div class="formula-item"><span class="label">Қосындысы</span><p class="expr">S<sub>n</sub> = b<sub>1</sub>(q<sup>n</sup> - 1) / (q - 1)</p></div>
+                        <div class="formula-item"><span class="label">Шексіз кемімелі</span><p class="expr">S = b<sub>1</sub> / (1 - q),  |q| &lt; 1</p></div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="probability">
+            <div class="section-head">
+                <h2>Комбинаторика және ықтималдық</h2>
+                <div class="section-tag">Санау формулалары</div>
+            </div>
+            <div class="formula-grid">
+                <article class="formula-card">
+                    <h3>Факториал және орналастыру</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Факториал</span><p class="expr">n! = 1 · 2 · 3 · ... · n</p></div>
+                        <div class="formula-item"><span class="label">Алмастыру</span><p class="expr">P<sub>n</sub> = n!</p></div>
+                        <div class="formula-item"><span class="label">Орналастыру</span><p class="expr">A<sub>n</sub><sup>k</sup> = n! / (n - k)!</p></div>
+                        <div class="formula-item"><span class="label">Теріп алу</span><p class="expr">C<sub>n</sub><sup>k</sup> = n! / (k!(n - k)!)</p></div>
+                    </div>
+                </article>
+
+                <article class="formula-card">
+                    <h3>Ықтималдық</h3>
+                    <div class="formula-list">
+                        <div class="formula-item"><span class="label">Классикалық формула</span><p class="expr">P(A) = m / n</p></div>
+                        <div class="formula-item"><span class="label">Қарама-қарсы оқиға</span><p class="expr">P(Ā) = 1 - P(A)</p></div>
+                        <div class="formula-item"><span class="label">Қосу формуласы</span><p class="expr">P(A + B) = P(A) + P(B) - P(AB)</p></div>
+                        <div class="formula-item"><span class="label">Көбейту формуласы</span><p class="expr">P(AB) = P(A) · P(B), тәуелсіз болса</p></div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="note-grid">
+                <article class="note-card">
+                    <h3>Тез есте сақтау</h3>
+                    <p>Квадрат теңдеуде алдымен D табыңыз. Үшбұрыш есептерінде аудан үшін көбіне <strong>1 / 2 · ah</strong>, ал бұрыш берілсе <strong>1 / 2 · ab sin C</strong> формуласын тексеріңіз.</p>
+                </article>
+                <article class="note-card">
+                    <h3>Тригонометрия кеңесі</h3>
+                    <p>Көп есепте <strong>sin<sup>2</sup>x + cos<sup>2</sup>x = 1</strong> және <strong>sin 2x = 2 sin x cos x</strong> формулалары негізгі қысқарту құралы болады.</p>
+                </article>
+                <article class="note-card">
+                    <h3>Прогрессия кеңесі</h3>
+                    <p>Айырмасы бірдей болса арифметикалық, еселігі бірдей болса геометриялық прогрессия. Есепті бастамас бұрын осыны ажыратып алыңыз.</p>
+                </article>
+            </div>
+        </section>
+
+        <div class="footer">
+            Бұл бет тез қайталау үшін жасалды. Қаласаңыз, келесі қадамда осы бетке формулаларды суретпен, тақырыптық фильтрмен немесе іздеумен де кеңейтіп бере аламын.
+        </div>
+    </div>
+</body>
+</html>
