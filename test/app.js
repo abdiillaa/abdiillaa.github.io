@@ -1771,6 +1771,7 @@ function testgo(x) {
     16: 'test/data/eset.json',
     17: 'test/data/67-68.json',
     18: 'test/data/koterilis.json',
+    19: 'test/data/XiX60-70.json',
     150: 'test/data/1.1.json',
     151: 'test/data/1.2.json',
     152: 'test/data/1.3.json',
