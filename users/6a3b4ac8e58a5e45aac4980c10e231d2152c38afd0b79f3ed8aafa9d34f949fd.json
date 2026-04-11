@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "kdf": "PBKDF2-SHA256",
+  "cipher": "AES-256-GCM",
+  "iterations": 250000,
+  "salt_b64": "BfCZ0MQDocCq2crXhtNJPw==",
+  "iv_b64": "KOqcCECvEsNXoq1r",
+  "ciphertext_b64": "Oh63mCkNJREvehXIgILI82zbq6TDTF5I3QgDzF5IPAcvgzeOiRyWRH+dYHQlm+lMJHZm4v3jDzyxdWDrwPOEqU2YHxTpOVzC6BnCct0Of/xLyLCFr7tMMEFC9/z3d8+xuAP0OhjZ9kfUylwNUNq+nRbYnmee8h9ipmrwkNofCfTDjasxK7aqIfw3T03DG93Z41BLki0+CHt50snUhMAWywENVWsCkts/ETLjIMTmkdbmj2lbHTKCIk7gOgs/jnzWCGZ1iqPltWEu66KDaIJv22GEf2dgWJZdtRU/GC/+fXjJ+cl/w4GCi5yy/9JYsnL9watAxo/VnaIImD1V2XW99pdyqGd0/fSlUfWZZyepCTxot1A="
+}

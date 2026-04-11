@@ -34,18 +34,20 @@ def make_ranking(users: dict[str, Any]) -> list[dict[str, Any]]:
     for payload in users.values():
         if not isinstance(payload, dict):
             continue
-        total = payload.get("total")
+
+        total = payload.get("total", [])
         score = total[-1] if isinstance(total, list) and total else 0
-        ranking.append(
-            {
+
+        # ЕГЕР ҰПАЙ 0-ДЕН ЖОҒАРЫ БОЛСА ҒАНА РЕЙТИНГКЕ ҚОСАМЫЗ
+        if score > 0:
+            ranking.append({
                 "name": payload.get("name", "Оқушы"),
                 "avatar": payload.get("avatar", ""),
                 "score": score,
-            }
-        )
-    ranking.sort(key=lambda item: item.get("score", 0), reverse=True)
-    return ranking
+            })
 
+    ranking.sort(key=lambda item: item["score"], reverse=True)
+    return ranking
 
 def encrypt_payload(secret: str, payload: dict[str, Any], iterations: int) -> dict[str, Any]:
     salt = get_random_bytes(16)
@@ -89,6 +91,7 @@ def build_outputs(source_path: Path, output_dir: Path, iterations: int) -> None:
         encrypted = encrypt_payload(secret.strip(), payload, iterations)
         write_json(output_dir / f"{file_key}.json", encrypted)
 
+    # Жаңартылған рейтингті сақтау
     write_json(output_dir / "ranking.json", make_ranking(users))
 
 
@@ -116,7 +119,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     build_outputs(Path(args.input), Path(args.output_dir), args.iterations)
-    print(f"Encrypted users written to {args.output_dir}")
+    print(f"Encrypted users and updated ranking written to {args.output_dir}")
 
 
 if __name__ == "__main__":
