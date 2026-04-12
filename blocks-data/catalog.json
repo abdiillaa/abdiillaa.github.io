@@ -1,0 +1,17 @@
+{
+  "subjects": [
+    {
+      "id": "history",
+      "title": "Қазақстан тарихы",
+      "topics": [
+        {
+          "id": "his-block-1",
+          "code": "Блок 1",
+          "title": "Жаңа замандағы Қазақстан",
+          "summary": "Қазақстан тарихы бойынша блок құжаты.",
+          "file": "blocks-data/docs/history/Жаңа замандағы қазақстан.docx"
+        }
+      ]
+    }
+  ]
+}

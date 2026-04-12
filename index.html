@@ -17,6 +17,7 @@
     <link rel="apple-touch-icon" href="1.png">
     <script defer src="test/app.js"></script>
 <script src="chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -187,7 +188,7 @@
                 <li onclick="openPage('test')" id="nav-test">Тест</li>
                 <li onclick="openPage('settings')" id="nav-settings">Баптаулар</li>
                 <li onclick="openPage('ranking')" id="nav-ranking">Рейтинг</li>
-                <li onclick="openPage('materials')" id="nav-materials">Оқу материалдары</li>
+                <li onclick="openPage('blocks')" id="nav-blocks">Блоктар</li>
                 <li onclick="openPage('math-formulas')" id="nav-math-formulas">Математика формулалар</li>
                 <li onclick="logoutUser()" id="nav-logout">Шығу</li>
                 </ul>
@@ -373,50 +374,28 @@
             
           
             
-            <section id="materials" class="content-page">
+            <section id="blocks" class="content-page">
     <header class="materials-head">
-        <h1>Оқу материалдары</h1>
-        <p>GitHub Pages (server жоқ): материалды кодпен JSON файлдарға толтырасыз.</p>
+        <h1>Блоктар</h1>
+        <p>Тест бөліміндегідей пәндер бойынша блоктарды таңдаңыз. Тақырыпты басқанда құжат төменде ашылады.</p>
     </header>
 
-    <div class="materials-toolbar">
-        <button type="button" class="subject-chip" data-subject-filter="all" onclick="setMaterialsSubject('all', this)">Барлығы</button>
-        <button type="button" class="subject-chip" data-subject-filter="history" onclick="setMaterialsSubject('history', this)">Қазақстан тарихы</button>
-        <button type="button" class="subject-chip active" data-subject-filter="informatics" onclick="setMaterialsSubject('informatics', this)">Информатика</button>
-        <button type="button" class="subject-chip" data-subject-filter="math" onclick="setMaterialsSubject('math', this)">Математика</button>
-    </div>
+    <div id="blocks-topic-groups" class="blocks-topic-groups"></div>
+    <small id="blocks-status">Блок тақырыбын таңдаңыз.</small>
 
-    <section class="materials-flow">
-        <div class="materials-shortcut-card">
-            <div>
-                <strong>Математика формулалар</strong>
-                <p>Index ішіндегі жеке бөлімде ең жиі қолданылатын формулалар жинағы ашылады.</p>
-            </div>
-            <button type="button" class="download-btn" onclick="openPage('math-formulas')">Ашу</button>
-        </div>
-        <div class="materials-flow-row">
-            <label for="materials-topic-select">Тақырып таңдаңыз</label>
-            <select id="materials-topic-select" onchange="onMaterialsTopicChange()"></select>
-            <button type="button" id="materials-open-topic-btn" class="download-btn" onclick="openSelectedMaterialsTopic()">Тақырыпты ашу</button>
-        </div>
-        <div class="materials-topic-preview" id="materials-topic-preview"></div>
-        <small id="materials-status">Алдымен пәнді, содан кейін тақырыпты таңдаңыз.</small>
-    </section>
-
-    <section class="materials-viewer" id="materials-viewer" hidden>
+    <section class="materials-viewer blocks-viewer" id="blocks-viewer" hidden>
         <div class="materials-viewer-head">
-            <h3 id="materials-viewer-title">Тақырып</h3>
-            <button type="button" class="download-btn" onclick="closeMaterialsViewer()">Жабу</button>
+            <h3 id="blocks-viewer-title">Блок құжаты</h3>
+            <button type="button" class="download-btn" onclick="closeBlockViewer()">Жабу</button>
         </div>
-        <div class="materials-viewer-tools">
-            <input id="materials-viewer-search" type="search" placeholder="Сұрақтан іздеу..." oninput="filterOpenedTopic(this.value)" />
+        <div class="blocks-viewer-tools">
+            <a id="blocks-download-link" class="download-btn blocks-link-btn" href="#" target="_blank" rel="noopener noreferrer">DOCX жүктеу</a>
+            <a id="blocks-open-direct-link" class="download-btn blocks-link-btn secondary" href="#" target="_blank" rel="noopener noreferrer">Жаңа бетте ашу</a>
         </div>
-        <div class="materials-viewer-list" id="materials-viewer-list"></div>
-        <div class="materials-viewer-pagination">
-            <button type="button" id="materials-page-prev" class="download-btn" onclick="changeTopicPage(-1)">← Алдыңғы</button>
-            <span id="materials-viewer-page-info">1 / 1</span>
-            <button type="button" id="materials-page-next" class="download-btn" onclick="changeTopicPage(1)">Келесі →</button>
-        </div>
+        <p class="blocks-viewer-note" id="blocks-viewer-note"></p>
+        <div id="blocks-docx-loading" class="blocks-docx-loading" hidden>Құжат жүктеліп жатыр...</div>
+        <div id="blocks-docx-errors" class="blocks-docx-errors" hidden></div>
+        <article id="blocks-docx-content" class="blocks-docx-content"></article>
     </section>
 </section>
 
@@ -904,18 +883,13 @@
 
     <script>
         // Беттерді ауыстыру логикасы
-        const MATERIALS_CATALOG_URL = 'materials-data/catalog.json';
-        const MATERIALS_PAGE_SIZE = 25;
-        const materialsState = {
+        const BLOCKS_CATALOG_URL = 'blocks-data/catalog.json';
+        const blocksState = {
             catalog: null,
             catalogLoaded: false,
             catalogError: '',
-            activeSubject: 'all',
-            topicCache: new Map(),
-            openTopicMeta: null,
-            openTopicItems: [],
-            filteredItems: [],
-            page: 1
+            activeTopicKey: '',
+            openBlockMeta: null
         };
 
         function escapeHtml(value) {
@@ -931,149 +905,49 @@
             return String(value || '').trim().toLowerCase();
         }
 
-        function setMaterialsStatus(message, isError = false) {
-            const status = document.getElementById('materials-status');
+        function resolveAbsoluteUrl(path) {
+            try {
+                return new URL(String(path || ''), window.location.href).toString();
+            } catch (error) {
+                return '';
+            }
+        }
+
+        function setBlocksStatus(message, isError = false) {
+            const status = document.getElementById('blocks-status');
             if (!status) return;
             status.textContent = message;
             status.style.color = isError ? '#b42318' : '#4b5f73';
         }
 
-        async function ensureMaterialsCatalog() {
-            if (materialsState.catalogLoaded) return;
+        async function ensureBlocksCatalog() {
+            if (blocksState.catalogLoaded) return;
 
             try {
-                const response = await fetch(MATERIALS_CATALOG_URL, { cache: 'no-store' });
+                const response = await fetch(BLOCKS_CATALOG_URL, { cache: 'no-store' });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const payload = await response.json();
                 const subjects = Array.isArray(payload && payload.subjects) ? payload.subjects : [];
-                materialsState.catalog = { subjects };
-                materialsState.catalogLoaded = true;
-                materialsState.catalogError = '';
-                setMaterialsStatus('Каталог жүктелді.');
+                blocksState.catalog = { subjects };
+                blocksState.catalogLoaded = true;
+                blocksState.catalogError = '';
+                setBlocksStatus('Блоктар каталогы жүктелді.');
             } catch (error) {
-                materialsState.catalogLoaded = true;
-                materialsState.catalog = { subjects: [] };
-                materialsState.catalogError = 'Каталогты жүктеу сәтсіз болды.';
-                setMaterialsStatus('Каталогты жүктеу сәтсіз болды. JSON жолдарын тексеріңіз.', true);
+                blocksState.catalogLoaded = true;
+                blocksState.catalog = { subjects: [] };
+                blocksState.catalogError = 'Блоктар каталогын жүктеу сәтсіз болды.';
+                setBlocksStatus('Блоктар каталогын жүктеу сәтсіз болды. JSON жолын тексеріңіз.', true);
             }
         }
 
-        function getAllSubjects() {
-            return (materialsState.catalog && Array.isArray(materialsState.catalog.subjects))
-                ? materialsState.catalog.subjects
+        function getAllBlockSubjects() {
+            return (blocksState.catalog && Array.isArray(blocksState.catalog.subjects))
+                ? blocksState.catalog.subjects
                 : [];
         }
 
-        function getTopicEntriesBySubject(subjectId) {
-            const subjects = getAllSubjects();
-
-            if (subjectId !== 'all') {
-                const subject = subjects.find((item) => item.id === subjectId);
-                if (!subject) return [];
-                const topics = Array.isArray(subject.topics) ? subject.topics : [];
-                return topics.map((topic) => ({
-                    subjectId: subject.id,
-                    subjectTitle: subject.title || subject.id,
-                    topic
-                }));
-            }
-
-            const entries = [];
-            subjects.forEach((subject) => {
-                const topics = Array.isArray(subject.topics) ? subject.topics : [];
-                topics.forEach((topic) => {
-                    entries.push({
-                        subjectId: subject.id,
-                        subjectTitle: subject.title || subject.id,
-                        topic
-                    });
-                });
-            });
-            return entries;
-        }
-
-        function renderTopicSelector() {
-            const select = document.getElementById('materials-topic-select');
-            const preview = document.getElementById('materials-topic-preview');
-            const openBtn = document.getElementById('materials-open-topic-btn');
-            if (!select || !preview || !openBtn) return;
-
-            if (materialsState.catalogError) {
-                select.innerHTML = '<option value="">Каталог жүктелмеді</option>';
-                openBtn.disabled = true;
-                preview.innerHTML = `<p class="materials-empty">Файл: <code>${escapeHtml(MATERIALS_CATALOG_URL)}</code></p>`;
-                return;
-            }
-
-            const entries = getTopicEntriesBySubject(materialsState.activeSubject);
-            if (!entries.length) {
-                select.innerHTML = '<option value="">Тақырып жоқ</option>';
-                openBtn.disabled = true;
-                preview.innerHTML = '<p class="materials-empty">Бұл пәнде тақырып табылмады.</p>';
-                return;
-            }
-
-            select.innerHTML = entries.map((entry, index) => {
-                const topic = entry.topic || {};
-                const count = Number.isFinite(Number(topic.count)) ? Number(topic.count) : 0;
-                const left = materialsState.activeSubject === 'all' ? `[${entry.subjectTitle}] ` : '';
-                const label = `${left}${topic.code || '-'} ${topic.title || 'Тақырып'} (${count})`;
-                return `<option value="${escapeHtml(entry.subjectId)}::${escapeHtml(topic.id)}" ${index === 0 ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-            }).join('');
-
-            openBtn.disabled = false;
-            onMaterialsTopicChange();
-        }
-
-        function getSelectedTopicPair() {
-            const select = document.getElementById('materials-topic-select');
-            if (!select || !select.value) return null;
-            const parts = String(select.value).split('::');
-            if (parts.length !== 2) return null;
-            const [subjectId, topicId] = parts;
-            if (!subjectId || !topicId) return null;
-            return { subjectId, topicId };
-        }
-
-        function onMaterialsTopicChange() {
-            const preview = document.getElementById('materials-topic-preview');
-            if (!preview) return;
-            const pair = getSelectedTopicPair();
-            if (!pair) {
-                preview.innerHTML = '<p class="materials-empty">Тақырып таңдаңыз.</p>';
-                return;
-            }
-
-            const meta = findTopicMeta(pair.subjectId, pair.topicId);
-            if (!meta) {
-                preview.innerHTML = '<p class="materials-empty">Тақырып мета-мәліметі табылмады.</p>';
-                return;
-            }
-
-            const count = Number.isFinite(Number(meta.count)) ? Number(meta.count) : 0;
-            preview.innerHTML = `
-                <div class="materials-topic-head">
-                    <div class="materials-topic-code">${escapeHtml(meta.topicCode || '-')}</div>
-                    <h4>${escapeHtml(meta.topicTitle)}</h4>
-                    <span class="materials-topic-count">${count} сұрақ</span>
-                </div>
-                <p class="materials-topic-summary">${escapeHtml(meta.summary || 'Сұрақтар осы тақырыпты ашқанда ғана жүктеледі.')}</p>
-            `;
-        }
-
-        function openSelectedMaterialsTopic() {
-            const pair = getSelectedTopicPair();
-            if (!pair) {
-                setMaterialsStatus('Тақырып таңдалмады.', true);
-                return;
-            }
-            openMaterialsTopic(pair.subjectId, pair.topicId);
-        }
-
-        function findTopicMeta(subjectId, topicId) {
-            const subjects = materialsState.catalog && Array.isArray(materialsState.catalog.subjects)
-                ? materialsState.catalog.subjects
-                : [];
+        function findBlockMeta(subjectId, topicId) {
+            const subjects = getAllBlockSubjects();
             const subject = subjects.find((item) => item.id === subjectId);
             if (!subject) return null;
             const topics = Array.isArray(subject.topics) ? subject.topics : [];
@@ -1084,158 +958,168 @@
                 subjectTitle: subject.title || subject.id,
                 topicId: topic.id,
                 topicCode: topic.code || '',
-                topicTitle: topic.title || 'Тақырып',
+                topicTitle: topic.title || 'Блок',
                 summary: topic.summary || '',
-                count: Number.isFinite(Number(topic.count)) ? Number(topic.count) : 0,
-                file: topic.file
+                file: topic.file || ''
             };
         }
 
-        function normalizeTopicItems(payload) {
-            const rawItems = Array.isArray(payload)
-                ? payload
-                : (payload && Array.isArray(payload.items) ? payload.items : []);
+        function renderBlocksList() {
+            const root = document.getElementById('blocks-topic-groups');
+            if (!root) return;
 
-            return rawItems
-                .map((item) => ({
-                    question: String(item && (item.question || item.q) ? (item.question || item.q) : '').trim(),
-                    answer: String(item && (item.answer || item.a) ? (item.answer || item.a) : '').trim()
-                }))
-                .filter((item) => item.question && item.answer);
-        }
-
-        function updateViewerPagination(totalItems) {
-            const totalPages = totalItems > 0 ? Math.ceil(totalItems / MATERIALS_PAGE_SIZE) : 1;
-            if (materialsState.page > totalPages) materialsState.page = totalPages;
-            if (materialsState.page < 1) materialsState.page = 1;
-
-            const info = document.getElementById('materials-viewer-page-info');
-            const prevBtn = document.getElementById('materials-page-prev');
-            const nextBtn = document.getElementById('materials-page-next');
-            if (info) info.textContent = `${materialsState.page} / ${totalPages}`;
-            if (prevBtn) prevBtn.disabled = materialsState.page <= 1;
-            if (nextBtn) nextBtn.disabled = materialsState.page >= totalPages;
-        }
-
-        function renderOpenedTopicPage() {
-            const list = document.getElementById('materials-viewer-list');
-            if (!list) return;
-
-            const items = materialsState.filteredItems;
-            if (!materialsState.openTopicMeta) {
-                list.innerHTML = '';
-                updateViewerPagination(0);
+            if (blocksState.catalogError) {
+                root.innerHTML = `<p class="materials-empty">Каталог ашылмады: <code>${escapeHtml(BLOCKS_CATALOG_URL)}</code></p>`;
                 return;
             }
 
-            if (!items.length) {
-                list.innerHTML = '<p class="materials-empty">Сұрақ табылмады.</p>';
-                updateViewerPagination(0);
+            const subjects = getAllBlockSubjects();
+            if (!subjects.length) {
+                root.innerHTML = '<p class="materials-empty">Пәндер табылмады.</p>';
                 return;
             }
-
-            updateViewerPagination(items.length);
-            const start = (materialsState.page - 1) * MATERIALS_PAGE_SIZE;
-            const pageItems = items.slice(start, start + MATERIALS_PAGE_SIZE);
 
             let html = '';
-            pageItems.forEach((item, index) => {
-                html += `
-                    <details class="materials-qa-item">
-                        <summary>${start + index + 1}. ${escapeHtml(item.question)}</summary>
-                        <div class="materials-qa-answer">${escapeHtml(item.answer)}</div>
-                    </details>
-                `;
+            subjects.forEach((subject) => {
+                const topics = Array.isArray(subject.topics) ? subject.topics : [];
+                html += `<h1>${escapeHtml(subject.title || subject.id)}</h1>`;
+
+                if (!topics.length) {
+                    html += '<p class="materials-empty">Бұл пәнде блок жоқ.</p>';
+                    return;
+                }
+
+                html += '<ul class="topics-list blocks-topics-list">';
+                topics.forEach((topic) => {
+                    const key = `${subject.id}::${topic.id}`;
+                    const activeClass = blocksState.activeTopicKey === key ? 'active' : '';
+                    const code = topic.code ? `${escapeHtml(topic.code)} ` : '';
+                    html += `<li class="${activeClass}" onclick="openBlockTopic('${escapeHtml(subject.id)}','${escapeHtml(topic.id)}')">${code}${escapeHtml(topic.title || 'Блок')}</li>`;
+                });
+                html += '</ul>';
             });
-            list.innerHTML = html;
+
+            root.innerHTML = html;
         }
 
-        function applyTopicFilter(query) {
-            const normalized = normalizeText(query);
-            const source = materialsState.openTopicItems;
-            materialsState.filteredItems = normalized
-                ? source.filter((item) => normalizeText(item.question).includes(normalized) || normalizeText(item.answer).includes(normalized))
-                : [...source];
-            materialsState.page = 1;
-            renderOpenedTopicPage();
+        function setBlockViewerLoading(isLoading, message = 'Құжат жүктеліп жатыр...') {
+            const loading = document.getElementById('blocks-docx-loading');
+            if (!loading) return;
+            loading.hidden = !isLoading;
+            loading.textContent = message;
         }
 
-        function filterOpenedTopic(value) {
-            applyTopicFilter(value);
-        }
+        function renderBlockViewerMessages(messages) {
+            const box = document.getElementById('blocks-docx-errors');
+            if (!box) return;
 
-        async function openMaterialsTopic(subjectId, topicId) {
-            await ensureMaterialsCatalog();
-            const topicMeta = findTopicMeta(subjectId, topicId);
-            if (!topicMeta || !topicMeta.file) {
-                setMaterialsStatus('Тақырып файлы табылмады.', true);
+            const items = Array.isArray(messages) ? messages.filter(Boolean) : [];
+            if (!items.length) {
+                box.hidden = true;
+                box.innerHTML = '';
                 return;
             }
 
-            const cacheKey = `${topicMeta.subjectId}::${topicMeta.topicId}`;
-            let items = materialsState.topicCache.get(cacheKey);
+            box.hidden = false;
+            box.innerHTML = items.map((item) => {
+                const text = typeof item === 'string'
+                    ? item
+                    : `${item.type || 'info'}: ${item.message || ''}`.trim();
+                return `<p>${escapeHtml(text)}</p>`;
+            }).join('');
+        }
 
-            if (!items) {
-                try {
-                    const response = await fetch(topicMeta.file, { cache: 'no-store' });
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const payload = await response.json();
-                    items = normalizeTopicItems(payload);
-                    materialsState.topicCache.set(cacheKey, items);
-                } catch (error) {
-                    setMaterialsStatus(`Тақырып жүктелмеді: ${topicMeta.file}`, true);
-                    return;
+        async function renderDocxInViewer(filePath) {
+            const content = document.getElementById('blocks-docx-content');
+            if (!content) return false;
+
+            setBlockViewerLoading(true);
+            renderBlockViewerMessages([]);
+            content.innerHTML = '';
+
+            try {
+                if (!window.mammoth || typeof window.mammoth.convertToHtml !== 'function') {
+                    throw new Error('DOCX viewer кітапханасы жүктелмеді.');
                 }
+
+                const response = await fetch(filePath, { cache: 'no-store' });
+                if (!response.ok) throw new Error(`Файл ашылмады: HTTP ${response.status}`);
+                const arrayBuffer = await response.arrayBuffer();
+                const result = await window.mammoth.convertToHtml(
+                    { arrayBuffer },
+                    {
+                        includeDefaultStyleMap: true
+                    }
+                );
+
+                content.innerHTML = result.value || '<p>Құжат бос.</p>';
+                renderBlockViewerMessages(result.messages || []);
+                setBlockViewerLoading(false);
+                return true;
+            } catch (error) {
+                content.innerHTML = '';
+                renderBlockViewerMessages([error.message || 'Құжатты ашу сәтсіз болды.']);
+                setBlockViewerLoading(false);
+                return false;
+            }
+        }
+
+        async function openBlockTopic(subjectId, topicId) {
+            const meta = findBlockMeta(subjectId, topicId);
+            if (!meta || !meta.file) {
+                setBlocksStatus('Блок файлы табылмады.', true);
+                return;
             }
 
-            materialsState.openTopicMeta = topicMeta;
-            materialsState.openTopicItems = items;
-            const viewer = document.getElementById('materials-viewer');
-            const title = document.getElementById('materials-viewer-title');
-            const search = document.getElementById('materials-viewer-search');
+            const viewer = document.getElementById('blocks-viewer');
+            const title = document.getElementById('blocks-viewer-title');
+            const note = document.getElementById('blocks-viewer-note');
+            const downloadLink = document.getElementById('blocks-download-link');
+            const directLink = document.getElementById('blocks-open-direct-link');
+
+            const directUrl = resolveAbsoluteUrl(meta.file);
 
             if (title) {
-                title.textContent = `${topicMeta.subjectTitle} - ${topicMeta.topicCode} ${topicMeta.topicTitle}`.trim();
+                title.textContent = `${meta.subjectTitle} - ${meta.topicCode} ${meta.topicTitle}`.trim();
             }
-            if (search) search.value = '';
-            applyTopicFilter('');
+            if (downloadLink) downloadLink.href = meta.file;
+            if (directLink) directLink.href = directUrl || meta.file;
+            if (note) {
+                note.textContent = meta.summary || 'Құжат төменде ашылады. Егер қате шықса, жүктеп алу батырмасын пайдаланыңыз.';
+            }
 
+            blocksState.activeTopicKey = `${subjectId}::${topicId}`;
+            blocksState.openBlockMeta = meta;
+            renderBlocksList();
             if (viewer) {
                 viewer.hidden = false;
                 viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-            setMaterialsStatus(`Тақырып ашылды: ${topicMeta.topicCode} ${topicMeta.topicTitle}`);
+            const rendered = await renderDocxInViewer(meta.file);
+            setBlocksStatus(
+                rendered
+                    ? `Блок ашылды: ${meta.topicCode} ${meta.topicTitle}`
+                    : `Блок ашылмады, жүктеу сілтемесін пайдаланыңыз.`,
+                !rendered
+            );
         }
 
-        function closeMaterialsViewer() {
-            const viewer = document.getElementById('materials-viewer');
+        function closeBlockViewer() {
+            const viewer = document.getElementById('blocks-viewer');
+            const content = document.getElementById('blocks-docx-content');
             if (viewer) viewer.hidden = true;
-            materialsState.openTopicMeta = null;
-            materialsState.openTopicItems = [];
-            materialsState.filteredItems = [];
-            materialsState.page = 1;
-            renderOpenedTopicPage();
+            if (content) content.innerHTML = '';
+            renderBlockViewerMessages([]);
+            setBlockViewerLoading(false);
+            blocksState.activeTopicKey = '';
+            blocksState.openBlockMeta = null;
+            renderBlocksList();
         }
 
-        function changeTopicPage(step) {
-            materialsState.page += step;
-            renderOpenedTopicPage();
-        }
-
-        function setMaterialsSubject(subject, chipEl) {
-            document.querySelectorAll('.subject-chip').forEach((chip) => chip.classList.remove('active'));
-            if (chipEl) chipEl.classList.add('active');
-            materialsState.activeSubject = subject;
-            renderTopicSelector();
-            closeMaterialsViewer();
-            setMaterialsStatus('Пән таңдалды. Енді тақырыпты ашыңыз.');
-        }
-
-        async function initMaterialsSection() {
-            await ensureMaterialsCatalog();
-            const activeChip = document.querySelector('.subject-chip.active') || document.querySelector('.subject-chip[data-subject-filter="all"]');
-            const activeSubject = activeChip ? (activeChip.getAttribute('data-subject-filter') || 'all') : 'all';
-            setMaterialsSubject(activeSubject, activeChip);
+        async function initBlocksSection() {
+            await ensureBlocksCatalog();
+            renderBlocksList();
+            setBlocksStatus('Блок тақырыбын таңдаңыз.');
         }
 
         function openPage(pageId) {
@@ -1257,8 +1141,8 @@
             if(pageId === 'profile') {
                 updateChartDisplay();
             }
-            if (pageId === 'materials') {
-                initMaterialsSection();
+            if (pageId === 'blocks') {
+                initBlocksSection();
             }
         }
 
