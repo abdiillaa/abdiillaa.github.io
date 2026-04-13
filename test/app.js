@@ -69,6 +69,7 @@ const TEST_METADATA = {
     '18': { title: 'XIX ғасырдағы 50 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/koterilis.json' },
     '19': { title: 'XIX ғасырдағы 67-68 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/XiX60-70.json' },
     '20': { title: 'XIX ғасырдың 60-70 көтерілістер', subject: 'Қазақстан тарихы' },
+    '1907': { title: 'ХХ ғасыр басыңдағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1907.json' },
     '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика', file: 'test/data/1.1.json' },
     '151': { title: '1.2 Компьютер жады', subject: 'Информатика', file: 'test/data/1.2.json' },
     '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика', file: 'test/data/1.3.json' },
