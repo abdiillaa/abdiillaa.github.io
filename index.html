@@ -360,7 +360,7 @@
         <div id="blocks-docx-errors" class="blocks-docx-errors" hidden></div>
         <article id="blocks-docx-content" class="blocks-docx-content"></article>
     </section>
-    <button type="button" id="blocks-quick-back" class="blocks-quick-back" onclick="quickBackToBlocksTopics()" hidden>Артқа</button>
+    <button type="button" id="blocks-quick-back" class="blocks-quick-back" onclick="quickBackToBlocksTopics()" title="Жоғары / Тізімге қайту" aria-label="Жоғары / Тізімге қайту" hidden>↑</button>
 </section>
 
             <section id="math-formulas" class="content-page formulas-page">
@@ -1140,14 +1140,15 @@
 
         function normalizeNativeDocxLayout(container) {
             if (!container) return;
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
             // docx-preview sometimes injects hardcoded page paddings (e.g. 72pt)
             // and fixed image widths; force mobile-friendly layout.
             container.querySelectorAll('section.docx').forEach((section) => {
-                section.style.setProperty('padding', '0', 'important');
-                section.style.setProperty('margin', '0 0 6px 0', 'important');
+                section.style.setProperty('padding', isMobile ? '0' : '12px 16px', 'important');
+                section.style.setProperty('margin', isMobile ? '0 0 8px 0' : '0 auto 14px auto', 'important');
                 section.style.setProperty('width', '100%', 'important');
-                section.style.setProperty('max-width', '100%', 'important');
+                section.style.setProperty('max-width', isMobile ? '100%' : '1100px', 'important');
                 section.style.setProperty('min-width', '0', 'important');
                 section.style.setProperty('box-sizing', 'border-box', 'important');
                 section.style.setProperty('box-shadow', 'none', 'important');
@@ -1157,25 +1158,27 @@
                 article.style.setProperty('width', '100%', 'important');
                 article.style.setProperty('max-width', '100%', 'important');
                 article.style.setProperty('min-width', '0', 'important');
-                article.style.setProperty('padding', '0', 'important');
+                article.style.setProperty('padding', isMobile ? '0' : '8px 0', 'important');
                 article.style.setProperty('margin', '0', 'important');
                 article.style.setProperty('box-sizing', 'border-box', 'important');
             });
 
-            container.querySelectorAll('section.docx article div').forEach((div) => {
-                div.style.setProperty('width', '100%', 'important');
-                div.style.setProperty('max-width', '100%', 'important');
-                div.style.setProperty('height', 'auto', 'important');
-                div.style.setProperty('left', '0', 'important');
-                div.style.setProperty('top', '0', 'important');
-                div.style.setProperty('text-indent', '0', 'important');
-                div.style.setProperty('box-sizing', 'border-box', 'important');
-            });
+            if (isMobile) {
+                container.querySelectorAll('section.docx article div').forEach((div) => {
+                    div.style.setProperty('width', '100%', 'important');
+                    div.style.setProperty('max-width', '100%', 'important');
+                    div.style.setProperty('height', 'auto', 'important');
+                    div.style.setProperty('left', '0', 'important');
+                    div.style.setProperty('top', '0', 'important');
+                    div.style.setProperty('text-indent', '0', 'important');
+                    div.style.setProperty('box-sizing', 'border-box', 'important');
+                });
+            }
 
             container.querySelectorAll('img').forEach((image) => {
                 image.style.setProperty('position', 'static', 'important');
                 image.style.setProperty('display', 'block', 'important');
-                image.style.setProperty('margin', '0 auto', 'important');
+                image.style.setProperty('margin', isMobile ? '4px auto' : '10px auto', 'important');
                 image.style.setProperty('width', 'auto', 'important');
                 image.style.setProperty('max-width', '100%', 'important');
                 image.style.setProperty('height', 'auto', 'important');
