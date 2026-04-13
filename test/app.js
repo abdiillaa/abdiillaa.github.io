@@ -51,35 +51,77 @@ const TEST_METADATA = {
     '-2': { title: 'Инфо бойынша тапсыру', subject: 'Информатика' },
     '-1': { title: 'Тарих бойынша тапсыру', subject: 'Қазақстан тарихы' },
     '0': { title: 'Барлығын бірге', subject: 'Жалпы тест' },
-    '1': { title: 'Ерте орта Қазақстан VI-IX', subject: 'Қазақстан тарихы' },
-    '2': { title: 'Ерте орта ғасыр мәдениеті VI-IX', subject: 'Қазақстан тарихы' },
-    '3': { title: 'IX-XI ғасырлардағы Қазақстан', subject: 'Қазақстан тарихы' },
-    '5': { title: 'Біртұтас қазақ хандығының құрылуы', subject: 'Қазақстан тарихы' },
-    '6': { title: 'Жаңа замандағы Қазақстан', subject: 'Қазақстан тарихы' },
-    '8': { title: 'Сырым Датұлы', subject: 'Қазақстан тарихы' },
-    '9': { title: 'XV-XIX ғасырлардағы мәдениеті', subject: 'Қазақстан тарихы' },
-    '10': { title: 'Ноғай', subject: 'Қазақстан тарихы' },
-    '11': { title: 'Алтын орда', subject: 'Қазақстан тарихы' },
-    '12': { title: 'Шыңғыс хан', subject: 'Қазақстан тарихы' },
-    '13': { title: 'Ежелгі Қазақстан', subject: 'Қазақстан тарихы' },
-    '14': { title: 'Қазақстандағы хандық биліктің жойылуы', subject: 'Қазақстан тарихы' },
-    '15': { title: 'Есет пен Жаңқожа', subject: 'Қазақстан тарихы' },
-    '16': { title: '1867-1868 Жылдардағы реформа', subject: 'Қазақстан тарихы' },
-    '17': { title: '10-сынып Қазақстан тарихы тест 1', subject: 'Қазақстан тарихы' },
-    '18': { title: 'XIX ғасырдағы 50 жылдар', subject: 'Қазақстан тарихы' },
-    '19': { title: 'XIX ғасырдағы 67-68 жылдар', subject: 'Қазақстан тарихы' },
+    '1': { title: 'Ерте орта Қазақстан VI-IX', subject: 'Қазақстан тарихы', file: 'test/data/turik.json' },
+    '2': { title: 'Ерте орта ғасыр мәдениеті VI-IX', subject: 'Қазақстан тарихы', file: 'test/data/turikmadinet.json' },
+    '3': { title: 'IX-XI ғасырлардағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/qarakhan.json' },
+    '5': { title: 'Біртұтас қазақ хандығының құрылуы', subject: 'Қазақстан тарихы', file: 'test/data/khanat-v2.json' },
+    '6': { title: 'Жаңа замандағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/zhongar.json' },
+    '8': { title: 'Сырым Датұлы', subject: 'Қазақстан тарихы', file: 'test/data/syrymdatuly.json' },
+    '9': { title: 'XV-XIX ғасырлардағы мәдениеті', subject: 'Қазақстан тарихы', file: 'test/data/xvmadinet.json' },
+    '10': { title: 'Ноғай', subject: 'Қазақстан тарихы', file: 'test/data/nogai.json' },
+    '11': { title: 'Алтын орда', subject: 'Қазақстан тарихы', file: 'test/data/altynorda.json' },
+    '12': { title: 'Шыңғыс хан', subject: 'Қазақстан тарихы', file: 'test/data/mongolshapkyn.json' },
+    '13': { title: 'Ежелгі Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/ezhelgi.json' },
+    '14': { title: 'Қазақстандағы хандық биліктің жойылуы', subject: 'Қазақстан тарихы', file: 'test/data/khanatedel.json' },
+    '15': { title: 'Есет пен Жаңқожа', subject: 'Қазақстан тарихы', file: 'test/data/kz-history-10-test-1.json' },
+    '16': { title: '1867-1868 Жылдардағы реформа', subject: 'Қазақстан тарихы', file: 'test/data/eset.json' },
+    '17': { title: '10-сынып Қазақстан тарихы тест 1', subject: 'Қазақстан тарихы', file: 'test/data/67-68.json' },
+    '18': { title: 'XIX ғасырдағы 50 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/koterilis.json' },
+    '19': { title: 'XIX ғасырдағы 67-68 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/XiX60-70.json' },
     '20': { title: 'XIX ғасырдың 60-70 көтерілістер', subject: 'Қазақстан тарихы' },
-    '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика' },
-    '151': { title: '1.2 Компьютер жады', subject: 'Информатика' },
-    '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика' },
-    '153': { title: '1.4 Басқару құрылғысы АЛҚ ЖАД регистірі', subject: 'Информатика' },
-    '154': { title: '2.1 Ақпарат сипаты және қасиеті', subject: 'Информатика' },
-    '155': { title: '2.2 Ақпаратты кодтау және декодтау', subject: 'Информатика' },
-    '156': { title: '2.5 Екілік, ондық, сегіздік, он алтылық', subject: 'Информатика' },
-    '158': { title: '4.1 Компьютерлік желілері', subject: 'Информатика' },
-    '159': { title: '4.3 IP адрес', subject: 'Информатика' },
-    '160': { title: '10.1.1 HTML', subject: 'Информатика' }
+    '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика', file: 'test/data/1.1.json' },
+    '151': { title: '1.2 Компьютер жады', subject: 'Информатика', file: 'test/data/1.2.json' },
+    '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика', file: 'test/data/1.3.json' },
+    '153': { title: '1.4 Басқару құрылғысы АЛҚ ЖАД регистірі', subject: 'Информатика', file: 'test/data/1.4.json' },
+    '154': { title: '2.1 Ақпарат сипаты және қасиеті', subject: 'Информатика', file: 'test/data/2.1.json' },
+    '155': { title: '2.2 Ақпаратты кодтау және декодтау', subject: 'Информатика', file: 'test/data/2.2.json' },
+    '156': { title: '2.5 Екілік, ондық, сегіздік, он алтылық', subject: 'Информатика', file: 'test/data/2.5.json' },
+    '158': { title: '4.1 Компьютерлік желілері', subject: 'Информатика', file: 'test/data/4.1.json' },
+    '159': { title: '4.3 IP адрес', subject: 'Информатика', file: 'test/data/4.3.json' },
+    '160': { title: '10.1.1 HTML', subject: 'Информатика', file: 'test/data/10.1.1.json' },
+    '161': { title: 'Жаңа тест (үлгі)', subject: 'Информатика', file: 'test/data/161.json' }
 };
+
+function buildTestFileMap() {
+    const fileMap = {};
+    Object.keys(TEST_METADATA).forEach((id) => {
+        const numericId = Number(id);
+        const meta = TEST_METADATA[id];
+        if (!Number.isInteger(numericId) || !meta || typeof meta.file !== 'string') return;
+        const normalizedFile = meta.file.trim();
+        if (!normalizedFile) return;
+        fileMap[numericId] = normalizedFile;
+    });
+    return fileMap;
+}
+
+const TEST_FILES = buildTestFileMap();
+
+function renderTestTopicLists() {
+    const historyRoot = document.getElementById('test-history-topics');
+    const informaticsRoot = document.getElementById('test-informatics-topics');
+    if (!historyRoot || !informaticsRoot) return;
+
+    historyRoot.innerHTML = '';
+    informaticsRoot.innerHTML = '';
+
+    const entries = Object.keys(TEST_METADATA)
+        .map((id) => Number(id))
+        .filter((id) => Number.isInteger(id) && id > 0 && TEST_FILES[id])
+        .sort((a, b) => a - b);
+
+    entries.forEach((testId) => {
+        const meta = getTestMeta(testId);
+        const subject = String(meta.subject || '').trim().toLowerCase();
+        const root = subject === 'информатика' ? informaticsRoot : historyRoot;
+        const item = document.createElement('li');
+        item.textContent = meta.title || `Тест ${testId}`;
+        item.addEventListener('click', () => testgo(testId));
+        root.appendChild(item);
+    });
+}
+renderTestTopicLists();
+
 const RUNNER_SECONDS_PER_QUESTION = {
     instant: 45,
     exam: 75,
@@ -1579,14 +1621,15 @@ function testgo(x) {
 
   function getCorrectAnswer(question) {
     if (!question || typeof question !== 'object') return '';
+    if (Array.isArray(question.options) && question.options.length > 0) {
+      const firstOption = normalizeAnswerValue(question.options[0]);
+      if (firstOption) return firstOption;
+    }
     if (question.correct !== undefined && question.correct !== null && normalizeAnswerValue(question.correct) !== '') {
       return normalizeAnswerValue(question.correct);
     }
     if (question.answer !== undefined && question.answer !== null && normalizeAnswerValue(question.answer) !== '') {
       return normalizeAnswerValue(question.answer);
-    }
-    if (Array.isArray(question.options) && question.options.length > 0) {
-      return normalizeAnswerValue(question.options[0]);
     }
     return '';
   }
@@ -1753,37 +1796,7 @@ function testgo(x) {
     return shuffle([normalizedCorrect, ...pickedWrong]);
   }
 
-  // 1. Файлды анықтау немесе барлығын біріктіру
-  const files = {
-    1: 'test/data/turik.json',
-    2: 'test/data/turikmadinet.json',
-    3: 'test/data/qarakhan.json',
-    5: 'test/data/khanat-v2.json',
-    6: 'test/data/zhongar.json',
-    8: 'test/data/syrymdatuly.json',
-    9: 'test/data/xvmadinet.json',
-    10: 'test/data/nogai.json',
-    11: 'test/data/altynorda.json',
-    12: 'test/data/mongolshapkyn.json',
-    13: 'test/data/ezhelgi.json',
-    14: 'test/data/khanatedel.json',
-    15: 'test/data/kz-history-10-test-1.json',
-    16: 'test/data/eset.json',
-    17: 'test/data/67-68.json',
-    18: 'test/data/koterilis.json',
-    19: 'test/data/XiX60-70.json',
-    150: 'test/data/1.1.json',
-    151: 'test/data/1.2.json',
-    152: 'test/data/1.3.json',
-    153: 'test/data/1.4.json',
-    154: 'test/data/2.1.json',
-    155: 'test/data/2.2.json',
-    156: 'test/data/2.5.json',
-    158: 'test/data/4.1.json',
-    159: 'test/data/4.3.json',
-    160: 'test/data/10.1.1.json',
-  };
-  const allMappedTestIds = Object.keys(files)
+  const allMappedTestIds = Object.keys(TEST_FILES)
     .map((id) => Number(id))
     .filter((id) => Number.isInteger(id))
     .sort((a, b) => a - b);
@@ -1814,12 +1827,12 @@ function testgo(x) {
   }
 
   function loadGroupedTests(testIds) {
-    const validIds = testIds.filter((testId) => files[testId]);
+    const validIds = testIds.filter((testId) => TEST_FILES[testId]);
     if (!validIds.length) {
       return Promise.reject(new Error('Бұл диапазонда тест табылмады.'));
     }
 
-    return Promise.all(validIds.map((testId) => fetchQuestionFile(files[testId], testId)))
+    return Promise.all(validIds.map((testId) => fetchQuestionFile(TEST_FILES[testId], testId)))
       .then((results) => [].concat(...results));
   }
 
@@ -1828,8 +1841,8 @@ function testgo(x) {
       return Promise.resolve(attachQuestionMeta(buildNumberSystemQuestions(QUESTIONS_PER_TEST), testId));
     }
 
-    if (testId >= 1 && files[testId]) {
-      return fetchQuestionFile(files[testId], testId);
+    if (testId >= 1 && TEST_FILES[testId]) {
+      return fetchQuestionFile(TEST_FILES[testId], testId);
     }
 
     if (testId === HISTORY_ALL_TEST_ID) {

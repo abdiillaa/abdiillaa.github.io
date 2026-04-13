@@ -18,6 +18,8 @@
     <script defer src="test/app.js"></script>
 <script src="chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -268,61 +270,9 @@
                 <li onclick="testgo(0);">Барлығын бірге 🔥</li>
             </ul>
             <h1>Қазақстан тарихы</h1>
-            <ul class="topics-list">
-                <li onclick="testgo(15);">10-сынып Қазақстан тарихы тест 1</li>
-                <li onclick="testgo(13);">Ежелгі Қазақстан</li>
-                <li onclick="testgo(1);">Ерте орта Қазақстан VI-IX</li>
-                <li onclick="testgo(2);">Ерте орта ғасыр мәдениеті VI-IX</li>
-                <li onclick="testgo(3);">IX-XI ғасырлардағы Қазақстан</li>
-                <li onclick="testgo(12);">Шыңғыс хан</li>
-                <li onclick="testgo(11);">Алтын орда</li>
-                <li onclick="testgo(10);">Ноғай</li>
-                <li onclick="testgo(5);">Біртұтас қазақ хандығының құрылуы</li>
-                <li onclick="testgo(6);">Жаңа замандағы Қазақстан</li>
-                <li onclick="testgo(8);">Сырым Датұлы</li>
-                <li onclick="testgo(9);">XV-XIX ғасырлардағы мәдениеті</li>
-                <li onclick="testgo(14);">Қазақстандағы хандық биліктің жойылуы</li>
-                <li onclick="testgo(16);">Есет пен Жанқожа</li>
-                <li onclick="testgo(17);">1867-1868 Жылдардығы реформа</li>
-                <li onclick="testgo(19);">XIX ғасырдың 60-70 көтерілістер</li>
-                <li onclick="testgo(20);">XIX ғасырдың 80-90 реформа</li>
-                <li onclick="testgo(21);">XIX ғасырдың соныңдағы Қазақстан</li>
-                <li onclick="testgo(22);">XX ғасырдың басындағы Қазақстан</li>
-                <li onclick="testgo(23);">1916-1920 жылдардығы Қазақстан</li>
-                <li onclick="testgo(24);">1920-1930 жылдардығы Қазақстан</li>
-                <li onclick="testgo(25);">Ұлы Отан соғысындығы Қазақстан</li>
-                <li onclick="testgo(26);">Ұлы Отан соғысынан кейінгі Қазақстан</li>
-                <li onclick="testgo(27);">Хрущев жылымығы</li>
-                <li onclick="testgo(28);">Тоқырау</li>
-                <li onclick="testgo(29);">Қайта Құру </li>
-                <li onclick="testgo(30);">Тәуелсіз Қазақстан</li>
-                
-                
-               
-
-
-                
-            </ul>
+            <ul class="topics-list" id="test-history-topics"></ul>
             <h1>Информатика</h1>
-            <ul class="topics-list">
-                <li onclick="testgo(150);">1.1 Компьютер конфигурациясы</li>
-                <li onclick="testgo(151);">1.2 Компьютер жады</li>
-                <li onclick="testgo(152);">1.3 Бағдармалалық жасақтама</li>
-                <li onclick="testgo(153);">1.4 Басқару құрылғысы АЛҚ ЖАД регистірі</li>
-                <li onclick="testgo(154);">2.1 Ақпарат сипаты және қасиеті</li>
-                <li onclick="testgo(155);">2.2 Ақпаратты кодтау және декодтау</li>
-                <li onclick="testgo(156);">2.5 екілік ондық сегіздік он алтылық</li>
-                <li onclick="testgo(158);">4.1 Компьютерлік желілері</li>
-                <li onclick="testgo(159);">4.3 IPадрес</li>
-                <li onclick="testgo(160);">7 Python</li>
-                <li onclick="testgo(161);">10.1 HTML</li>
-                <li onclick="testgo(162);">10.2 CSS</li>
-                <li onclick="testgo(163);">10.3 Javascript</li>
-                <li onclick="testgo(164);">9.1  SQL</li>
-
-
-
-            </ul>
+            <ul class="topics-list" id="test-informatics-topics"></ul>
             </section>
             <section id="settings" class="content-page settings-page">
             <h1>Баптаулар</h1>
@@ -405,11 +355,7 @@
             <h3 id="blocks-viewer-title">Блок құжаты</h3>
             <button type="button" class="download-btn" onclick="closeBlockViewer()">Жабу</button>
         </div>
-        <div class="blocks-viewer-tools">
-            <a id="blocks-download-link" class="download-btn blocks-link-btn" href="#" target="_blank" rel="noopener noreferrer">DOCX жүктеу</a>
-            <a id="blocks-open-direct-link" class="download-btn blocks-link-btn secondary" href="#" target="_blank" rel="noopener noreferrer">Жаңа бетте ашу</a>
-        </div>
-        <p class="blocks-viewer-note" id="blocks-viewer-note"></p>
+        <div id="blocks-qa-list" class="blocks-qa-list" hidden></div>
         <div id="blocks-docx-loading" class="blocks-docx-loading" hidden>Құжат жүктеліп жатыр...</div>
         <div id="blocks-docx-errors" class="blocks-docx-errors" hidden></div>
         <article id="blocks-docx-content" class="blocks-docx-content"></article>
@@ -922,12 +868,60 @@
             return String(value || '').trim().toLowerCase();
         }
 
-        function resolveAbsoluteUrl(path) {
-            try {
-                return new URL(String(path || ''), window.location.href).toString();
-            } catch (error) {
-                return '';
-            }
+        function normalizeBlockQuestions(rawQuestions) {
+            if (!Array.isArray(rawQuestions)) return [];
+            return rawQuestions
+                .map((item) => {
+                    const question = String(item && item.question ? item.question : '').trim();
+                    const answer = String(item && item.answer ? item.answer : '').trim();
+                    if (!question || !answer) return null;
+                    return { question, answer };
+                })
+                .filter(Boolean);
+        }
+
+        function sanitizeBlocksCatalog(payload) {
+            const subjects = Array.isArray(payload && payload.subjects) ? payload.subjects : [];
+            return {
+                subjects: subjects
+                    .map((subject) => {
+                        const subjectId = String(subject && subject.id ? subject.id : '').trim();
+                        if (!subjectId) return null;
+
+                        const topics = Array.isArray(subject && subject.topics) ? subject.topics : [];
+                        const safeTopics = topics
+                            .map((topic) => {
+                                const topicId = String(topic && topic.id ? topic.id : '').trim();
+                                if (!topicId) return null;
+                                return {
+                                    id: topicId,
+                                    code: String(topic && topic.code ? topic.code : '').trim(),
+                                    title: String(topic && topic.title ? topic.title : '').trim(),
+                                    summary: String(topic && topic.summary ? topic.summary : '').trim(),
+                                    file: String(topic && topic.file ? topic.file : '').trim(),
+                                    questions: normalizeBlockQuestions(topic && topic.questions)
+                                };
+                            })
+                            .filter(Boolean);
+
+                        return {
+                            id: subjectId,
+                            title: String(subject && subject.title ? subject.title : subjectId).trim(),
+                            topics: safeTopics
+                        };
+                    })
+                    .filter(Boolean)
+            };
+        }
+
+        function isSafeBlockFilePath(filePath) {
+            if (!filePath) return false;
+            const normalized = String(filePath).trim();
+            if (!normalized) return false;
+            if (/^[a-z]+:/i.test(normalized) || normalized.startsWith('//')) return false;
+            if (normalized.includes('..')) return false;
+            if (!normalized.startsWith('blocks-data/docs/')) return false;
+            return /\.docx?$/i.test(normalized);
         }
 
         function setBlocksStatus(message, isError = false) {
@@ -944,8 +938,7 @@
                 const response = await fetch(BLOCKS_CATALOG_URL, { cache: 'no-store' });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const payload = await response.json();
-                const subjects = Array.isArray(payload && payload.subjects) ? payload.subjects : [];
-                blocksState.catalog = { subjects };
+                blocksState.catalog = sanitizeBlocksCatalog(payload);
                 blocksState.catalogLoaded = true;
                 blocksState.catalogError = '';
                 setBlocksStatus('Блоктар каталогы жүктелді.');
@@ -977,7 +970,8 @@
                 topicCode: topic.code || '',
                 topicTitle: topic.title || 'Блок',
                 summary: topic.summary || '',
-                file: topic.file || ''
+                file: topic.file || '',
+                questions: Array.isArray(topic.questions) ? topic.questions : []
             };
         }
 
@@ -996,27 +990,34 @@
                 return;
             }
 
-            let html = '';
+            root.innerHTML = '';
             subjects.forEach((subject) => {
                 const topics = Array.isArray(subject.topics) ? subject.topics : [];
-                html += `<h1>${escapeHtml(subject.title || subject.id)}</h1>`;
+                const heading = document.createElement('h1');
+                heading.textContent = subject.title || subject.id;
+                root.appendChild(heading);
 
                 if (!topics.length) {
-                    html += '<p class="materials-empty">Бұл пәнде блок жоқ.</p>';
+                    const empty = document.createElement('p');
+                    empty.className = 'materials-empty';
+                    empty.textContent = 'Бұл пәнде блок жоқ.';
+                    root.appendChild(empty);
                     return;
                 }
 
-                html += '<ul class="topics-list blocks-topics-list">';
+                const list = document.createElement('ul');
+                list.className = 'topics-list blocks-topics-list';
                 topics.forEach((topic) => {
                     const key = `${subject.id}::${topic.id}`;
                     const activeClass = blocksState.activeTopicKey === key ? 'active' : '';
-                    const code = topic.code ? `${escapeHtml(topic.code)} ` : '';
-                    html += `<li class="${activeClass}" onclick="openBlockTopic('${escapeHtml(subject.id)}','${escapeHtml(topic.id)}')">${code}${escapeHtml(topic.title || 'Блок')}</li>`;
+                    const item = document.createElement('li');
+                    item.className = activeClass;
+                    item.textContent = `${topic.code ? `${topic.code} ` : ''}${topic.title || 'Блок'}`;
+                    item.addEventListener('click', () => openBlockTopic(subject.id, topic.id));
+                    list.appendChild(item);
                 });
-                html += '</ul>';
+                root.appendChild(list);
             });
-
-            root.innerHTML = html;
         }
 
         function setBlockViewerLoading(isLoading, message = 'Құжат жүктеліп жатыр...') {
@@ -1046,6 +1047,95 @@
             }).join('');
         }
 
+        function renderBlockQuestions(questions) {
+            const list = document.getElementById('blocks-qa-list');
+            if (!list) return;
+            const items = Array.isArray(questions) ? questions : [];
+
+            list.innerHTML = '';
+            if (!items.length) {
+                list.hidden = true;
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const card = document.createElement('details');
+                card.className = 'blocks-qa-item';
+                if (index === 0) card.open = true;
+
+                const summary = document.createElement('summary');
+                summary.textContent = item.question;
+
+                const answer = document.createElement('p');
+                answer.className = 'blocks-qa-answer';
+                answer.textContent = item.answer;
+
+                card.appendChild(summary);
+                card.appendChild(answer);
+                list.appendChild(card);
+            });
+            list.hidden = false;
+        }
+
+        function sanitizeDocxHtml(rawHtml) {
+            const template = document.createElement('template');
+            template.innerHTML = String(rawHtml || '');
+
+            const blockedTags = ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'style', 'form'];
+            blockedTags.forEach((tag) => {
+                template.content.querySelectorAll(tag).forEach((node) => node.remove());
+            });
+
+            template.content.querySelectorAll('*').forEach((element) => {
+                [...element.attributes].forEach((attr) => {
+                    const name = attr.name.toLowerCase();
+                    const value = String(attr.value || '').trim().toLowerCase();
+                    if (name.startsWith('on')) {
+                        element.removeAttribute(attr.name);
+                        return;
+                    }
+                    if ((name === 'href' || name === 'src') && value.startsWith('javascript:')) {
+                        element.removeAttribute(attr.name);
+                    }
+                });
+            });
+
+            return template.innerHTML;
+        }
+
+        function decorateDocxContent(container) {
+            if (!container) return;
+
+            container.querySelectorAll('p').forEach((paragraph) => {
+                if (!paragraph.textContent || !paragraph.textContent.trim()) return;
+                paragraph.classList.add('docx-paragraph');
+            });
+
+            container.querySelectorAll('table').forEach((table) => {
+                if (table.parentElement && table.parentElement.classList.contains('docx-table-wrap')) return;
+                const wrap = document.createElement('div');
+                wrap.className = 'docx-table-wrap';
+                table.parentNode.insertBefore(wrap, table);
+                wrap.appendChild(table);
+            });
+
+            container.querySelectorAll('a[href]').forEach((anchor) => {
+                const href = String(anchor.getAttribute('href') || '').trim();
+                if (!href || /^javascript:/i.test(href)) {
+                    anchor.removeAttribute('href');
+                    return;
+                }
+                anchor.setAttribute('target', '_blank');
+                anchor.setAttribute('rel', 'noopener noreferrer');
+            });
+
+            if (container.textContent && container.textContent.trim()) {
+                container.classList.add('is-rendered');
+            } else {
+                container.classList.remove('is-rendered');
+            }
+        }
+
         async function renderDocxInViewer(filePath) {
             const content = document.getElementById('blocks-docx-content');
             if (!content) return false;
@@ -1055,22 +1145,57 @@
             content.innerHTML = '';
 
             try {
-                if (!window.mammoth || typeof window.mammoth.convertToHtml !== 'function') {
-                    throw new Error('DOCX viewer кітапханасы жүктелмеді.');
-                }
-
                 const response = await fetch(filePath, { cache: 'no-store' });
                 if (!response.ok) throw new Error(`Файл ашылмады: HTTP ${response.status}`);
                 const arrayBuffer = await response.arrayBuffer();
-                const result = await window.mammoth.convertToHtml(
-                    { arrayBuffer },
-                    {
-                        includeDefaultStyleMap: true
-                    }
-                );
 
-                content.innerHTML = result.value || '<p>Құжат бос.</p>';
-                renderBlockViewerMessages(result.messages || []);
+                const canUseNativeDocxViewer =
+                    window.docx &&
+                    typeof window.docx.renderAsync === 'function' &&
+                    window.JSZip;
+
+                if (canUseNativeDocxViewer) {
+                    try {
+                        content.innerHTML = '';
+                        content.classList.add('docx-native-view');
+                        await window.docx.renderAsync(arrayBuffer, content, null, {
+                            inWrapper: false,
+                            ignoreWidth: false,
+                            ignoreHeight: false,
+                            ignoreFonts: false,
+                            breakPages: true,
+                            useBase64URL: true
+                        });
+                        renderBlockViewerMessages([]);
+                    } catch (nativeError) {
+                        content.classList.remove('docx-native-view');
+                    }
+                }
+
+                if (!content.classList.contains('docx-native-view') || !content.innerHTML.trim()) {
+                    if (!window.mammoth || typeof window.mammoth.convertToHtml !== 'function') {
+                        throw new Error('DOCX viewer кітапханасы жүктелмеді.');
+                    }
+
+                    content.classList.remove('docx-native-view');
+                    const result = await window.mammoth.convertToHtml(
+                        { arrayBuffer },
+                        {
+                            includeDefaultStyleMap: true,
+                            styleMap: [
+                                "p[style-name='Heading 1'] => h1:fresh",
+                                "p[style-name='Heading 2'] => h2:fresh",
+                                "p[style-name='Heading 3'] => h3:fresh",
+                                "p[style-name='Title'] => h1:fresh",
+                                "p[style-name='Subtitle'] => h3:fresh"
+                            ]
+                        }
+                    );
+
+                    content.innerHTML = sanitizeDocxHtml(result.value || '<p>Құжат бос.</p>');
+                    decorateDocxContent(content);
+                    renderBlockViewerMessages(result.messages || []);
+                }
                 setBlockViewerLoading(false);
                 return true;
             } catch (error) {
@@ -1083,27 +1208,18 @@
 
         async function openBlockTopic(subjectId, topicId) {
             const meta = findBlockMeta(subjectId, topicId);
-            if (!meta || !meta.file) {
+            if (!meta || !meta.file || !isSafeBlockFilePath(meta.file)) {
                 setBlocksStatus('Блок файлы табылмады.', true);
                 return;
             }
 
             const viewer = document.getElementById('blocks-viewer');
             const title = document.getElementById('blocks-viewer-title');
-            const note = document.getElementById('blocks-viewer-note');
-            const downloadLink = document.getElementById('blocks-download-link');
-            const directLink = document.getElementById('blocks-open-direct-link');
-
-            const directUrl = resolveAbsoluteUrl(meta.file);
 
             if (title) {
                 title.textContent = `${meta.subjectTitle} - ${meta.topicCode} ${meta.topicTitle}`.trim();
             }
-            if (downloadLink) downloadLink.href = meta.file;
-            if (directLink) directLink.href = directUrl || meta.file;
-            if (note) {
-                note.textContent = meta.summary || 'Құжат төменде ашылады. Егер қате шықса, жүктеп алу батырмасын пайдаланыңыз.';
-            }
+            renderBlockQuestions(meta.questions);
 
             blocksState.activeTopicKey = `${subjectId}::${topicId}`;
             blocksState.openBlockMeta = meta;
@@ -1126,6 +1242,7 @@
             const content = document.getElementById('blocks-docx-content');
             if (viewer) viewer.hidden = true;
             if (content) content.innerHTML = '';
+            renderBlockQuestions([]);
             renderBlockViewerMessages([]);
             setBlockViewerLoading(false);
             blocksState.activeTopicKey = '';
