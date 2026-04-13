@@ -1342,6 +1342,14 @@ h1 {
 }
 
 @media (max-width: 768px) {
+    #test .topics-list li,
+    .blocks-topics-list li {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.06);
+    }
+
     .blocks-docx-content {
         min-height: 300px;
         border-radius: 10px;

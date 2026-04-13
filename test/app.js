@@ -1619,6 +1619,32 @@ function testgo(x) {
     return String(value ?? '').trim();
   }
 
+  function sanitizeQuestionHtml(rawHtml) {
+    const template = document.createElement('template');
+    template.innerHTML = String(rawHtml || '');
+
+    const blockedTags = ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'style', 'form'];
+    blockedTags.forEach((tag) => {
+      template.content.querySelectorAll(tag).forEach((node) => node.remove());
+    });
+
+    template.content.querySelectorAll('*').forEach((element) => {
+      [...element.attributes].forEach((attr) => {
+        const name = attr.name.toLowerCase();
+        const value = String(attr.value || '').trim().toLowerCase();
+        if (name.startsWith('on')) {
+          element.removeAttribute(attr.name);
+          return;
+        }
+        if ((name === 'href' || name === 'src') && value.startsWith('javascript:')) {
+          element.removeAttribute(attr.name);
+        }
+      });
+    });
+
+    return template.innerHTML;
+  }
+
   function getCorrectAnswer(question) {
     if (!question || typeof question !== 'object') return '';
     if (Array.isArray(question.options) && question.options.length > 0) {
@@ -1857,7 +1883,7 @@ function testgo(x) {
       return loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
     }
 
-    return loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
+    return Promise.reject(new Error(`Белгісіз тест ID: ${testId}`));
   }
 
   function handleLoadError(error) {
@@ -2341,7 +2367,7 @@ function testgo(x) {
     }
     const questionText = document.createElement("div");
     questionText.className = "question-text";
-    if (q.useHtml) questionText.innerHTML = q.question;
+    if (q.useHtml) questionText.innerHTML = sanitizeQuestionHtml(q.question);
     else questionText.innerText = q.question;
     questionBox.appendChild(questionText);
 
