@@ -1173,6 +1173,26 @@ h1 {
     margin: 0;
 }
 
+.blocks-quick-back {
+    position: fixed;
+    right: 14px;
+    bottom: 82px;
+    z-index: 40;
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: #1f5fa9;
+    box-shadow: 0 8px 20px rgba(16, 53, 97, 0.28);
+    cursor: pointer;
+}
+
+.blocks-quick-back:hover {
+    background: #184d89;
+}
+
 .blocks-docx-content {
     min-height: 420px;
     border: 1px solid #d7e3ef;
@@ -1453,6 +1473,12 @@ h1 {
         height: auto !important;
         object-fit: contain !important;
         margin: 0 !important;
+    }
+
+    .blocks-quick-back {
+        right: 0px;
+        bottom: 45px;
+        padding: 10px 12px;
     }
 }
 

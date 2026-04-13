@@ -360,6 +360,7 @@
         <div id="blocks-docx-errors" class="blocks-docx-errors" hidden></div>
         <article id="blocks-docx-content" class="blocks-docx-content"></article>
     </section>
+    <button type="button" id="blocks-quick-back" class="blocks-quick-back" onclick="quickBackToBlocksTopics()" hidden>Артқа</button>
 </section>
 
             <section id="math-formulas" class="content-page formulas-page">
@@ -852,7 +853,8 @@
             catalogLoaded: false,
             catalogError: '',
             activeTopicKey: '',
-            openBlockMeta: null
+            openBlockMeta: null,
+            quickBackBound: false
         };
 
         function escapeHtml(value) {
@@ -1277,6 +1279,7 @@
                 viewer.hidden = false;
                 viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+            updateBlocksQuickBackVisibility();
             const rendered = await renderDocxInViewer(meta.file);
             setBlocksStatus(
                 rendered
@@ -1297,12 +1300,39 @@
             blocksState.activeTopicKey = '';
             blocksState.openBlockMeta = null;
             renderBlocksList();
+            updateBlocksQuickBackVisibility();
+        }
+
+        function updateBlocksQuickBackVisibility() {
+            const quickBackButton = document.getElementById('blocks-quick-back');
+            const viewer = document.getElementById('blocks-viewer');
+            if (!quickBackButton || !viewer || viewer.hidden || !blocksState.openBlockMeta) {
+                if (quickBackButton) quickBackButton.hidden = true;
+                return;
+            }
+
+            const viewerTop = viewer.getBoundingClientRect().top + window.scrollY;
+            quickBackButton.hidden = window.scrollY < viewerTop + 260;
+        }
+
+        function quickBackToBlocksTopics() {
+            closeBlockViewer();
+            const target = document.getElementById('blocks-topic-groups');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         async function initBlocksSection() {
             await ensureBlocksCatalog();
             renderBlocksList();
             setBlocksStatus('Блок тақырыбын таңдаңыз.');
+            if (!blocksState.quickBackBound) {
+                window.addEventListener('scroll', updateBlocksQuickBackVisibility, { passive: true });
+                window.addEventListener('resize', updateBlocksQuickBackVisibility);
+                blocksState.quickBackBound = true;
+            }
+            updateBlocksQuickBackVisibility();
         }
 
         function openPage(pageId) {
