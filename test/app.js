@@ -69,7 +69,8 @@ const TEST_METADATA = {
     '18': { title: 'XIX ғасырдағы 50 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/koterilis.json' },
     '19': { title: 'XIX ғасырдағы 67-68 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/XiX60-70.json' },
     '20': { title: 'XIX ғасырдың 60-70 көтерілістер', subject: 'Қазақстан тарихы' },
-    '1907': { title: 'ХХ ғасыр басыңдағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1907.json' },
+    '21': { title: 'ХХ ғасыр басыңдағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1907.json' },
+    '22': { title: '1991 жыл: Тәуелсіздік кезеңі', subject: 'Қазақстан тарихы', file: 'test/data/1991.json' },
     '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика', file: 'test/data/1.1.json' },
     '151': { title: '1.2 Компьютер жады', subject: 'Информатика', file: 'test/data/1.2.json' },
     '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика', file: 'test/data/1.3.json' },
@@ -80,7 +81,9 @@ const TEST_METADATA = {
     '158': { title: '4.1 Компьютерлік желілері', subject: 'Информатика', file: 'test/data/4.1.json' },
     '159': { title: '4.3 IP адрес', subject: 'Информатика', file: 'test/data/4.3.json' },
     '160': { title: '10.1.1 HTML', subject: 'Информатика', file: 'test/data/10.1.1.json' },
-    '161': { title: 'Жаңа тест (үлгі)', subject: 'Информатика', file: 'test/data/161.json' }
+    '161': { title: 'Жаңа тест (үлгі)', subject: 'Информатика', file: 'test/data/161.json' },
+    '162': { title: 'Python тесті', subject: 'Информатика', file: 'test/data/python.json' },
+    '163': { title: 'CSS тесті', subject: 'Информатика', file: 'test/data/css.json' }
 };
 
 function buildTestFileMap() {
