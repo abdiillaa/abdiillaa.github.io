@@ -1,4 +1,4 @@
-const CACHE_NAME = "ubt-runtime-cache-v2";
+const CACHE_NAME = "ubt-runtime-cache-v4";
 
 const APP_SHELL_ASSETS = [
   "./",
@@ -8,6 +8,9 @@ const APP_SHELL_ASSETS = [
   "./test/style.css",
   "./test/app.js",
   "./chart.js",
+  "./libs/mammoth.browser.min.js",
+  "./libs/jszip.min.js",
+  "./libs/docx-preview.min.js",
   "./1.png",
   "./2.png",
   "./3.png",
@@ -44,24 +47,31 @@ const DATA_ASSETS = [
   "./test/data/2.5.json",
   "./test/data/3.1.json",
   "./test/data/4.1.json",
-  "./test/data/4.2.json",
   "./test/data/4.3.json",
-  "./test/data/4.4.json",
-  "./test/data/4.5.json",
   "./test/data/SD.json",
+  "./test/data/XiX60-70.json",
   "./test/data/altynorda.json",
+  "./test/data/css.json",
   "./test/data/ezhelgi.json",
+  "./test/data/eset.json",
+  "./test/data/juz40info.json",
+  "./test/data/juz40tarih.json",
   "./test/data/khanat-v2.json",
-  "./test/data/khanate.json",
   "./test/data/khanatedel.json",
+  "./test/data/koterilis.json",
   "./test/data/kz-history-10-test-1.json",
+  "./test/data/1920-30.json",
+  "./test/data/1907.json",
   "./test/data/mongolshapkyn.json",
   "./test/data/nogai.json",
+  "./test/data/python.json",
   "./test/data/qarakhan.json",
+  "./test/data/67-68.json",
   "./test/data/syrymdatuly.json",
+  "./test/data/tokyrau.json",
   "./test/data/turik.json",
   "./test/data/turikmadinet.json",
-  "./test/data/ulyJibek.json",
+  "./test/data/ulyOtan.json",
   "./test/data/xvmadinet.json",
   "./test/data/zhongar.json",
   "./users/ranking.json",
@@ -73,9 +83,19 @@ const DATA_ASSETS = [
 const PRECACHE_ASSETS = [...new Set([...APP_SHELL_ASSETS, ...DATA_ASSETS])];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const results = await Promise.allSettled(
+      PRECACHE_ASSETS.map((asset) =>
+        cache.add(asset).then(() => asset)
+      )
+    );
+    const failed = results.filter((result) => result.status === "rejected");
+    if (failed.length) {
+      // Keep SW install successful even if a few optional files are unavailable.
+      console.warn(`[SW] Precache partially failed: ${failed.length} asset(s).`);
+    }
+  })());
   self.skipWaiting();
 });
 

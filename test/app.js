@@ -67,14 +67,13 @@ const TEST_METADATA = {
     '16': { title: '1867-1868 Жылдардағы реформа', subject: 'Қазақстан тарихы', file: 'test/data/eset.json' },
     '17': { title: '10-сынып Қазақстан тарихы тест 1', subject: 'Қазақстан тарихы', file: 'test/data/67-68.json' },
     '18': { title: 'XIX ғасырдағы 50 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/koterilis.json' },
-    '19': { title: 'XIX ғасырдағы 67-68 жылдар', subject: 'Қазақстан тарихы', file: 'test/data/XiX60-70.json' },
-    '20': { title: 'XIX ғасырдың 60-70 көтерілістер', subject: 'Қазақстан тарихы' },
-    '21': { title: 'ХХ ғасыр басыңдағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1907.json' },
-    '22': { title: '1991 жыл: Тәуелсіздік кезеңі', subject: 'Қазақстан тарихы', file: 'test/data/1991.json' },
-    '23': { title: 'Жүзден жүйрік 40 (тарих)', subject: 'Қазақстан тарихы', file: 'test/data/juz40tarih.json' },
-    '24': { title: '1920-1930 жылдардағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1920-30.json' },
-    '25': { title: 'Ұлы жібек жолы мәдениеті', subject: 'Қазақстан тарихы', file: 'test/data/ulyJibek.json' },
-    '26': { title: 'Тоқырау жылдарындағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/tokyrau.json' },
+    '19': { title: 'XIX ғасырдың 60-70 көтерілістер', subject: 'Қазақстан тарихы', file: 'test/data/XiX60-70.json' },
+    '20': { title: 'ХХ ғасыр басыңдағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1907.json' },
+    '21': { title: '1991 жыл: Тәуелсіздік кезеңі', subject: 'Қазақстан тарихы', file: 'test/data/1991.json' },
+    '22': { title: 'Жүзден жүйрік 40 (тарих)', subject: 'Қазақстан тарихы', file: 'test/data/juz40tarih.json' },
+    '23': { title: '1920-1930 жылдардағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1920-30.json' },
+    '24': { title: 'Ұлы Отан соғысы', subject: 'Қазақстан тарихы', file: 'test/data/ulyOtan.json' },
+    '25': { title: 'Тоқырау жылдарындағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/tokyrau.json' },
     '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика', file: 'test/data/1.1.json' },
     '151': { title: '1.2 Компьютер жады', subject: 'Информатика', file: 'test/data/1.2.json' },
     '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика', file: 'test/data/1.3.json' },
@@ -1853,11 +1852,19 @@ function testgo(x) {
   }
 
   function fetchQuestionFile(filePath, testId) {
-    return fetch(filePath).then((response) => {
+    return fetch(filePath, { cache: 'no-store' }).then((response) => {
       if (!response.ok) {
         throw new Error(`Файл жүктелмеді: ${filePath} (${response.status})`);
       }
-      return response.json().then((questions) => attachQuestionMeta(questions, testId));
+      return response.text().then((rawText) => {
+        let questions;
+        try {
+          questions = JSON.parse(rawText);
+        } catch (parseError) {
+          throw new Error(`JSON синтаксис қатесі: ${filePath}. ${parseError.message}`);
+        }
+        return attachQuestionMeta(questions, testId);
+      });
     });
   }
 
