@@ -77,6 +77,8 @@ const TEST_METADATA = {
     '26': { title: '1930 жылдардағы қоғамдық-саяси', subject: 'Қазақстан тарихы', file: 'test/data/1930.json' },
     '27': { title: '2025 мамырдағы тест Физ/Мат', subject: 'Қазақстан тарихы', file: 'test/data/2025mayarai.json' },
     '28': { title: '2025 мамырдағы тест Био/Хим', subject: 'Қазақстан тарихы', file: 'test/data/2025mayaruzhan.json' },
+    '29': { title: '2025 мамырдағы тест Инфо/Мат', subject: 'Қазақстан тарихы', file: 'test/data/2025maynurseit.json' },
+    '30': { title: '2025 тамыздағы тест Инфо/Мат', subject: 'Қазақстан тарихы', file: 'test/data/2025augustramazan.json' },
     '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика', file: 'test/data/1.1.json' },
     '151': { title: '1.2 Компьютер жады', subject: 'Информатика', file: 'test/data/1.2.json' },
     '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика', file: 'test/data/1.3.json' },
