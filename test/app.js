@@ -1653,7 +1653,6 @@ function searchMaterials() {
 function goBackFromTest() {
   const app = document.getElementById("app");
   const homeMenu = document.getElementById("homemenu");
-  const footerBrand = document.querySelector(".footer-brand");
 
   clearRunnerTimer();
   RUNNER_UI.activeApi = null;
@@ -1661,7 +1660,6 @@ function goBackFromTest() {
   closeRunnerFinishModal();
   document.body.classList.remove("is-test-runner");
   if (app) app.style.display = "none";
-  if (footerBrand) footerBrand.style.display = "block";
 
   if (homeMenu) {
     homeMenu.style.display = "flex";
@@ -2049,13 +2047,11 @@ function testgo(x) {
   let instantResults = [];
   let selfCheckLogs = [];
   let lastRenderedQuestionIndex = -1;
-  const footerBrand = document.querySelector(".footer-brand");
 
   document.body.classList.add("is-test-runner");
   const homeMenu = document.getElementById("homemenu");
   if (homeMenu) homeMenu.style.display = "none";
   appRoot.style.display = "block";
-  if (footerBrand) footerBrand.style.display = "none";
 
   loadQuestionsForTest(selectedTestId)
     .then((questions) => {

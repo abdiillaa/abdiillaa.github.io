@@ -80,6 +80,11 @@ body {
     display: none;
 }
 
+body.is-test-runner .mobile-bottom-nav,
+body.is-test-runner .mobile-more-sheet {
+    display: none !important;
+}
+
 /* Негізгі контент */
 .main-content {
     flex: 1;
@@ -1914,38 +1919,4 @@ h1 {
 canvas#scoreChart {
     width: 100% !important;
     height: 100% !important;
-}
-.footer-brand {
-    position: fixed; /* Экранға бекіту */
-    bottom: 0;       /* Ең астына жабыстыру */
-    left: 0;
-    width: 100%;     /* Толық ені */
-    text-align: center;
-    padding: 10px 0; /* Айналасындағы бос орын */
-    background: rgba(255, 255, 255, 0.8); /* Сәл мөлдір ақ түс (әйнек эффектісі) */
-    backdrop-filter: blur(5px); /* Астындағы заттарды сәл бұлдырату */
-    font-family: 'Montserrat', sans-serif; /* Егер бұл шрифт болмаса, 'Arial Black' қолданыңыз */
-    font-size: 12px;
-    letter-spacing: 3px; /* Әріптер арасы алшақ - стильді көрінеді */
-    color: #333;
-    border-top: 1px solid rgba(0, 0, 0, 0.05); /* Жіңішке сызық */
-    z-index: 9999; /* Барлық нәрсенің үстінде тұруы үшін */
-}
-
-.footer-brand .name {
-    font-weight: 900;
-    color: #2c3e50;
-    position: relative;
-    padding: 0 5px;
-}
-
-/* Саян мен Рамазанның астындағы кішкентай сызықшалар */
-.footer-brand .name::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #3498db; /* Көк түсті екпін */
 }
