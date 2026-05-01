@@ -2368,6 +2368,20 @@ function testgo(x) {
     active.blur();
   }
 
+  function isCoarsePointerDevice() {
+    return typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  }
+
+  function scheduleRunnerFocusCleanup() {
+    if (!isCoarsePointerDevice()) return;
+    requestAnimationFrame(() => {
+      clearRunnerFocus();
+      requestAnimationFrame(() => clearRunnerFocus());
+    });
+  }
+
   function finishCurrentTest(skipPrompt = false, isTimedOut = false) {
     const unanswered = getExamUnansweredCount();
     if (!skipPrompt && unanswered > 0) {
@@ -2545,6 +2559,7 @@ function testgo(x) {
       box.appendChild(btn);
     });
     renderRunnerNavigation();
+    scheduleRunnerFocusCleanup();
   }
 
   function renderReviewMode(box, question) {
