@@ -3,10 +3,26 @@ const PUBLIC_RANKING_URL = 'users/ranking.json';
 const ENCRYPTED_USERS_DIR = 'users';
 const ENCRYPTION_ITERATIONS = 250000;
 let rankingData = [];
+const RANKING_HISTORY_MONTHS = [
+    'Қыркүйек',
+    'Қазан',
+    'Қараша',
+    'Желтоқсан',
+    'Қаңтар',
+    'Ақпан',
+    'Наурыз',
+    'Сәуір',
+    'Мамыр'
+];
+const RANKING_MODES = [
+    ...RANKING_HISTORY_MONTHS.map((month, index) => ({ value: `month-${index}`, label: month })),
+    { value: 'all', label: 'Барлық ұпай' }
+];
+let rankingModeIndex = RANKING_HISTORY_MONTHS.length - 1;
 fetch(PUBLIC_RANKING_URL)
   .then((response) => response.json())
   .then((data) => {
-    rankingData = Array.isArray(data) ? data : [];
+    rankingData = data;
   })
   .catch(() => {
     rankingData = [];
@@ -1486,18 +1502,100 @@ function prevChart() {
 
 // Бет жүктелгенде бірден іске қосу
 
+function normalizeRankingEntry(entry, view = 'current', fallbackType = 'ҰБТ') {
+    if (!entry || typeof entry !== 'object') return null;
+    const name = String(entry.name || '').trim();
+    if (!name) return null;
+
+    const historyScores = Array.isArray(entry.totalHistory)
+        ? entry.totalHistory.map((score) => Number(score) || 0)
+        : [];
+    let scoreSource = entry.score ?? entry.currentScore ?? historyScores[historyScores.length - 1] ?? 0;
+    const activeMode = RANKING_MODES[rankingModeIndex] || RANKING_MODES[RANKING_HISTORY_MONTHS.length - 1];
+    if (activeMode.value === 'all') {
+        scoreSource = historyScores.reduce((sum, score) => sum + score, 0);
+    } else if (activeMode.value.startsWith('month-')) {
+        const monthIndex = Number(activeMode.value.replace('month-', ''));
+        scoreSource = historyScores[monthIndex] ?? 0;
+    }
+    const score = Number(scoreSource) || 0;
+    return {
+        name,
+        score,
+        historyScores,
+        type: String(entry.type || fallbackType).trim() || fallbackType
+    };
+}
+
+function getRankingEntriesByView() {
+    const source = rankingData;
+    if (Array.isArray(source)) {
+        return source
+            .map((entry) => normalizeRankingEntry(entry, 'current'))
+            .filter(Boolean);
+    }
+
+    if (!source || typeof source !== 'object') return [];
+
+    const scopedEntries = Array.isArray(source.current)
+        ? source.current
+        : [];
+
+    return scopedEntries
+        .map((entry) => normalizeRankingEntry(entry, 'current', source.type || 'ҰБТ'))
+        .filter(Boolean);
+}
+
+function updateRankingViewUi() {
+    const title = document.getElementById('rankingModeTitle');
+    const prevButton = document.getElementById('rankingPrevBtn');
+    const nextButton = document.getElementById('rankingNextBtn');
+    const activeMode = RANKING_MODES[rankingModeIndex] || RANKING_MODES[RANKING_HISTORY_MONTHS.length - 1];
+    if (title) title.textContent = activeMode.label;
+    if (prevButton) prevButton.disabled = rankingModeIndex <= 0;
+    if (nextButton) nextButton.disabled = rankingModeIndex >= RANKING_MODES.length - 1;
+}
+
+function changeRankingMode(step) {
+    const nextIndex = Math.max(0, Math.min(rankingModeIndex + step, RANKING_MODES.length - 1));
+    if (nextIndex === rankingModeIndex) {
+        updateRankingViewUi();
+        return;
+    }
+    rankingModeIndex = nextIndex;
+    updateRankingViewUi();
+    updateRanking();
+}
+
+function prevRankingMode() {
+    changeRankingMode(-1);
+}
+
+function nextRankingMode() {
+    changeRankingMode(1);
+}
 
 function updateRanking() {
   var user = JSON.parse(localStorage.getItem('currentUser'));
     const tbody = document.getElementById('rankingBody');
     if (!tbody) return;
+    updateRankingViewUi();
 
-    if (!Array.isArray(rankingData) || rankingData.length === 0) {
+    const rankingEntries = getRankingEntriesByView();
+    if (rankingEntries.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Мәліметтер жүктелуде...</td></tr>';
         return;
     }
 
-    const studentsArray = [...rankingData].sort((a, b) => (b.score || 0) - (a.score || 0));
+    const studentsArray = [...rankingEntries]
+        .filter((student) => {
+            const activeMode = RANKING_MODES[rankingModeIndex] || RANKING_MODES[RANKING_HISTORY_MONTHS.length - 1];
+            if (activeMode.value === 'all') return true;
+            if (!activeMode.value.startsWith('month-')) return true;
+            const monthIndex = Number(activeMode.value.replace('month-', ''));
+            return student.historyScores[monthIndex] !== undefined;
+        })
+        .sort((a, b) => (b.score || 0) - (a.score || 0));
     tbody.innerHTML = '';
     studentsArray.forEach((student, index) => {
         let medal = "";
@@ -1516,7 +1614,7 @@ function updateRanking() {
                         ${student.score}
                     </span>
                 </td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #ffffff;">ҰБТ</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #ffffff;">${student.type}</td>
             </tr>
         `;
       }
@@ -1530,7 +1628,7 @@ function updateRanking() {
                         ${student.score}
                     </span>
                 </td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #777;">ҰБТ</td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #777;">${student.type}</td>
             </tr>
         `;};
         tbody.innerHTML += row;

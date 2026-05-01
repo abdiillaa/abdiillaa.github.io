@@ -711,6 +711,19 @@ h1 {
     color: white;
 }
 
+.chart-switcher button:disabled {
+    background: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: inset 0 0 0 1px #d1d5db;
+    opacity: 0.9;
+}
+
+.chart-switcher button:disabled:hover {
+    background: #e5e7eb;
+    color: #9ca3af;
+}
+
 .ranking-card {
     background: #fff;
     border-radius: 12px;
