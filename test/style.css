@@ -2223,6 +2223,11 @@ body.is-test-runner #app .finish-btn{
 @media (max-width: 900px){
   #app .runner-finish-compact{ width:min(360px, calc(100vw - 16px)); padding:18px; }
   #app .runner-finish-summary{ font-size:14px; }
+  body.is-test-runner #app .answer:hover{
+      background-color:#fff;
+      border:1px solid var(--line);
+      
+  }
 }
 
 body.is-test-runner #app .finish-btn.cancel{
