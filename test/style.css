@@ -1430,6 +1430,22 @@ body.is-test-runner #app.container{
   }
 }
 
+@media (hover: none) and (pointer: coarse){
+  #app .answer:focus,
+  #app .answer:focus-visible,
+  #app .runner-nav-btn:focus,
+  #app .runner-nav-btn:focus-visible,
+  #app .self-good-btn:focus,
+  #app .self-good-btn:focus-visible,
+  #app .self-bad-btn:focus,
+  #app .self-bad-btn:focus-visible,
+  #app .runner-finish-btn:focus,
+  #app .runner-finish-btn:focus-visible{
+    outline:none;
+    box-shadow:none;
+  }
+}
+
 body.is-test-runner #app > .header{
   background:linear-gradient(135deg, var(--brand), #0e877f 50%, #1a9c8d 100%);
   color:#fff;

@@ -2365,6 +2365,13 @@ function testgo(x) {
     render();
   }
 
+  function clearRunnerFocus() {
+    const active = document.activeElement;
+    if (!active || typeof active.blur !== 'function') return;
+    if (!document.getElementById('app')?.contains(active)) return;
+    active.blur();
+  }
+
   function finishCurrentTest(skipPrompt = false, isTimedOut = false) {
     const unanswered = getExamUnansweredCount();
     if (!skipPrompt && unanswered > 0) {
@@ -2656,6 +2663,7 @@ function testgo(x) {
     });
 
     setTimeout(() => {
+      clearRunnerFocus();
       current++;
       current < test.length ? render() : finish();
     }, 260);
@@ -2695,6 +2703,7 @@ function testgo(x) {
     renderRunnerNavigation();
 
     setTimeout(() => {
+      clearRunnerFocus();
       if (current >= test.length - 1) {
         finish();
         return;

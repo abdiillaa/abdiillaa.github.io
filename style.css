@@ -75,6 +75,11 @@ body {
     font-weight: bold;
 }
 
+.mobile-bottom-nav,
+.mobile-more-sheet {
+    display: none;
+}
+
 /* Негізгі контент */
 .main-content {
     flex: 1;
@@ -525,57 +530,55 @@ h1 {
         align-items: stretch;
         padding: 0;
         margin-top: 0;
-        padding-bottom: 110px;
+        padding-bottom: 96px;
     }
 
     .sidebar {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid #ddd;
-        padding: 16px;
+        border-bottom: 0;
+        padding: 10px 14px 8px;
         box-sizing: border-box;
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
     }
 
     .main-content {
-        padding: 18px 14px 28px;
+        padding: 12px 14px 20px;
         box-sizing: border-box;
     }
 
     .user-info {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
+        margin-bottom: 0;
     }
 
     .avatar {
-        width: 56px;
-        height: 56px;
+        width: 42px;
+        height: 42px;
         margin-bottom: 0;
+        border-radius: 12px;
     }
 
     .username {
         margin-bottom: 0;
-        font-size: 18px;
+        font-size: 15px;
+        line-height: 1.15;
     }
 
-    .menu ul {
-        display: block;
-        margin-top: 16px;
-    }
-
-    .menu li {
-        font-size: 16px;
-        padding: 10px 0;
-        border: none;
-        border-radius: 0;
-        background: transparent;
-        text-align: left;
-        white-space: normal;
+    .menu {
+        display: none;
     }
 
     h1 {
-        font-size: 24px;
-        margin-bottom: 24px;
+        font-size: 22px;
+        margin-bottom: 18px;
     }
 
     .topics-list li {
@@ -635,12 +638,12 @@ h1 {
     }
 
     .chart-switcher {
-        gap: 12px;
+        gap: 10px;
     }
 
     .chart-switcher h3 {
         min-width: 0;
-        font-size: 1rem;
+        font-size: 0.98rem;
     }
 
     .materials-toolbar {
@@ -675,6 +678,116 @@ h1 {
     .blocks-docx-content {
         min-height: 320px;
         padding: 16px;
+    }
+
+    .mobile-bottom-nav {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 4px;
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: max(10px, env(safe-area-inset-bottom));
+        padding: 8px;
+        border-radius: 22px;
+        background: rgba(28, 28, 32, 0.94);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.22);
+        z-index: 1200;
+    }
+
+    .mobile-nav-btn {
+        width: 100%;
+        min-width: 0;
+        padding: 8px 3px 7px;
+        border: 0;
+        border-radius: 16px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .mobile-nav-btn.active {
+        background: linear-gradient(135deg, #4fd17b, #2fba63);
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(47, 186, 99, 0.26);
+    }
+
+    .mobile-nav-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-nav-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .mobile-nav-btn.active .mobile-nav-icon svg:first-child path:first-child {
+        fill: currentColor;
+        stroke: none;
+    }
+
+    .mobile-more-sheet {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.34);
+        z-index: 1190;
+    }
+
+    .mobile-more-sheet[hidden] {
+        display: none;
+    }
+
+    .mobile-more-panel {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        bottom: calc(max(10px, env(safe-area-inset-bottom)) + 78px);
+        border-radius: 20px;
+        padding: 10px;
+        background: #ffffff;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+        display: grid;
+        gap: 8px;
+    }
+
+    .mobile-more-item {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #0f172a;
+        text-align: left;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .mobile-more-item.danger {
+        color: #b91c1c;
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+
+    .footer-brand {
+        display: none;
     }
 }
 .chart-switcher {

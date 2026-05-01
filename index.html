@@ -185,13 +185,13 @@
             </div>
             <nav class="menu">
                 <ul>
-                    <li onclick="openPage('home')" id="nav-home" class="active">Басты бет</li>
-                <li onclick="openPage('profile')" id="nav-profile">Профиль</li>
-                <li onclick="openPage('test')" id="nav-test">Тест</li>
-                <li onclick="openPage('settings')" id="nav-settings">Баптаулар</li>
-                <li onclick="openPage('ranking')" id="nav-ranking">Рейтинг</li>
-                <li onclick="openPage('blocks')" id="nav-blocks">Блоктар</li>
-                <li onclick="openPage('math-formulas')" id="nav-math-formulas">Математика формулалар</li>
+                    <li onclick="openPage('home')" id="nav-home" data-nav-target="home" class="active">Басты бет</li>
+                <li onclick="openPage('profile')" id="nav-profile" data-nav-target="profile">Профиль</li>
+                <li onclick="openPage('test')" id="nav-test" data-nav-target="test">Тест</li>
+                <li onclick="openPage('settings')" id="nav-settings" data-nav-target="settings">Баптаулар</li>
+                <li onclick="openPage('ranking')" id="nav-ranking" data-nav-target="ranking">Рейтинг</li>
+                <li onclick="openPage('blocks')" id="nav-blocks" data-nav-target="blocks">Блоктар</li>
+                <li onclick="openPage('math-formulas')" id="nav-math-formulas" data-nav-target="math-formulas">Математика формулалар</li>
                 <li onclick="logoutUser()" id="nav-logout">Шығу</li>
                 </ul>
             </nav>
@@ -848,6 +848,48 @@
             </section>
             </div>
         </main>
+
+        <nav class="mobile-bottom-nav" aria-label="Мобильді навигация">
+            <button type="button" class="mobile-nav-btn active" data-nav-target="home" onclick="openPage('home')">
+                <span class="mobile-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg>
+                </span>
+                <span>Басты</span>
+            </button>
+            <button type="button" class="mobile-nav-btn" data-nav-target="test" onclick="openPage('test')">
+                <span class="mobile-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M7 4h10l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7l3-3Z"/><path d="M8 11h8M8 15h5"/></svg>
+                </span>
+                <span>Тест</span>
+            </button>
+            <button type="button" class="mobile-nav-btn" data-nav-target="ranking" onclick="openPage('ranking')">
+                <span class="mobile-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M6 20V10M12 20V4M18 20v-7M4 20h16"/></svg>
+                </span>
+                <span>Рейтинг</span>
+            </button>
+            <button type="button" class="mobile-nav-btn" data-nav-target="blocks" onclick="openPage('blocks')">
+                <span class="mobile-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v13.5A2.5 2.5 0 0 0 17.5 15H4z"/><path d="M4 6.5V20h13.5A2.5 2.5 0 0 1 20 22"/></svg>
+                </span>
+                <span>Блок</span>
+            </button>
+            <button type="button" class="mobile-nav-btn" id="mobile-more-btn" onclick="toggleMobileMoreMenu()">
+                <span class="mobile-nav-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01"/><path d="M5 12a1 1 0 1 0 0 .01M12 12a1 1 0 1 0 0 .01M19 12a1 1 0 1 0 0 .01"/></svg>
+                </span>
+                <span>Көбірек</span>
+            </button>
+        </nav>
+
+        <div class="mobile-more-sheet" id="mobile-more-sheet" hidden onclick="closeMobileMoreMenu(event)">
+            <div class="mobile-more-panel" onclick="event.stopPropagation()">
+                <button type="button" class="mobile-more-item" data-nav-target="profile" onclick="openPage('profile')">Профиль</button>
+                <button type="button" class="mobile-more-item" data-nav-target="settings" onclick="openPage('settings')">Баптаулар</button>
+                <button type="button" class="mobile-more-item" data-nav-target="math-formulas" onclick="openPage('math-formulas')">Формулалар</button>
+                <button type="button" class="mobile-more-item danger" onclick="logoutUser()">Шығу</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1344,18 +1386,21 @@
         }
 
         function openPage(pageId) {
+            closeMobileMoreMenu();
             // Барлық беттерді жабу
             document.querySelectorAll('.content-page').forEach(page => {
                 page.classList.remove('active');
             });
             // Барлық мәзірлерден 'active' алып тастау
-            document.querySelectorAll('.menu li').forEach(li => {
-                li.classList.remove('active');
+            document.querySelectorAll('[data-nav-target]').forEach((navItem) => {
+                navItem.classList.remove('active');
             });
 
             // Керекті бетті ашу
             document.getElementById(pageId).classList.add('active');
-            document.getElementById('nav-' + pageId).classList.add('active');
+            document.querySelectorAll(`[data-nav-target="${pageId}"]`).forEach((navItem) => {
+                navItem.classList.add('active');
+            });
             if (pageId === 'ranking') {
         updateRanking();
     }
@@ -1369,11 +1414,12 @@
 
         function logoutUser() {
             localStorage.removeItem('currentUser');
+            closeMobileMoreMenu();
             document.querySelectorAll('.content-page').forEach(page => {
                 page.classList.remove('active');
             });
-            document.querySelectorAll('.menu li').forEach(li => {
-                li.classList.remove('active');
+            document.querySelectorAll('[data-nav-target]').forEach((navItem) => {
+                navItem.classList.remove('active');
             });
             const homeMenu = document.getElementById('homemenu');
             const loginScreen = document.getElementById('login-screen');
@@ -1387,6 +1433,23 @@
                 secretInput.value = '';
                 secretInput.focus();
             }
+        }
+
+        function toggleMobileMoreMenu() {
+            const sheet = document.getElementById('mobile-more-sheet');
+            const moreButton = document.getElementById('mobile-more-btn');
+            if (!sheet) return;
+            const willOpen = sheet.hidden;
+            sheet.hidden = !sheet.hidden;
+            if (moreButton) moreButton.classList.toggle('active', willOpen);
+        }
+
+        function closeMobileMoreMenu(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const sheet = document.getElementById('mobile-more-sheet');
+            const moreButton = document.getElementById('mobile-more-btn');
+            if (sheet) sheet.hidden = true;
+            if (moreButton) moreButton.classList.remove('active');
         }
 
         // Графикті баптау
