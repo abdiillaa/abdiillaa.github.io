@@ -86,7 +86,7 @@ const TEST_METADATA = {
     '19': { title: 'XIX ғасырдың 60-70 көтерілістер', subject: 'Қазақстан тарихы', file: 'test/data/XiX60-70.json' },
     '20': { title: 'ХХ ғасыр басыңдағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1907.json' },
     '21': { title: '1991 жыл: Тәуелсіздік кезеңі', subject: 'Қазақстан тарихы', file: 'test/data/1991.json' },
-//    '22': { title: 'Жүзден жүйрік 40 (тарих)', subject: 'Қазақстан тарихы', file: 'test/data/juz40tarih.json' },
+    '22': { title: 'Juz40 (тарих)', subject: 'Қазақстан тарихы', file: 'test/data/juz40tarih.json' },
     '23': { title: '1920-1930 жылдардағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/1920-30.json' },
     '24': { title: 'Ұлы Отан соғысы', subject: 'Қазақстан тарихы', file: 'test/data/ulyOtan.json' },
     '25': { title: 'Тоқырау жылдарындағы Қазақстан', subject: 'Қазақстан тарихы', file: 'test/data/tokyrau.json' },
@@ -95,6 +95,7 @@ const TEST_METADATA = {
     '28': { title: '2025 мамырдағы тест Био/Хим', subject: 'Қазақстан тарихы', file: 'test/data/2025mayaruzhan.json' },
     '29': { title: '2025 мамырдағы тест Инфо/Мат', subject: 'Қазақстан тарихы', file: 'test/data/2025maynurseit.json' },
     '30': { title: '2025 тамыздағы тест Инфо/Мат', subject: 'Қазақстан тарихы', file: 'test/data/2025augustramazan.json' },
+    '31': { title: 'XIX ғасырдың соңы', subject: 'Қазақстан тарихы', file: 'test/data/xixend.json' },
     '150': { title: '1.1 Компьютер конфигурациясы', subject: 'Информатика', file: 'test/data/1.1.json' },
     '151': { title: '1.2 Компьютер жады', subject: 'Информатика', file: 'test/data/1.2.json' },
     '152': { title: '1.3 Бағдармалалық жасақтама', subject: 'Информатика', file: 'test/data/1.3.json' },
@@ -109,6 +110,7 @@ const TEST_METADATA = {
     '162': { title: 'Python тесті', subject: 'Информатика', file: 'test/data/python.json' },
     '163': { title: 'CSS тесті', subject: 'Информатика', file: 'test/data/css.json' },
 //    '164': { title: 'Жүзден жүйрік 40 (инфо)', subject: 'Информатика', file: 'test/data/juz40info.json' }
+    '165': { title: 'Excel тесті', subject: 'Информатика', file: 'test/data/excel.json' },
 };
 
 function buildTestFileMap() {
