@@ -1772,6 +1772,23 @@ body.is-test-runner #app .question-box .question-text{
   font-family:"Space Grotesk", system-ui, sans-serif;
 }
 
+
+body.is-test-runner #app .question-text ins,
+body.is-test-runner #app .answer-text ins{
+  text-decoration:underline;
+}
+
+body.is-test-runner #app .question-text del,
+body.is-test-runner #app .answer-text del{
+  text-decoration:line-through;
+  opacity:.9;
+}
+
+body.is-test-runner #app .question-text em,
+body.is-test-runner #app .answer-text em{
+  font-style:italic;
+}
+
 body.is-test-runner #app .question-box .result{
   margin:0;
   max-width:none;
@@ -1859,6 +1876,24 @@ body.is-test-runner #app .answer-text{
   font-size:17px;
   color:var(--ink);
   font-weight:600;
+}
+
+body.is-test-runner #app .answer-text p{
+  margin:0;
+}
+
+body.is-test-runner #app .answer-option-image{
+  width:100%;
+  display:flex;
+  justify-content:flex-start;
+}
+
+body.is-test-runner #app .answer-option-image img{
+  max-width:min(100%, 320px);
+  height:auto;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
 }
 
 body.is-test-runner #app .navigation{

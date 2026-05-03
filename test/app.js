@@ -63,7 +63,8 @@ const AVATAR_COLOR_PALETTE = [
     ['#ca8a04', '#92400e'],
     ['#0284c7', '#075985']
 ];
-const TEST_METADATA = {
+const EXTERNAL_TEST_CATALOG_URL = 'test/data/catalog.json';
+let TEST_METADATA = {
     '-2': { title: 'Инфо бойынша тапсыру', subject: 'Информатика' },
     '-1': { title: 'Тарих бойынша тапсыру', subject: 'Қазақстан тарихы' },
     '0': { title: 'Барлығын бірге', subject: 'Жалпы тест' },
@@ -111,6 +112,7 @@ const TEST_METADATA = {
     '163': { title: 'CSS тесті', subject: 'Информатика', file: 'test/data/css.json' },
 //    '164': { title: 'Жүзден жүйрік 40 (инфо)', subject: 'Информатика', file: 'test/data/juz40info.json' }
     '165': { title: 'Excel тесті', subject: 'Информатика', file: 'test/data/excel.json' },
+    '166': { title: 'HTML-CSS-JS-Python', subject: 'Информатика', file: 'test/data/imported/html-css-js-python.json' },
 };
 
 function buildTestFileMap() {
@@ -126,7 +128,57 @@ function buildTestFileMap() {
     return fileMap;
 }
 
-const TEST_FILES = buildTestFileMap();
+let TEST_FILES = buildTestFileMap();
+
+function rebuildTestFileMap() {
+    TEST_FILES = buildTestFileMap();
+}
+
+function mergeExternalTestCatalog(entries) {
+    if (!Array.isArray(entries)) return false;
+
+    let hasChanges = false;
+    entries.forEach((entry) => {
+        if (!entry || typeof entry !== 'object') return;
+        const numericId = Number(entry.id);
+        const file = typeof entry.file === 'string' ? entry.file.trim() : '';
+        const title = typeof entry.title === 'string' ? entry.title.trim() : '';
+        const subject = typeof entry.subject === 'string' ? entry.subject.trim() : '';
+        if (!Number.isInteger(numericId) || numericId <= 0 || !file || !title) return;
+
+        TEST_METADATA[String(numericId)] = {
+            ...TEST_METADATA[String(numericId)],
+            ...entry,
+            id: numericId,
+            title,
+            subject: subject || (TEST_METADATA[String(numericId)] && TEST_METADATA[String(numericId)].subject) || 'Жалпы тест',
+            file
+        };
+        hasChanges = true;
+    });
+
+    if (hasChanges) rebuildTestFileMap();
+    return hasChanges;
+}
+
+function loadExternalTestCatalog() {
+    return fetch(EXTERNAL_TEST_CATALOG_URL, { cache: 'no-store' })
+        .then((response) => {
+            if (!response.ok) {
+                if (response.status === 404) return [];
+                throw new Error(`Каталог жүктелмеді: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((entries) => {
+            if (mergeExternalTestCatalog(entries)) {
+                renderTestTopicLists();
+            }
+        })
+        .catch((error) => {
+            console.warn('Сыртқы тест каталогы жүктелмеді:', error);
+        });
+}
 
 function renderTestTopicLists() {
     const historyRoot = document.getElementById('test-history-topics');
@@ -152,6 +204,7 @@ function renderTestTopicLists() {
     });
 }
 renderTestTopicLists();
+loadExternalTestCatalog();
 
 const RUNNER_SECONDS_PER_QUESTION = {
     instant: 45,
@@ -1730,9 +1783,85 @@ function testgo(x) {
     return String(value ?? '').trim();
   }
 
+  /**
+   * iSpring көп жолды кодті бір-бір `<p>` етіп бөліп жібереді; `<p>` ішінде tab/ws сығылатын болады да,
+   * бірнеше қатар кодты бір `<pre>` ішіне топтап, newline + monospace сақталуына көмектеседі.
+   */
+  function mergeAdjacentSnippetParagraphs(html) {
+    const source = String(html || '');
+    if (!source.includes('<p')) return source;
+    const template = document.createElement('template');
+    template.innerHTML = source;
+    const root = template.content;
+    const children = Array.from(root.children);
+    if (!children.length) return source;
+
+    const looksLikeSnippetLine = (text) => {
+      const s = String(text ?? '').trim();
+      if (!s.length) return false;
+      if (/[<>]/.test(s)) return false;
+      return (
+        /^(?:let|const|var)\s+[A-Za-z_$][\w$]*/.test(s) ||
+        /^if\s*\(/.test(s) ||
+        /^\}\s*else(\s|if\b|$)/.test(s) ||
+        /^else\s*(?:if\s*\(|\{|$)/.test(s) ||
+        /^function\s+[A-Za-z_$]/.test(s) ||
+        /^for\s*\(/.test(s) ||
+        /^while\s*\(/.test(s) ||
+        /^return\b/.test(s) ||
+        /^import\s+/.test(s) ||
+        /^export\s+(?:default\b|const|let|var|function|class|\{)/.test(s) ||
+        /^class\s+[A-Za-z_$]/.test(s) ||
+        /^try\s*\{/.test(s) ||
+        /^catch\s*\(/.test(s) ||
+        /^finally\s*\{/.test(s) ||
+        /^await\s+/.test(s) ||
+        /^console\.\w+/.test(s) ||
+        /^alert\s*\(/.test(s) ||
+        /^\{\s*$/.test(s) ||
+        /^\}\s*$/.test(s) ||
+        /^\}\s*;\s*$/.test(s) ||
+        /^\)\s*;\s*$/.test(s) ||
+        /^\}\s*\)\s*;\s*$/.test(s)
+      );
+    };
+
+    const out = document.createDocumentFragment();
+    let i = 0;
+    while (i < children.length) {
+      const el = children[i];
+      if (el.tagName !== 'P' || !looksLikeSnippetLine(el.textContent)) {
+        out.appendChild(el.cloneNode(true));
+        i += 1;
+        continue;
+      }
+      const run = [];
+      let j = i;
+      while (j < children.length) {
+        const node = children[j];
+        if (node.tagName !== 'P' || !looksLikeSnippetLine(node.textContent)) break;
+        run.push(node);
+        j += 1;
+      }
+      if (run.length >= 2) {
+        const pre = document.createElement('pre');
+        pre.className = 'quiz-program';
+        pre.textContent = run.map((p) => p.textContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n')).join('\n');
+        out.appendChild(pre);
+        i = j;
+      } else {
+        out.appendChild(el.cloneNode(true));
+        i += 1;
+      }
+    }
+    const wrap = document.createElement('div');
+    wrap.appendChild(out);
+    return wrap.innerHTML;
+  }
+
   function sanitizeQuestionHtml(rawHtml) {
     const template = document.createElement('template');
-    template.innerHTML = String(rawHtml || '');
+    template.innerHTML = mergeAdjacentSnippetParagraphs(String(rawHtml || ''));
 
     const blockedTags = ['script', 'iframe', 'object', 'embed', 'link', 'meta', 'style', 'form'];
     blockedTags.forEach((tag) => {
@@ -1758,15 +1887,15 @@ function testgo(x) {
 
   function getCorrectAnswer(question) {
     if (!question || typeof question !== 'object') return '';
-    if (Array.isArray(question.options) && question.options.length > 0) {
-      const firstOption = normalizeAnswerValue(question.options[0]);
-      if (firstOption) return firstOption;
-    }
     if (question.correct !== undefined && question.correct !== null && normalizeAnswerValue(question.correct) !== '') {
       return normalizeAnswerValue(question.correct);
     }
     if (question.answer !== undefined && question.answer !== null && normalizeAnswerValue(question.answer) !== '') {
       return normalizeAnswerValue(question.answer);
+    }
+    if (Array.isArray(question.options) && question.options.length > 0) {
+      const firstOption = normalizeOptionValue(question.options[0]);
+      if (firstOption) return firstOption;
     }
     return '';
   }
@@ -1775,17 +1904,65 @@ function testgo(x) {
     return normalizeAnswerValue(selected) === normalizeAnswerValue(correct);
   }
 
+  function stripHtmlTags(value) {
+    return String(value ?? '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function normalizeOptionValue(option) {
+    if (option && typeof option === 'object') {
+      const directId = normalizeAnswerValue(option.id);
+      if (directId) return directId;
+      const directValue = normalizeAnswerValue(option.value);
+      if (directValue) return directValue;
+      const directText = normalizeAnswerValue(option.text);
+      if (directText) return directText;
+      const htmlText = stripHtmlTags(option.html);
+      if (htmlText) return htmlText;
+    }
+    return normalizeAnswerValue(option);
+  }
+
+  function buildOptionRecord(option, fallbackValue = '') {
+    if (option && typeof option === 'object') {
+      const value = normalizeOptionValue(option) || normalizeAnswerValue(fallbackValue);
+      const text = normalizeAnswerValue(option.text) || stripHtmlTags(option.html) || value;
+      const html = typeof option.html === 'string' ? option.html.trim() : '';
+      const imageUrl = typeof option.image === 'string'
+        ? option.image.trim()
+        : (typeof option.imageUrl === 'string' ? option.imageUrl.trim() : '');
+      return {
+        value,
+        text,
+        html,
+        imageUrl,
+        useHtml: Boolean(option.useHtml || html)
+      };
+    }
+
+    const value = normalizeAnswerValue(option) || normalizeAnswerValue(fallbackValue);
+    return {
+      value,
+      text: value,
+      html: '',
+      imageUrl: '',
+      useHtml: false
+    };
+  }
+
   function sanitizeOptions(options) {
     const unique = [];
     const seen = new Set();
     if (!Array.isArray(options)) return unique;
 
     for (const item of options) {
-      const value = normalizeAnswerValue(item);
-      if (!value) continue;
-      if (seen.has(value)) continue;
-      seen.add(value);
-      unique.push(value);
+      const record = buildOptionRecord(item);
+      if (!record.value) continue;
+      if (seen.has(record.value)) continue;
+      seen.add(record.value);
+      unique.push(record);
     }
 
     return unique;
@@ -1920,25 +2097,35 @@ function testgo(x) {
     const normalizedCorrect = normalizeAnswerValue(correctAnswer);
     const normalizedOptions = sanitizeOptions(options);
 
-    if (normalizedCorrect && !normalizedOptions.includes(normalizedCorrect)) {
-      normalizedOptions.unshift(normalizedCorrect);
+    if (normalizedCorrect && !normalizedOptions.some((option) => isAnswerMatch(option.value, normalizedCorrect))) {
+      normalizedOptions.unshift(buildOptionRecord({ value: normalizedCorrect, text: normalizedCorrect }));
     }
 
     if (!normalizedOptions.length) return [];
     if (normalizedOptions.length <= MAX_TEST_OPTIONS) return shuffle([...normalizedOptions]);
 
-    const wrongOptions = normalizedOptions.filter((opt) => !isAnswerMatch(opt, normalizedCorrect));
+    const wrongOptions = normalizedOptions.filter((opt) => !isAnswerMatch(opt.value, normalizedCorrect));
     const neededWrong = Math.max(0, MAX_TEST_OPTIONS - 1);
     const pickedWrong = shuffle([...wrongOptions]).slice(0, neededWrong);
-    return shuffle([normalizedCorrect, ...pickedWrong]);
+    const correctOption = normalizedOptions.find((opt) => isAnswerMatch(opt.value, normalizedCorrect));
+    if (!correctOption) return shuffle(pickedWrong);
+    return shuffle([correctOption, ...pickedWrong]);
   }
 
-  const allMappedTestIds = Object.keys(TEST_FILES)
-    .map((id) => Number(id))
-    .filter((id) => Number.isInteger(id))
-    .sort((a, b) => a - b);
-  const historyTestIds = allMappedTestIds.filter((id) => id >= 1 && id <= 149);
-  const informaticsTestIds = allMappedTestIds.filter((id) => id >= 150 && id <= 299);
+  function getMappedTestIds() {
+    return Object.keys(TEST_FILES)
+      .map((id) => Number(id))
+      .filter((id) => Number.isInteger(id))
+      .sort((a, b) => a - b);
+  }
+
+  function getSubjectTestIds(subjectName) {
+    const normalizedSubject = String(subjectName || '').trim().toLowerCase();
+    return getMappedTestIds().filter((id) => {
+      const meta = getTestMeta(id);
+      return String(meta.subject || '').trim().toLowerCase() === normalizedSubject;
+    });
+  }
 
   function attachQuestionMeta(questions, testId) {
     const meta = getTestMeta(testId);
@@ -1991,15 +2178,15 @@ function testgo(x) {
     }
 
     if (testId === HISTORY_ALL_TEST_ID) {
-      return loadGroupedTests(historyTestIds);
+      return loadGroupedTests(getSubjectTestIds('Қазақстан тарихы'));
     }
 
     if (testId === INFORMATICS_ALL_TEST_ID) {
-      return loadGroupedTests(informaticsTestIds);
+      return loadGroupedTests(getSubjectTestIds('Информатика'));
     }
 
     if (testId === ALL_SUBJECTS_TEST_ID) {
-      return loadGroupedTests([...historyTestIds, ...informaticsTestIds]);
+      return loadGroupedTests(getMappedTestIds());
     }
 
     return Promise.reject(new Error(`Белгісіз тест ID: ${testId}`));
@@ -2029,7 +2216,7 @@ function testgo(x) {
       if (!item || typeof item !== 'object') continue;
 
       const questionKey = normalizeQuestionText(item.question);
-      const fallbackKey = `${normalizeQuestionText(getCorrectAnswer(item))}|${Array.isArray(item.options) ? item.options.map(normalizeQuestionText).join('|') : ''}`;
+      const fallbackKey = `${normalizeQuestionText(getCorrectAnswer(item))}|${Array.isArray(item.options) ? item.options.map((option) => normalizeQuestionText(normalizeOptionValue(option))).join('|') : ''}`;
       const key = questionKey || fallbackKey;
       if (!key) continue;
       if (seen.has(key)) continue;
@@ -2194,8 +2381,10 @@ function testgo(x) {
     if (!questionText || !correct) return null;
 
     const options = sanitizeOptions(source.options);
-    if (!options.includes(correct)) options.unshift(correct);
-    if (!options.length) options.push(correct);
+    if (!options.some((option) => isAnswerMatch(option.value, correct))) {
+      options.unshift(buildOptionRecord({ value: correct, text: correct }));
+    }
+    if (!options.length) options.push(buildOptionRecord({ value: correct, text: correct }));
 
     return {
       question: questionText,
@@ -2208,7 +2397,8 @@ function testgo(x) {
       contextText2: String(source.contextText2 ?? source.context_text_2 ?? '').trim(),
       imageUrl: typeof source.image === 'string' ? source.image.trim() : '',
       sectionId: String(source.__testId ?? source.sectionId ?? selectedTestId),
-      sectionTitle: String(source.__sectionTitle ?? selectedTestMeta.title),
+      sectionTitle: String(source.sectionTitle || '').trim()
+        || String(source.__sectionTitle ?? selectedTestMeta.title),
       subjectTitle: String(source.__subjectTitle ?? selectedTestMeta.subject)
     };
   }
@@ -2230,6 +2420,30 @@ function testgo(x) {
       }
     } catch {}
     return 'Оқушы';
+  }
+
+  function renderOptionContent(content, option, answerBase) {
+    const record = buildOptionRecord(option);
+    const optionText = document.createElement("div");
+    optionText.className = "answer-text option-text";
+    if (answerBase) {
+      optionText.innerHTML = formatWithBase(record.text || record.value, answerBase);
+    } else if (record.useHtml) {
+      optionText.innerHTML = sanitizeQuestionHtml(record.html || record.text || record.value);
+    } else {
+      optionText.innerText = record.text || record.value;
+    }
+    content.appendChild(optionText);
+
+    if (record.imageUrl) {
+      const optionImageWrap = document.createElement("div");
+      optionImageWrap.className = "answer-option-image";
+      const optionImage = document.createElement("img");
+      optionImage.src = record.imageUrl;
+      optionImage.alt = "Жауап суреті";
+      optionImageWrap.appendChild(optionImage);
+      content.appendChild(optionImageWrap);
+    }
   }
 
   function getCurrentUserProfile() {
@@ -2527,36 +2741,32 @@ function testgo(x) {
     const shuffledOptions = q.displayOptions;
     const answeredValue = answers[current];
     const instantState = instantResults[current];
-    shuffledOptions.forEach((ans, index) => {
+    shuffledOptions.forEach((option, index) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "answer";
       btn.onmousedown = (event) => event.preventDefault();
       btn.ontouchstart = () => {};
-      btn.dataset.value = ans;
+      btn.dataset.value = option.value;
       const letter = document.createElement("div");
       letter.className = "answer-letter";
       letter.textContent = String.fromCharCode(65 + index);
       const content = document.createElement("div");
       content.className = "answer-content";
-      const optionText = document.createElement("div");
-      optionText.className = "answer-text option-text";
-      if (q.answerBase) optionText.innerHTML = formatWithBase(ans, q.answerBase);
-      else optionText.innerText = ans;
-      content.appendChild(optionText);
+      renderOptionContent(content, option, q.answerBase);
       btn.appendChild(letter);
       btn.appendChild(content);
       if (answeredValue !== null && answeredValue !== undefined) {
         btn.style.pointerEvents = "none";
-        if (isAnswerMatch(ans, correctAnswer)) btn.classList.add("correct");
-        if (isAnswerMatch(ans, answeredValue) && instantState && instantState.isCorrect === false) {
+        if (isAnswerMatch(option.value, correctAnswer)) btn.classList.add("correct");
+        if (isAnswerMatch(option.value, answeredValue) && instantState && instantState.isCorrect === false) {
           btn.classList.add("wrong");
         }
-        if (isAnswerMatch(ans, answeredValue) && instantState && instantState.isCorrect === true) {
+        if (isAnswerMatch(option.value, answeredValue) && instantState && instantState.isCorrect === true) {
           btn.classList.add("correct");
         }
       } else {
-        btn.onclick = () => select(ans, correctAnswer, btn);
+        btn.onclick = () => select(option.value, correctAnswer, btn);
       }
       box.appendChild(btn);
     });
@@ -2571,28 +2781,24 @@ function testgo(x) {
 
     const optionsWrap = box.querySelector(".exam-options");
     if (optionsWrap) {
-      options.forEach((ans, index) => {
+      options.forEach((option, index) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "answer";
         btn.onmousedown = (event) => event.preventDefault();
         btn.ontouchstart = () => {};
-        if (isAnswerMatch(selectedValue, ans)) btn.classList.add("selected");
-        btn.dataset.value = ans;
+        if (isAnswerMatch(selectedValue, option.value)) btn.classList.add("selected");
+        btn.dataset.value = option.value;
         const letter = document.createElement("div");
         letter.className = "answer-letter";
         letter.textContent = String.fromCharCode(65 + index);
         const content = document.createElement("div");
         content.className = "answer-content";
-        const optionText = document.createElement("div");
-        optionText.className = "answer-text option-text";
-        if (question.answerBase) optionText.innerHTML = formatWithBase(ans, question.answerBase);
-        else optionText.innerText = ans;
-        content.appendChild(optionText);
+        renderOptionContent(content, option, question.answerBase);
         btn.appendChild(letter);
         btn.appendChild(content);
         btn.onclick = () => {
-          answers[current] = isAnswerMatch(answers[current], ans) ? null : ans;
+          answers[current] = isAnswerMatch(answers[current], option.value) ? null : option.value;
           render();
         };
         optionsWrap.appendChild(btn);

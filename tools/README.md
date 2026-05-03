@@ -31,3 +31,22 @@ Tampermonkey/Violentmonkey userscript that runs on `web.telegram.org` and:
 - This is **best-effort DOM extraction**. If Telegram updates their HTML structure, selectors may need updating.
 - If a quiz correct answer isn't visible in DOM, `answer` will be empty.
 
+## `ispring_quiz_to_site.py`
+
+Converts an **iSpring QuizMaker `.quiz`** archive into this site's test format:
+
+- generates `test/data/imported/<slug>.json`
+- copies question and choice images into `test/assets/quizzes/<slug>/...`
+- updates `test/data/catalog.json` so the new test appears in the UI automatically
+
+### Example
+
+```bash
+python3 tools/ispring_quiz_to_site.py ~/Downloads/sample.quiz --subject "Информатика" --title "HTML тесті"
+```
+
+### Notes
+
+- Question HTML is preserved, so superscript/subscript and formatted text stay visible.
+- Choice images are preserved and rendered inside answer buttons.
+- If `--test-id` is omitted, the script auto-picks a free id.
