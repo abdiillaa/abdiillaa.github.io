@@ -1766,7 +1766,6 @@ body.is-test-runner #app .question-image img{
 
 body.is-test-runner #app .question-box .question-text{
   font-size:24px;
-  font-weight:700;
   color:var(--ink);
   line-height:1.4;
   font-family:"Space Grotesk", system-ui, sans-serif;
