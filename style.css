@@ -1746,6 +1746,11 @@ h1 {
     gap: 16px;
 }
 
+.feature-link-card > div {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 .feature-link-eyebrow {
     margin: 0 0 8px;
     color: #0f766e;
@@ -1768,6 +1773,12 @@ h1 {
 }
 
 .feature-link-btn {
+    width: auto;
+    min-width: 160px;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     padding: 10px 14px;
     border-radius: 10px;
