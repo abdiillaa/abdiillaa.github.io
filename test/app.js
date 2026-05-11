@@ -219,6 +219,7 @@ const RUNNER_UI = {
     activeApi: null,
     timerId: null,
     widgetsInitialized: false,
+    quizKeyHandler: null,
     topZIndex: 10020,
     fullscreenBound: false
 };
@@ -705,6 +706,19 @@ function closeRunnerFinishModal(event) {
     if (event && event.target !== event.currentTarget) return;
     const modal = document.getElementById('runnerFinishModal');
     if (modal) modal.hidden = true;
+}
+
+function removeQuizHotkeys() {
+    if (!RUNNER_UI.quizKeyHandler) return;
+    document.removeEventListener('keydown', RUNNER_UI.quizKeyHandler);
+    RUNNER_UI.quizKeyHandler = null;
+}
+
+function installQuizHotkeys(handler) {
+    removeQuizHotkeys();
+    if (typeof handler !== 'function') return;
+    RUNNER_UI.quizKeyHandler = handler;
+    document.addEventListener('keydown', handler);
 }
 
 function openRunnerSubjectsModal() {
@@ -1710,6 +1724,7 @@ function goBackFromTest() {
   const homeMenu = document.getElementById("homemenu");
 
   clearRunnerTimer();
+  removeQuizHotkeys();
   RUNNER_UI.activeApi = null;
   closeRunnerSubjectsModal();
   closeRunnerFinishModal();
@@ -2277,6 +2292,7 @@ function testgo(x) {
       renderFinishModal,
       confirmFinish: () => finishCurrentTest(true)
     };
+    setupQuizHotkeys();
     startRunnerTimer();
     render();
   }
@@ -2584,6 +2600,43 @@ function testgo(x) {
     active.blur();
   }
 
+  function isTypingTarget(target) {
+    if (!target || !(target instanceof HTMLElement)) return false;
+    const tagName = target.tagName;
+    return target.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+  }
+
+  function isRunnerModalOpen() {
+    return ['runnerSubjectsModal', 'runnerToolsModal', 'runnerFinishModal'].some((id) => {
+      const element = document.getElementById(id);
+      return element && !element.hidden;
+    });
+  }
+
+  function isCalculatorOpen() {
+    const calcWidget = document.getElementById('calc-widget');
+    return Boolean(calcWidget && calcWidget.style.display === 'block');
+  }
+
+  function closeOpenRunnerModal() {
+    const finishModal = document.getElementById('runnerFinishModal');
+    if (finishModal && !finishModal.hidden) {
+      closeRunnerFinishModal();
+      return true;
+    }
+    const toolsModal = document.getElementById('runnerToolsModal');
+    if (toolsModal && !toolsModal.hidden) {
+      closeRunnerToolsModal();
+      return true;
+    }
+    const subjectsModal = document.getElementById('runnerSubjectsModal');
+    if (subjectsModal && !subjectsModal.hidden) {
+      closeRunnerSubjectsModal();
+      return true;
+    }
+    return false;
+  }
+
   function isCoarsePointerDevice() {
     return typeof window !== 'undefined'
       && typeof window.matchMedia === 'function'
@@ -2595,6 +2648,120 @@ function testgo(x) {
     requestAnimationFrame(() => {
       clearRunnerFocus();
       requestAnimationFrame(() => clearRunnerFocus());
+    });
+  }
+
+  function activateCurrentOptionByIndex(index) {
+    const buttons = Array.from(document.querySelectorAll('#options .answer'));
+    const target = buttons[index];
+    if (!target || target.disabled || target.style.pointerEvents === 'none') return false;
+    target.click();
+    return true;
+  }
+
+  function focusCurrentOptionByIndex(index) {
+    const buttons = Array.from(document.querySelectorAll('#options .answer'));
+    const target = buttons[index];
+    if (!target || target.disabled || target.style.pointerEvents === 'none') return false;
+    target.focus();
+    return true;
+  }
+
+  function activateFocusedOption() {
+    const active = document.activeElement;
+    if (!(active instanceof HTMLElement)) return false;
+    if (!active.matches('#options .answer')) return false;
+    if (active.disabled || active.style.pointerEvents === 'none') return false;
+    active.click();
+    return true;
+  }
+
+  function getAnswerHotkeyIndex(key) {
+    const normalizedKey = String(key || '').toLowerCase();
+    const answerKeys = ['a', 's', 'd', 'f'];
+    return answerKeys.indexOf(normalizedKey);
+  }
+
+  function handleExamHotkey(key) {
+    const answerIndex = getAnswerHotkeyIndex(key);
+    if (answerIndex >= 0) return focusCurrentOptionByIndex(answerIndex);
+    if (key === ' ' || key === 'Enter') return activateFocusedOption();
+    if (key === 'ArrowLeft' || key === 'z' || key === 'Z') {
+      goExamStep(-1);
+      return true;
+    }
+    if (key === 'ArrowRight' || key === 'x' || key === 'X') {
+      if (current === test.length - 1) openRunnerFinishModal();
+      else goExamStep(1);
+      return true;
+    }
+    return false;
+  }
+
+  function handleInstantHotkey(key) {
+    const answerIndex = getAnswerHotkeyIndex(key);
+    if (answerIndex >= 0) return focusCurrentOptionByIndex(answerIndex);
+    if (key === ' ' || key === 'Enter') return activateFocusedOption();
+    if ((key === 'ArrowLeft' || key === 'z' || key === 'Z') && current > 0) {
+      current = clampNumber(current - 1, 0, test.length - 1);
+      render();
+      return true;
+    }
+    if ((key === 'ArrowRight' || key === 'x' || key === 'X') && answers[current] !== null && answers[current] !== undefined) {
+      if (current === test.length - 1) openRunnerFinishModal();
+      else {
+        current += 1;
+        render();
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function handleSelfCheckHotkey(key) {
+    const tapZone = document.querySelector('#options .self-tap-zone');
+    const goodBtn = document.querySelector('#options .self-good-btn');
+    const badBtn = document.querySelector('#options .self-bad-btn');
+
+    if ((key === 'Enter' || key === ' ') && tapZone && !tapZone.disabled) {
+      tapZone.click();
+      return true;
+    }
+    if ((key === 'f' || key === 'F') && goodBtn && !goodBtn.disabled) {
+      goodBtn.click();
+      return true;
+    }
+    if ((key === 'd' || key === 'D') && badBtn && !badBtn.disabled) {
+      badBtn.click();
+      return true;
+    }
+    if ((key === 'ArrowLeft' || key === 'z' || key === 'Z') && current > 0) {
+      current = clampNumber(current - 1, 0, test.length - 1);
+      render();
+      return true;
+    }
+    return false;
+  }
+
+  function setupQuizHotkeys() {
+    installQuizHotkeys((event) => {
+      if (!document.body.classList.contains('is-test-runner')) return;
+      if (current >= test.length) return;
+      if (isTypingTarget(event.target)) return;
+
+      if (event.key === 'Escape') {
+        if (closeOpenRunnerModal()) event.preventDefault();
+        return;
+      }
+
+      if (isRunnerModalOpen() || isCalculatorOpen()) return;
+
+      let handled = false;
+      if (ACTIVE_TEST_MODE === EXAM_MODE) handled = handleExamHotkey(event.key);
+      else if (ACTIVE_TEST_MODE === SELF_CHECK_MODE) handled = handleSelfCheckHotkey(event.key);
+      else handled = handleInstantHotkey(event.key);
+
+      if (handled) event.preventDefault();
     });
   }
 
@@ -2934,6 +3101,7 @@ function testgo(x) {
 
   function finish() {
     clearRunnerTimer();
+    removeQuizHotkeys();
     RUNNER_UI.activeApi = null;
     closeRunnerSubjectsModal();
     closeRunnerFinishModal();

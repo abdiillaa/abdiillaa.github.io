@@ -383,6 +383,14 @@ body.is-test-runner #app.container{
   min-width:140px;
 }
 
+#app .runner-shortcut-hint{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+  text-align:center;
+}
+
 #app .runner-nav-spacer{
   width:180px;
   flex:0 0 180px;
@@ -1820,6 +1828,13 @@ body.is-test-runner #app .answer{
 }
 
 body.is-test-runner #app .answer:hover{
+  border-color:var(--brand);
+  background-color:#f1fbf9;
+}
+
+body.is-test-runner #app .answer:focus-visible{
+  outline:3px solid rgba(11,107,104,.22);
+  outline-offset:2px;
   border-color:var(--brand);
   background-color:#f1fbf9;
 }
