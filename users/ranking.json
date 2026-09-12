@@ -136,23 +136,6 @@
     "type": "ҰБТ"
   },
   {
-    "name": "Атажанов Салахитдин",
-    "avatar": "avatars/salah.jpg",
-    "score": 89,
-    "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      72,
-      86,
-      93,
-      83,
-      89
-    ],
-    "type": "ҰБТ"
-  },
-  {
     "name": "Қыдырбай Мирас",
     "avatar": "avatars/miras.jpg",
     "score": 87,
@@ -255,23 +238,6 @@
     "type": "ҰБТ"
   },
   {
-    "name": "Оралбай Нұрәлі",
-    "avatar": "avatars/nurali.jpg",
-    "score": 63,
-    "totalHistory": [
-      58,
-      80,
-      78,
-      70,
-      69,
-      70,
-      71,
-      69,
-      63
-    ],
-    "type": "ҰБТ"
-  },
-  {
     "name": "Әділхан Қасымжомарт",
     "avatar": "avatars/kasym.jpg",
     "score": 56,
@@ -323,23 +289,6 @@
     "type": "ҰБТ"
   },
   {
-    "name": "Жанабатыр Азиз",
-    "avatar": "avatars/aziz.jpg",
-    "score": 37,
-    "totalHistory": [
-      45,
-      0,
-      46,
-      0,
-      0,
-      53,
-      0,
-      35,
-      37
-    ],
-    "type": "ҰБТ"
-  },
-  {
     "name": "Азаматқызы Айкен",
     "avatar": "avatars/aiken.jpg",
     "score": 0,
@@ -357,17 +306,119 @@
     "type": "ҰБТ"
   },
   {
-    "name": "Рустемулы Есімхан",
-    "avatar": "avatars/esimhan.jpg",
+    "name": "Балхожа Кәусар",
+    "avatar": "avatars/shadiyar.jpg",
     "score": 0,
     "totalHistory": [
-      71,
-      60,
-      70,
-      59,
       0,
-      69,
-      71,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Әлібек Ақсезім",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 0,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Гайруллаев Сардор",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 0,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Нарынбетов Асыларман",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 0,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Альбина",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 0,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Абай",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 0,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Тажиддинов Ахмаджан",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 0,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       0,
       0
     ],
