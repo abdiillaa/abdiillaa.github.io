@@ -2,7 +2,7 @@
   {
     "name": "Болғанбай Рамазан",
     "avatar": "avatars/roma.jpg",
-    "score": 124,
+    "score": 137,
     "totalHistory": [
       115,
       119,
@@ -12,65 +12,15 @@
       114,
       120,
       129,
-      124
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Муратов Нурсеит",
-    "avatar": "avatars/nurseit.jpg",
-    "score": 122,
-    "totalHistory": [
-      106,
-      106,
-      117,
-      109,
-      119,
-      121,
-      125,
-      121,
-      122
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Абдусаматов Улугбек",
-    "avatar": "avatars/ulugbek.jpg",
-    "score": 105,
-    "totalHistory": [
-      103,
-      110,
-      105,
-      104,
-      112,
-      122,
-      114,
-      116,
-      105
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Абдилла Саян",
-    "avatar": "avatars/sayan.jpg",
-    "score": 104,
-    "totalHistory": [
-      86,
-      92,
-      100,
-      78,
-      95,
-      105,
-      115,
-      115,
-      104
+      124,
+      137
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Ордабай Айсана",
     "avatar": "avatars/aysana.jpg",
-    "score": 97,
+    "score": 131,
     "totalHistory": [
       111,
       122,
@@ -80,48 +30,69 @@
       113,
       113,
       109,
-      97
+      97,
+      131
     ],
     "type": "ҰБТ"
   },
   {
-    "name": "Төлеубек Жанболат",
-    "avatar": "avatars/zhanbolat.jpg",
-    "score": 93,
+    "name": "Абдусаматов Улугбек",
+    "avatar": "avatars/ulugbek.jpg",
+    "score": 128,
     "totalHistory": [
-      81,
-      77,
-      78,
-      72,
-      74,
-      84,
-      93,
-      93,
-      93
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Әлімхан Дінмұхаммет",
-    "avatar": "avatars/dinmuh.jpg",
-    "score": 90,
-    "totalHistory": [
-      104,
-      106,
-      104,
-      108,
-      108,
-      104,
+      103,
+      110,
       105,
+      104,
+      112,
+      122,
+      114,
+      116,
+      105,
+      128
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Абдилла Саян",
+    "avatar": "avatars/sayan.jpg",
+    "score": 126,
+    "totalHistory": [
+      86,
+      92,
       100,
-      90
+      78,
+      95,
+      105,
+      115,
+      115,
+      104,
+      126
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Муратов Нурсеит",
+    "avatar": "avatars/nurseit.jpg",
+    "score": 125,
+    "totalHistory": [
+      106,
+      106,
+      117,
+      109,
+      119,
+      121,
+      125,
+      121,
+      122,
+      125
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Ермекбай Бейбіт",
     "avatar": "avatars/beybit.jpg",
-    "score": 89,
+    "score": 124,
     "totalHistory": [
       99,
       99,
@@ -131,48 +102,51 @@
       93,
       104,
       99,
-      89
+      89,
+      124
     ],
     "type": "ҰБТ"
   },
   {
-    "name": "Қыдырбай Мирас",
-    "avatar": "avatars/miras.jpg",
-    "score": 87,
+    "name": "Әлімхан Дінмұхаммет",
+    "avatar": "avatars/dinmuh.jpg",
+    "score": 117,
     "totalHistory": [
-      73,
-      56,
-      73,
-      78,
-      76,
-      73,
-      81,
-      91,
-      87
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Ермахан Нұрхан",
-    "avatar": "avatars/nurkhan.jpg",
-    "score": 84,
-    "totalHistory": [
-      91,
-      99,
-      99,
       104,
-      94,
-      94,
-      107,
-      88,
-      84
+      106,
+      104,
+      108,
+      108,
+      104,
+      105,
+      100,
+      90,
+      117
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Тажиддинов Ахмаджан",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 117,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      117
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Оспанов Қайрат",
     "avatar": "avatars/kairat.jpg",
-    "score": 84,
+    "score": 116,
     "totalHistory": [
       109,
       90,
@@ -182,31 +156,105 @@
       87,
       95,
       106,
-      84
+      84,
+      116
     ],
     "type": "ҰБТ"
   },
   {
-    "name": "Серікғали Жансұлу",
-    "avatar": "avatars/zhansulu.jpg",
-    "score": 72,
+    "name": "Әлібек Ақсезім",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 115,
     "totalHistory": [
-      66,
-      68,
-      90,
-      77,
-      79,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      115
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Ермахан Нұрхан",
+    "avatar": "avatars/nurkhan.jpg",
+    "score": 109,
+    "totalHistory": [
+      91,
+      99,
+      99,
+      104,
+      94,
+      94,
+      107,
+      88,
+      84,
+      109
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Қыдырбай Мирас",
+    "avatar": "avatars/miras.jpg",
+    "score": 106,
+    "totalHistory": [
+      73,
+      56,
+      73,
+      78,
+      76,
+      73,
       81,
-      82,
-      77,
-      72
+      91,
+      87,
+      106
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Нарынбетов Асыларман",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 101,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      101
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Альбина",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 99,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      99
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Байдулла Тәңірберген",
     "avatar": "avatars/tanir.jpg",
-    "score": 70,
+    "score": 95,
     "totalHistory": [
       0,
       0,
@@ -216,31 +264,15 @@
       81,
       77,
       76,
-      70
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Аманқұлов Асылбек",
-    "avatar": "avatars/asylbek.jpg",
-    "score": 67,
-    "totalHistory": [
-      64,
-      66,
-      0,
-      71,
-      58,
-      81,
-      71,
-      66,
-      67
+      70,
+      95
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Әділхан Қасымжомарт",
     "avatar": "avatars/kasym.jpg",
-    "score": 56,
+    "score": 92,
     "totalHistory": [
       68,
       62,
@@ -250,14 +282,87 @@
       78,
       67,
       78,
-      56
+      56,
+      92
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Серікғали Жансұлу",
+    "avatar": "avatars/zhansulu.jpg",
+    "score": 87,
+    "totalHistory": [
+      66,
+      68,
+      90,
+      77,
+      79,
+      81,
+      82,
+      77,
+      72,
+      87
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Аманқұлов Асылбек",
+    "avatar": "avatars/asylbek.jpg",
+    "score": 85,
+    "totalHistory": [
+      64,
+      66,
+      0,
+      71,
+      58,
+      81,
+      71,
+      66,
+      67,
+      85
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Абай",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 71,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      71
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Балхожа Кәусар",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 70,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      70
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Жақсыбек Шадияр",
     "avatar": "avatars/shadiyar.jpg",
-    "score": 41,
+    "score": 63,
     "totalHistory": [
       0,
       0,
@@ -267,14 +372,15 @@
       0,
       50,
       37,
-      41
+      41,
+      63
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Гафиржан Зияда",
     "avatar": "avatars/ziyada.jpg",
-    "score": 37,
+    "score": 58,
     "totalHistory": [
       0,
       0,
@@ -284,14 +390,33 @@
       50,
       43,
       56,
-      37
+      37,
+      58
+    ],
+    "type": "ҰБТ"
+  },
+  {
+    "name": "Гайруллаев Сардор",
+    "avatar": "avatars/shadiyar.jpg",
+    "score": 51,
+    "totalHistory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      51
     ],
     "type": "ҰБТ"
   },
   {
     "name": "Азаматқызы Айкен",
     "avatar": "avatars/aiken.jpg",
-    "score": 0,
+    "score": 44,
     "totalHistory": [
       35,
       46,
@@ -301,125 +426,25 @@
       40,
       0,
       47,
-      0
+      0,
+      44
     ],
     "type": "ҰБТ"
   },
   {
-    "name": "Балхожа Кәусар",
-    "avatar": "avatars/shadiyar.jpg",
+    "name": "Төлеубек Жанболат",
+    "avatar": "avatars/zhanbolat.jpg",
     "score": 0,
     "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Әлібек Ақсезім",
-    "avatar": "avatars/shadiyar.jpg",
-    "score": 0,
-    "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Гайруллаев Сардор",
-    "avatar": "avatars/shadiyar.jpg",
-    "score": 0,
-    "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Нарынбетов Асыларман",
-    "avatar": "avatars/shadiyar.jpg",
-    "score": 0,
-    "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Альбина",
-    "avatar": "avatars/shadiyar.jpg",
-    "score": 0,
-    "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Абай",
-    "avatar": "avatars/shadiyar.jpg",
-    "score": 0,
-    "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Тажиддинов Ахмаджан",
-    "avatar": "avatars/shadiyar.jpg",
-    "score": 0,
-    "totalHistory": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
+      81,
+      77,
+      78,
+      72,
+      74,
+      84,
+      93,
+      93,
+      93,
       0
     ],
     "type": "ҰБТ"

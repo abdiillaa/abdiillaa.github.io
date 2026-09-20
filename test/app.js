@@ -4,15 +4,16 @@ const ENCRYPTED_USERS_DIR = 'users';
 const ENCRYPTION_ITERATIONS = 250000;
 let rankingData = [];
 const RANKING_HISTORY_MONTHS = [
-    'Қыркүйек',
-    'Қазан',
-    'Қараша',
-    'Желтоқсан',
-    'Қаңтар',
-    'Ақпан',
-    'Наурыз',
-    'Сәуір',
-    'Мамыр'
+    'Қыркүйек-2025',
+    'Қазан-2025',
+    'Қараша-2025',
+    'Желтоқсан-2025',
+    'Қаңтар-2026',
+    'Ақпан-2026',
+    'Наурыз-2026',
+    'Сәуір-2026',
+    'Мамыр-2026',
+    'Қыркүйек-2026'
 ];
 const RANKING_MODES = [
     ...RANKING_HISTORY_MONTHS.map((month, index) => ({ value: `month-${index}`, label: month })),
