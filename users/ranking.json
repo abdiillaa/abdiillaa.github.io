@@ -180,6 +180,24 @@
     "type": "ҰБТ"
   },
   {
+    "name": "Төлеубек Жанболат",
+    "avatar": "avatars/zhanbolat.jpg",
+    "score": 112,
+    "totalHistory": [
+      81,
+      77,
+      78,
+      72,
+      74,
+      84,
+      93,
+      93,
+      93,
+      112
+    ],
+    "type": "ҰБТ"
+  },
+  {
     "name": "Ермахан Нұрхан",
     "avatar": "avatars/nurkhan.jpg",
     "score": 109,
@@ -428,24 +446,6 @@
       47,
       0,
       44
-    ],
-    "type": "ҰБТ"
-  },
-  {
-    "name": "Төлеубек Жанболат",
-    "avatar": "avatars/zhanbolat.jpg",
-    "score": 0,
-    "totalHistory": [
-      81,
-      77,
-      78,
-      72,
-      74,
-      84,
-      93,
-      93,
-      93,
-      0
     ],
     "type": "ҰБТ"
   }
