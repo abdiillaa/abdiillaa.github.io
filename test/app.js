@@ -13,7 +13,8 @@ const RANKING_HISTORY_MONTHS = [
     'Наурыз-2026',
     'Сәуір-2026',
     'Мамыр-2026',
-    'Қыркүйек-2026'
+    'Қыркүйек-2026',
+    'Қазан-2026'
 ];
 const RANKING_MODES = [
     ...RANKING_HISTORY_MONTHS.map((month, index) => ({ value: `month-${index}`, label: month })),
